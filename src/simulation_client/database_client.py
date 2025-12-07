@@ -81,12 +81,12 @@ class AsyncDatabaseClient(AsyncBaseClient):
 
     # ==================== Управление поставщиками ====================
 
-    async def get_all_suppliers(self) -> List[SupplierModel]:
+    async def get_all_suppliers(self) -> GetAllSuppliersResponse:
         """
         Получить всех поставщиков.
 
         Returns:
-            List[SupplierModel]: Список поставщиков
+            GetAllSuppliersResponse: Ответ со всеми поставщиками
         """
         try:
             async with self._timeout_context():
@@ -95,73 +95,119 @@ class AsyncDatabaseClient(AsyncBaseClient):
                     self.stub.get_all_suppliers, simulator_pb2.GetAllSuppliersRequest()
                 )
 
-                return [
-                    SupplierModel(
-                        supplier_id=s.supplier_id,
-                        name=s.name,
-                        product_name=s.product_name,
-                        delivery_period=s.delivery_period,
-                        special_delivery_period=s.special_delivery_period,
-                        reliability=s.reliability,
-                        product_quality=s.product_quality,
-                        cost=s.cost,
-                        special_delivery_cost=s.special_delivery_cost,
-                    )
-                    for s in response.suppliers
-                ]
+                return GetAllSuppliersResponse(
+                    suppliers=[self._proto_to_supplier(s) for s in response.suppliers],
+                    total_count=response.total_count,
+                )
 
         except grpc.RpcError as e:
             self._handle_grpc_error(e, "Get all suppliers")
 
-    async def create_supplier(self, supplier: SupplierModel) -> SupplierModel:
+    async def create_supplier(self, request: CreateSupplierRequest) -> Supplier:
         """
         Создать нового поставщика.
 
         Args:
-            supplier: Модель поставщика
+            request: Запрос создания поставщика
 
         Returns:
-            SupplierModel: Созданный поставщик
+            Supplier: Созданный поставщик
         """
         try:
             async with self._timeout_context():
                 await self._rate_limit()
-                request = simulator_pb2.CreateSupplierRequest(
-                    name=supplier.name,
-                    product_name=supplier.product_name,
-                    delivery_period=supplier.delivery_period,
-                    special_delivery_period=supplier.special_delivery_period,
-                    reliability=supplier.reliability,
-                    product_quality=supplier.product_quality,
-                    cost=supplier.cost,
-                    special_delivery_cost=supplier.special_delivery_cost,
+                proto_request = simulator_pb2.CreateSupplierRequest(
+                    name=request.name,
+                    product_name=request.product_name,
+                    delivery_period=request.delivery_period,
+                    special_delivery_period=request.special_delivery_period,
+                    reliability=request.reliability,
+                    product_quality=request.product_quality,
+                    cost=request.cost,
+                    special_delivery_cost=request.special_delivery_cost,
                 )
 
-                response = await self._with_retry(self.stub.create_supplier, request)
-
-                return SupplierModel(
-                    supplier_id=response.supplier_id,
-                    name=response.name,
-                    product_name=response.product_name,
-                    delivery_period=response.delivery_period,
-                    special_delivery_period=response.special_delivery_period,
-                    reliability=response.reliability,
-                    product_quality=response.product_quality,
-                    cost=response.cost,
-                    special_delivery_cost=response.special_delivery_cost,
+                response = await self._with_retry(
+                    self.stub.create_supplier, proto_request
                 )
+
+                return self._proto_to_supplier(response)
 
         except grpc.RpcError as e:
             self._handle_grpc_error(e, "Create supplier")
 
+    async def update_supplier(self, request: UpdateSupplierRequest) -> Supplier:
+        """
+        Обновить поставщика.
+
+        Args:
+            request: Запрос обновления поставщика
+
+        Returns:
+            Supplier: Обновленный поставщик
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                proto_request = simulator_pb2.UpdateSupplierRequest(
+                    supplier_id=request.supplier_id,
+                    name=request.name,
+                    product_name=request.product_name,
+                    delivery_period=request.delivery_period,
+                    special_delivery_period=request.special_delivery_period,
+                    reliability=request.reliability,
+                    product_quality=request.product_quality,
+                    cost=request.cost,
+                    special_delivery_cost=request.special_delivery_cost,
+                )
+
+                response = await self._with_retry(
+                    self.stub.update_supplier, proto_request
+                )
+
+                return self._proto_to_supplier(response)
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Update supplier")
+
+    async def delete_supplier(self, request: DeleteSupplierRequest) -> SuccessResponse:
+        """
+        Удалить поставщика.
+
+        Args:
+            request: Запрос удаления поставщика
+
+        Returns:
+            SuccessResponse: Результат удаления
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                proto_request = simulator_pb2.DeleteSupplierRequest(
+                    supplier_id=request.supplier_id
+                )
+
+                response = await self._with_retry(
+                    self.stub.delete_supplier, proto_request
+                )
+
+                return SuccessResponse(
+                    success=response.success,
+                    message=response.message,
+                    timestamp=response.timestamp,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Delete supplier")
+
     # ==================== Управление работниками ====================
 
-    async def get_all_workers(self) -> List[WorkerModel]:
+    async def get_all_workers(self) -> GetAllWorkersResponse:
         """
         Получить всех работников.
 
         Returns:
-            List[WorkerModel]: Список работников
+            GetAllWorkersResponse: Ответ со всеми работниками
         """
         try:
             async with self._timeout_context():
@@ -170,26 +216,111 @@ class AsyncDatabaseClient(AsyncBaseClient):
                     self.stub.get_all_workers, simulator_pb2.GetAllWorkersRequest()
                 )
 
-                return [
-                    WorkerModel(
-                        worker_id=w.worker_id,
-                        name=w.name,
-                        qualification=w.qualification,
-                        specialty=w.specialty,
-                        salary=w.salary,
-                    )
-                    for w in response.workers
-                ]
+                return GetAllWorkersResponse(
+                    workers=[self._proto_to_worker(w) for w in response.workers],
+                    total_count=response.total_count,
+                )
 
         except grpc.RpcError as e:
             self._handle_grpc_error(e, "Get all workers")
 
-    async def get_all_logists(self) -> List[LogistModel]:
+    async def create_worker(self, request: CreateWorkerRequest) -> Worker:
+        """
+        Создать нового работника.
+
+        Args:
+            request: Запрос создания работника
+
+        Returns:
+            Worker: Созданный работник
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                proto_request = simulator_pb2.CreateWorkerRequest(
+                    name=request.name,
+                    qualification=request.qualification,
+                    specialty=request.specialty,
+                    salary=request.salary,
+                )
+
+                response = await self._with_retry(
+                    self.stub.create_worker, proto_request
+                )
+
+                return self._proto_to_worker(response)
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Create worker")
+
+    async def update_worker(self, request: UpdateWorkerRequest) -> Worker:
+        """
+        Обновить работника.
+
+        Args:
+            request: Запрос обновления работника
+
+        Returns:
+            Worker: Обновленный работник
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                proto_request = simulator_pb2.UpdateWorkerRequest(
+                    worker_id=request.worker_id,
+                    name=request.name,
+                    qualification=request.qualification,
+                    specialty=request.specialty,
+                    salary=request.salary,
+                )
+
+                response = await self._with_retry(
+                    self.stub.update_worker, proto_request
+                )
+
+                return self._proto_to_worker(response)
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Update worker")
+
+    async def delete_worker(self, request: DeleteWorkerRequest) -> SuccessResponse:
+        """
+        Удалить работника.
+
+        Args:
+            request: Запрос удаления работника
+
+        Returns:
+            SuccessResponse: Результат удаления
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                proto_request = simulator_pb2.DeleteWorkerRequest(
+                    worker_id=request.worker_id
+                )
+
+                response = await self._with_retry(
+                    self.stub.delete_worker, proto_request
+                )
+
+                return SuccessResponse(
+                    success=response.success,
+                    message=response.message,
+                    timestamp=response.timestamp,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Delete worker")
+
+    # ==================== Управление логистами ====================
+
+    async def get_all_logists(self) -> GetAllLogistsResponse:
         """
         Получить всех логистов.
 
         Returns:
-            List[LogistModel]: Список логистов
+            GetAllLogistsResponse: Ответ со всеми логистами
         """
         try:
             async with self._timeout_context():
@@ -198,100 +329,115 @@ class AsyncDatabaseClient(AsyncBaseClient):
                     self.stub.get_all_logists, simulator_pb2.GetAllLogistsRequest()
                 )
 
-                return [
-                    LogistModel(
-                        worker_id=l.worker_id,
-                        name=l.name,
-                        qualification=l.qualification,
-                        specialty=l.specialty,
-                        salary=l.salary,
-                        speed=l.speed,
-                        vehicle_type=l.vehicle_type,
-                    )
-                    for l in response.logists
-                ]
+                return GetAllLogistsResponse(
+                    logists=[self._proto_to_logist(l) for l in response.logists],
+                    total_count=response.total_count,
+                )
 
         except grpc.RpcError as e:
             self._handle_grpc_error(e, "Get all logists")
 
-    async def create_worker(self, worker: WorkerModel) -> WorkerModel:
-        """
-        Создать нового работника.
-
-        Args:
-            worker: Модель работника
-
-        Returns:
-            WorkerModel: Созданный работник
-        """
-        try:
-            async with self._timeout_context():
-                await self._rate_limit()
-                request = simulator_pb2.CreateWorkerRequest(
-                    name=worker.name,
-                    qualification=worker.qualification,
-                    specialty=worker.specialty,
-                    salary=worker.salary,
-                )
-
-                response = await self._with_retry(self.stub.create_worker, request)
-
-                return WorkerModel(
-                    worker_id=response.worker_id,
-                    name=response.name,
-                    qualification=response.qualification,
-                    specialty=response.specialty,
-                    salary=response.salary,
-                )
-
-        except grpc.RpcError as e:
-            self._handle_grpc_error(e, "Create worker")
-
-    async def create_logist(self, logist: LogistModel) -> LogistModel:
+    async def create_logist(self, request: CreateLogistRequest) -> Logist:
         """
         Создать нового логиста.
 
         Args:
-            logist: Модель логиста
+            request: Запрос создания логиста
 
         Returns:
-            LogistModel: Созданный логист
+            Logist: Созданный логист
         """
         try:
             async with self._timeout_context():
                 await self._rate_limit()
-                request = simulator_pb2.CreateLogistRequest(
-                    name=logist.name,
-                    qualification=logist.qualification,
-                    specialty=logist.specialty,
-                    salary=logist.salary,
-                    speed=logist.speed,
-                    vehicle_type=logist.vehicle_type,
+                proto_request = simulator_pb2.CreateLogistRequest(
+                    name=request.name,
+                    qualification=request.qualification,
+                    specialty=request.specialty,
+                    salary=request.salary,
+                    speed=request.speed,
+                    vehicle_type=request.vehicle_type,
                 )
 
-                response = await self._with_retry(self.stub.create_logist, request)
-
-                return LogistModel(
-                    worker_id=response.worker_id,
-                    name=response.name,
-                    qualification=response.qualification,
-                    specialty=response.specialty,
-                    salary=response.salary,
-                    speed=response.speed,
-                    vehicle_type=response.vehicle_type,
+                response = await self._with_retry(
+                    self.stub.create_logist, proto_request
                 )
+
+                return self._proto_to_logist(response)
 
         except grpc.RpcError as e:
             self._handle_grpc_error(e, "Create logist")
 
+    async def update_logist(self, request: UpdateLogistRequest) -> Logist:
+        """
+        Обновить логиста.
+
+        Args:
+            request: Запрос обновления логиста
+
+        Returns:
+            Logist: Обновленный логист
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                proto_request = simulator_pb2.UpdateLogistRequest(
+                    worker_id=request.worker_id,
+                    name=request.name,
+                    qualification=request.qualification,
+                    specialty=request.specialty,
+                    salary=request.salary,
+                    speed=request.speed,
+                    vehicle_type=request.vehicle_type,
+                )
+
+                response = await self._with_retry(
+                    self.stub.update_logist, proto_request
+                )
+
+                return self._proto_to_logist(response)
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Update logist")
+
+    async def delete_logist(self, request: DeleteLogistRequest) -> SuccessResponse:
+        """
+        Удалить логиста.
+
+        Args:
+            request: Запрос удаления логиста
+
+        Returns:
+            SuccessResponse: Результат удаления
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                proto_request = simulator_pb2.DeleteLogistRequest(
+                    worker_id=request.worker_id
+                )
+
+                response = await self._with_retry(
+                    self.stub.delete_logist, proto_request
+                )
+
+                return SuccessResponse(
+                    success=response.success,
+                    message=response.message,
+                    timestamp=response.timestamp,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Delete logist")
+
     # ==================== Управление оборудованием ====================
 
-    async def get_all_equipment(self) -> List[EquipmentModel]:
+    async def get_all_equipment(self) -> GetAllEquipmentResponse:
         """
         Получить всё оборудование.
 
         Returns:
-            List[EquipmentModel]: Список оборудования
+            GetAllEquipmentResponse: Ответ со всем оборудованием
         """
         try:
             async with self._timeout_context():
@@ -300,70 +446,121 @@ class AsyncDatabaseClient(AsyncBaseClient):
                     self.stub.get_all_equipment, simulator_pb2.GetAllEquipmentRequest()
                 )
 
-                return [
-                    EquipmentModel(
-                        equipment_id=e.equipment_id,
-                        name=e.name,
-                        reliability=e.reliability,
-                        maintenance_period=e.maintenance_period,
-                        maintenance_cost=e.maintenance_cost,
-                        cost=e.cost,
-                        repair_cost=e.repair_cost,
-                        repair_time=e.repair_time,
-                    )
-                    for e in response.equipments
-                ]
+                return GetAllEquipmentResponse(
+                    equipments=[
+                        self._proto_to_equipment(e) for e in response.equipments
+                    ],
+                    total_count=response.total_count,
+                )
 
         except grpc.RpcError as e:
             self._handle_grpc_error(e, "Get all equipment")
 
-    async def create_equipment(self, equipment: EquipmentModel) -> EquipmentModel:
+    async def create_equipment(self, request: CreateEquipmentRequest) -> Equipment:
         """
         Создать новое оборудование.
 
         Args:
-            equipment: Модель оборудования
+            request: Запрос создания оборудования
 
         Returns:
-            EquipmentModel: Созданное оборудование
+            Equipment: Созданное оборудование
         """
         try:
             async with self._timeout_context():
                 await self._rate_limit()
-                request = simulator_pb2.CreateEquipmentRequest(
-                    name=equipment.name,
-                    reliability=equipment.reliability,
-                    maintenance_period=equipment.maintenance_period,
-                    maintenance_cost=equipment.maintenance_cost,
-                    cost=equipment.cost,
-                    repair_cost=equipment.repair_cost,
-                    repair_time=equipment.repair_time,
+                proto_request = simulator_pb2.CreateEquipmentRequest(
+                    name=request.name,
+                    reliability=request.reliability,
+                    maintenance_period=request.maintenance_period,
+                    maintenance_cost=request.maintenance_cost,
+                    cost=request.cost,
+                    repair_cost=request.repair_cost,
+                    repair_time=request.repair_time,
                 )
 
-                response = await self._with_retry(self.stub.create_equipment, request)
-
-                return EquipmentModel(
-                    equipment_id=response.equipment_id,
-                    name=response.name,
-                    reliability=response.reliability,
-                    maintenance_period=response.maintenance_period,
-                    maintenance_cost=response.maintenance_cost,
-                    cost=response.cost,
-                    repair_cost=response.repair_cost,
-                    repair_time=response.repair_time,
+                response = await self._with_retry(
+                    self.stub.create_equipment, proto_request
                 )
+
+                return self._proto_to_equipment(response)
 
         except grpc.RpcError as e:
             self._handle_grpc_error(e, "Create equipment")
 
+    async def update_equipment(self, request: UpdateEquipmentRequest) -> Equipment:
+        """
+        Обновить оборудование.
+
+        Args:
+            request: Запрос обновления оборудования
+
+        Returns:
+            Equipment: Обновленное оборудование
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                proto_request = simulator_pb2.UpdateEquipmentRequest(
+                    equipment_id=request.equipment_id,
+                    name=request.name,
+                    reliability=request.reliability,
+                    maintenance_period=request.maintenance_period,
+                    maintenance_cost=request.maintenance_cost,
+                    cost=request.cost,
+                    repair_cost=request.repair_cost,
+                    repair_time=request.repair_time,
+                )
+
+                response = await self._with_retry(
+                    self.stub.update_equipment, proto_request
+                )
+
+                return self._proto_to_equipment(response)
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Update equipment")
+
+    async def delete_equipment(
+        self, request: DeleteEquipmentRequest
+    ) -> SuccessResponse:
+        """
+        Удалить оборудование.
+
+        Args:
+            request: Запрос удаления оборудования
+
+        Returns:
+            SuccessResponse: Результат удаления
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                proto_request = simulator_pb2.DeleteEquipmentRequest(
+                    equipment_id=request.equipment_id
+                )
+
+                response = await self._with_retry(
+                    self.stub.delete_equipment, proto_request
+                )
+
+                return SuccessResponse(
+                    success=response.success,
+                    message=response.message,
+                    timestamp=response.timestamp,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Delete equipment")
+
     # ==================== Управление тендерами ====================
 
-    async def get_all_tenders(self) -> List[TenderModel]:
+    async def get_all_tenders(self) -> GetAllTendersResponse:
         """
         Получить все тендеры.
 
         Returns:
-            List[TenderModel]: Список тендеров
+            GetAllTendersResponse: Ответ со всеми тендерами
         """
         try:
             async with self._timeout_context():
@@ -372,94 +569,137 @@ class AsyncDatabaseClient(AsyncBaseClient):
                     self.stub.get_all_tenders, simulator_pb2.GetAllTendersRequest()
                 )
 
-                return [
-                    TenderModel(
-                        tender_id=t.tender_id,
-                        consumer=ConsumerModel(
-                            consumer_id=t.consumer.consumer_id,
-                            name=t.consumer.name,
-                            type=t.consumer.type,
-                        ),
-                        cost=t.cost,
-                        quantity_of_products=t.quantity_of_products,
-                    )
-                    for t in response.tenders
-                ]
+                return GetAllTendersResponse(
+                    tenders=[self._proto_to_tender(t) for t in response.tenders],
+                    total_count=response.total_count,
+                )
 
         except grpc.RpcError as e:
             self._handle_grpc_error(e, "Get all tenders")
 
-    async def create_tender(self, tender: TenderModel) -> TenderModel:
+    async def create_tender(self, request: CreateTenderRequest) -> Tender:
         """
         Создать новый тендер.
 
         Args:
-            tender: Модель тендера
+            request: Запрос создания тендера
 
         Returns:
-            TenderModel: Созданный тендер
+            Tender: Созданный тендер
         """
         try:
             async with self._timeout_context():
                 await self._rate_limit()
-                request = simulator_pb2.CreateTenderRequest(
-                    consumer_id=tender.consumer.consumer_id,
-                    cost=tender.cost,
-                    quantity_of_products=tender.quantity_of_products,
+                proto_request = simulator_pb2.CreateTenderRequest(
+                    consumer_id=request.consumer_id,
+                    cost=request.cost,
+                    quantity_of_products=request.quantity_of_products,
                 )
 
-                response = await self._with_retry(self.stub.create_tender, request)
-
-                return TenderModel(
-                    tender_id=response.tender_id,
-                    consumer=ConsumerModel(
-                        consumer_id=response.consumer.consumer_id,
-                        name=response.consumer.name,
-                        type=response.consumer.type,
-                    ),
-                    cost=response.cost,
-                    quantity_of_products=response.quantity_of_products,
+                response = await self._with_retry(
+                    self.stub.create_tender, proto_request
                 )
+
+                return self._proto_to_tender(response)
 
         except grpc.RpcError as e:
             self._handle_grpc_error(e, "Create tender")
 
-    # ==================== Дополнительные методы ====================
-
-    async def get_warehouse(self, warehouse_id: str) -> WarehouseModel:
+    async def update_tender(self, request: UpdateTenderRequest) -> Tender:
         """
-        Получить информацию о складе.
+        Обновить тендер.
 
         Args:
-            warehouse_id: ID склада
+            request: Запрос обновления тендера
 
         Returns:
-            WarehouseModel: Модель склада
+            Tender: Обновленный тендер
         """
         try:
             async with self._timeout_context():
                 await self._rate_limit()
-                response = await self._with_retry(
-                    self.stub.get_warehouse,
-                    simulator_pb2.GetWarehouseRequest(warehouse_id=warehouse_id),
+                proto_request = simulator_pb2.UpdateTenderRequest(
+                    tender_id=request.tender_id,
+                    consumer_id=request.consumer_id,
+                    cost=request.cost,
+                    quantity_of_products=request.quantity_of_products,
                 )
 
-                return WarehouseModel(
-                    warehouse_id=response.warehouse_id,
-                    size=response.size,
-                    loading=response.loading,
-                    materials=dict(response.materials),
+                response = await self._with_retry(
+                    self.stub.update_tender, proto_request
                 )
+
+                return self._proto_to_tender(response)
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Update tender")
+
+    async def delete_tender(self, request: DeleteTenderRequest) -> SuccessResponse:
+        """
+        Удалить тендер.
+
+        Args:
+            request: Запрос удаления тендера
+
+        Returns:
+            SuccessResponse: Результат удаления
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                proto_request = simulator_pb2.DeleteTenderRequest(
+                    tender_id=request.tender_id
+                )
+
+                response = await self._with_retry(
+                    self.stub.delete_tender, proto_request
+                )
+
+                return SuccessResponse(
+                    success=response.success,
+                    message=response.message,
+                    timestamp=response.timestamp,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Delete tender")
+
+    # ==================== Управление складами ====================
+
+    async def get_warehouse(self, request: GetWarehouseRequest) -> Warehouse:
+        """
+        Получить информацию о складе.
+
+        Args:
+            request: Запрос получения склада
+
+        Returns:
+            Warehouse: Модель склада
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                proto_request = simulator_pb2.GetWarehouseRequest(
+                    warehouse_id=request.warehouse_id
+                )
+
+                response = await self._with_retry(
+                    self.stub.get_warehouse, proto_request
+                )
+
+                return self._proto_to_warehouse(response)
 
         except grpc.RpcError as e:
             self._handle_grpc_error(e, "Get warehouse")
 
-    async def get_all_consumers(self) -> List[ConsumerModel]:
+    # ==================== Управление заказчиками ====================
+
+    async def get_all_consumers(self) -> GetAllConsumersResponse:
         """
         Получить всех заказчиков.
 
         Returns:
-            List[ConsumerModel]: Список заказчиков
+            GetAllConsumersResponse: Ответ со всеми заказчиками
         """
         try:
             async with self._timeout_context():
@@ -468,20 +708,106 @@ class AsyncDatabaseClient(AsyncBaseClient):
                     self.stub.get_all_consumers, simulator_pb2.GetAllConsumersRequest()
                 )
 
-                return [
-                    ConsumerModel(consumer_id=c.consumer_id, name=c.name, type=c.type)
-                    for c in response.consumers
-                ]
+                return GetAllConsumersResponse(
+                    consumers=[self._proto_to_consumer(c) for c in response.consumers],
+                    total_count=response.total_count,
+                )
 
         except grpc.RpcError as e:
             self._handle_grpc_error(e, "Get all consumers")
 
-    async def get_all_workplaces(self) -> List[Dict[str, Any]]:
+    async def create_consumer(self, request: CreateConsumerRequest) -> Consumer:
+        """
+        Создать нового заказчика.
+
+        Args:
+            request: Запрос создания заказчика
+
+        Returns:
+            Consumer: Созданный заказчик
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                proto_request = simulator_pb2.CreateConsumerRequest(
+                    name=request.name, type=request.type
+                )
+
+                response = await self._with_retry(
+                    self.stub.create_consumer, proto_request
+                )
+
+                return self._proto_to_consumer(response)
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Create consumer")
+
+    async def update_consumer(self, request: UpdateConsumerRequest) -> Consumer:
+        """
+        Обновить заказчика.
+
+        Args:
+            request: Запрос обновления заказчика
+
+        Returns:
+            Consumer: Обновленный заказчик
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                proto_request = simulator_pb2.UpdateConsumerRequest(
+                    consumer_id=request.consumer_id,
+                    name=request.name,
+                    type=request.type,
+                )
+
+                response = await self._with_retry(
+                    self.stub.update_consumer, proto_request
+                )
+
+                return self._proto_to_consumer(response)
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Update consumer")
+
+    async def delete_consumer(self, request: DeleteConsumerRequest) -> SuccessResponse:
+        """
+        Удалить заказчика.
+
+        Args:
+            request: Запрос удаления заказчика
+
+        Returns:
+            SuccessResponse: Результат удаления
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                proto_request = simulator_pb2.DeleteConsumerRequest(
+                    consumer_id=request.consumer_id
+                )
+
+                response = await self._with_retry(
+                    self.stub.delete_consumer, proto_request
+                )
+
+                return SuccessResponse(
+                    success=response.success,
+                    message=response.message,
+                    timestamp=response.timestamp,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Delete consumer")
+
+    # ==================== Управление рабочими местами ====================
+
+    async def get_all_workplaces(self) -> GetAllWorkplacesResponse:
         """
         Получить все рабочие места.
 
         Returns:
-            List[Dict]: Список рабочих мест
+            GetAllWorkplacesResponse: Ответ со всеми рабочими местами
         """
         try:
             async with self._timeout_context():
@@ -491,31 +817,290 @@ class AsyncDatabaseClient(AsyncBaseClient):
                     simulator_pb2.GetAllWorkplacesRequest(),
                 )
 
-                workplaces = []
-                for wp in response.workplaces:
-                    workplace_dict = {
-                        "workplace_id": wp.workplace_id,
-                        "workplace_name": wp.workplace_name,
-                        "required_speciality": wp.required_speciality,
-                        "required_qualification": wp.required_qualification,
-                        "required_stages": list(wp.required_stages),
-                    }
-
-                    if wp.worker.worker_id:
-                        workplace_dict["worker"] = {
-                            "worker_id": wp.worker.worker_id,
-                            "name": wp.worker.name,
-                        }
-
-                    if wp.equipment.equipment_id:
-                        workplace_dict["equipment"] = {
-                            "equipment_id": wp.equipment.equipment_id,
-                            "name": wp.equipment.name,
-                        }
-
-                    workplaces.append(workplace_dict)
-
-                return workplaces
+                return GetAllWorkplacesResponse(
+                    workplaces=[
+                        self._proto_to_workplace(wp) for wp in response.workplaces
+                    ],
+                    total_count=response.total_count,
+                )
 
         except grpc.RpcError as e:
             self._handle_grpc_error(e, "Get all workplaces")
+
+    async def create_workplace(self, request: CreateWorkplaceRequest) -> Workplace:
+        """
+        Создать новое рабочее место.
+
+        Args:
+            request: Запрос создания рабочего места
+
+        Returns:
+            Workplace: Созданное рабочее место
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                proto_request = simulator_pb2.CreateWorkplaceRequest(
+                    workplace_name=request.workplace_name,
+                    required_speciality=request.required_speciality,
+                    required_qualification=request.required_qualification,
+                    worker_id=request.worker_id,
+                    required_stages=request.required_stages,
+                )
+
+                response = await self._with_retry(
+                    self.stub.create_workplace, proto_request
+                )
+
+                return self._proto_to_workplace(response)
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Create workplace")
+
+    async def update_workplace(self, request: UpdateWorkplaceRequest) -> Workplace:
+        """
+        Обновить рабочее место.
+
+        Args:
+            request: Запрос обновления рабочего места
+
+        Returns:
+            Workplace: Обновленное рабочее место
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                proto_request = simulator_pb2.UpdateWorkplaceRequest(
+                    workplace_id=request.workplace_id,
+                    workplace_name=request.workplace_name,
+                    required_speciality=request.required_speciality,
+                    required_qualification=request.required_qualification,
+                    worker_id=request.worker_id,
+                    required_stages=request.required_stages,
+                )
+
+                response = await self._with_retry(
+                    self.stub.update_workplace, proto_request
+                )
+
+                return self._proto_to_workplace(response)
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Update workplace")
+
+    async def delete_workplace(
+        self, request: DeleteWorkplaceRequest
+    ) -> SuccessResponse:
+        """
+        Удалить рабочее место.
+
+        Args:
+            request: Запрос удаления рабочего места
+
+        Returns:
+            SuccessResponse: Результат удаления
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                proto_request = simulator_pb2.DeleteWorkplaceRequest(
+                    workplace_id=request.workplace_id
+                )
+
+                response = await self._with_retry(
+                    self.stub.delete_workplace, proto_request
+                )
+
+                return SuccessResponse(
+                    success=response.success,
+                    message=response.message,
+                    timestamp=response.timestamp,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Delete workplace")
+
+    # ==================== Управление картами процесса ====================
+
+    async def get_process_graph(self, request: GetProcessGraphRequest) -> ProcessGraph:
+        """
+        Получить карту процесса.
+
+        Args:
+            request: Запрос получения карты процесса
+
+        Returns:
+            ProcessGraph: Карта процесса
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                proto_request = simulator_pb2.GetProcessGraphRequest(
+                    process_graph_id=request.process_graph_id
+                )
+
+                response = await self._with_retry(
+                    self.stub.get_process_graph, proto_request
+                )
+
+                return self._proto_to_process_graph(response)
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Get process graph")
+
+    # ==================== Вспомогательные методы ====================
+
+    def _proto_to_supplier(self, proto_supplier) -> Supplier:
+        """Конвертировать protobuf Supplier в Pydantic модель."""
+        return Supplier(
+            supplier_id=proto_supplier.supplier_id,
+            name=proto_supplier.name,
+            product_name=proto_supplier.product_name,
+            delivery_period=proto_supplier.delivery_period,
+            special_delivery_period=proto_supplier.special_delivery_period,
+            reliability=proto_supplier.reliability,
+            product_quality=proto_supplier.product_quality,
+            cost=proto_supplier.cost,
+            special_delivery_cost=proto_supplier.special_delivery_cost,
+        )
+
+    def _proto_to_worker(self, proto_worker) -> Worker:
+        """Конвертировать protobuf Worker в Pydantic модель."""
+        return Worker(
+            worker_id=proto_worker.worker_id,
+            name=proto_worker.name,
+            qualification=proto_worker.qualification,
+            specialty=proto_worker.specialty,
+            salary=proto_worker.salary,
+        )
+
+    def _proto_to_logist(self, proto_logist) -> Logist:
+        """Конвертировать protobuf Logist в Pydantic модель."""
+        return Logist(
+            worker_id=proto_logist.worker_id,
+            name=proto_logist.name,
+            qualification=proto_logist.qualification,
+            specialty=proto_logist.specialty,
+            salary=proto_logist.salary,
+            speed=proto_logist.speed,
+            vehicle_type=proto_logist.vehicle_type,
+        )
+
+    def _proto_to_equipment(self, proto_equipment) -> Equipment:
+        """Конвертировать protobuf Equipment в Pydantic модель."""
+        return Equipment(
+            equipment_id=proto_equipment.equipment_id,
+            name=proto_equipment.name,
+            reliability=proto_equipment.reliability,
+            maintenance_period=proto_equipment.maintenance_period,
+            maintenance_cost=proto_equipment.maintenance_cost,
+            cost=proto_equipment.cost,
+            repair_cost=proto_equipment.repair_cost,
+            repair_time=proto_equipment.repair_time,
+        )
+
+    def _proto_to_warehouse(self, proto_warehouse) -> Warehouse:
+        """Конвертировать protobuf Warehouse в Pydantic модель."""
+        return Warehouse(
+            warehouse_id=proto_warehouse.warehouse_id,
+            inventory_worker=(
+                self._proto_to_worker(proto_warehouse.inventory_worker)
+                if proto_warehouse.inventory_worker
+                else None
+            ),
+            size=proto_warehouse.size,
+            loading=proto_warehouse.loading,
+            materials=dict(proto_warehouse.materials),
+        )
+
+    def _proto_to_consumer(self, proto_consumer) -> Consumer:
+        """Конвертировать protobuf Consumer в Pydantic модель."""
+        return Consumer(
+            consumer_id=proto_consumer.consumer_id,
+            name=proto_consumer.name,
+            type=proto_consumer.type,
+        )
+
+    def _proto_to_tender(self, proto_tender) -> Tender:
+        """Конвертировать protobuf Tender в Pydantic модель."""
+        return Tender(
+            tender_id=proto_tender.tender_id,
+            consumer=self._proto_to_consumer(proto_tender.consumer),
+            cost=proto_tender.cost,
+            quantity_of_products=proto_tender.quantity_of_products,
+        )
+
+    def _proto_to_workplace(self, proto_workplace) -> Workplace:
+        """Конвертировать protobuf Workplace в Pydantic модель."""
+        return Workplace(
+            workplace_id=proto_workplace.workplace_id,
+            workplace_name=proto_workplace.workplace_name,
+            required_speciality=proto_workplace.required_speciality,
+            required_qualification=proto_workplace.required_qualification,
+            worker=(
+                self._proto_to_worker(proto_workplace.worker)
+                if proto_workplace.worker
+                else None
+            ),
+            equipment=(
+                self._proto_to_equipment(proto_workplace.equipment)
+                if proto_workplace.equipment
+                else None
+            ),
+            required_stages=list(proto_workplace.required_stages),
+        )
+
+    def _proto_to_route(self, proto_route) -> Route:
+        """Конвертировать protobuf Route в Pydantic модель."""
+        return Route(
+            length=proto_route.length,
+            from_workplace=proto_route.from_workplace,
+            to_workplace=proto_route.to_workplace,
+        )
+
+    def _proto_to_process_graph(self, proto_process_graph) -> ProcessGraph:
+        """Конвертировать protobuf ProcessGraph в Pydantic модель."""
+        return ProcessGraph(
+            process_graph_id=proto_process_graph.process_graph_id,
+            workplaces=[
+                self._proto_to_workplace(wp) for wp in proto_process_graph.workplaces
+            ],
+            routes=[self._proto_to_route(r) for r in proto_process_graph.routes],
+        )
+
+    # ==================== Упрощенные методы для обратной совместимости ====================
+
+    async def get_all_suppliers_simple(self) -> List[Supplier]:
+        """Упрощенный метод получения поставщиков (для обратной совместимости)."""
+        response = await self.get_all_suppliers()
+        return response.suppliers
+
+    async def get_all_workers_simple(self) -> List[Worker]:
+        """Упрощенный метод получения работников (для обратной совместимости)."""
+        response = await self.get_all_workers()
+        return response.workers
+
+    async def get_all_logists_simple(self) -> List[Logist]:
+        """Упрощенный метод получения логистов (для обратной совместимости)."""
+        response = await self.get_all_logists()
+        return response.logists
+
+    async def get_all_equipment_simple(self) -> List[Equipment]:
+        """Упрощенный метод получения оборудования (для обратной совместимости)."""
+        response = await self.get_all_equipment()
+        return response.equipments
+
+    async def get_all_tenders_simple(self) -> List[Tender]:
+        """Упрощенный метод получения тендеров (для обратной совместимости)."""
+        response = await self.get_all_tenders()
+        return response.tenders
+
+    async def get_all_consumers_simple(self) -> List[Consumer]:
+        """Упрощенный метод получения заказчиков (для обратной совместимости)."""
+        response = await self.get_all_consumers()
+        return response.consumers
+
+    async def get_all_workplaces_simple(self) -> List[Workplace]:
+        """Упрощенный метод получения рабочих мест (для обратной совместимости)."""
+        response = await self.get_all_workplaces()
+        return response.workplaces
