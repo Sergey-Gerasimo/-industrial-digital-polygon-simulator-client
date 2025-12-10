@@ -5,3 +5,6 @@ docker-compose.yaml
 __pycache__
 
 main.py 
+postgres_data
+redis_data
+proto

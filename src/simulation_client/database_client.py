@@ -594,6 +594,9 @@ class AsyncDatabaseClient(AsyncBaseClient):
                     consumer_id=request.consumer_id,
                     cost=request.cost,
                     quantity_of_products=request.quantity_of_products,
+                    penalty_per_day=request.penalty_per_day,
+                    warranty_years=request.warranty_years,
+                    payment_form=request.payment_form,
                 )
 
                 response = await self._with_retry(
@@ -623,6 +626,9 @@ class AsyncDatabaseClient(AsyncBaseClient):
                     consumer_id=request.consumer_id,
                     cost=request.cost,
                     quantity_of_products=request.quantity_of_products,
+                    penalty_per_day=request.penalty_per_day,
+                    warranty_years=request.warranty_years,
+                    payment_form=request.payment_form,
                 )
 
                 response = await self._with_retry(
@@ -1028,6 +1034,9 @@ class AsyncDatabaseClient(AsyncBaseClient):
             consumer=self._proto_to_consumer(proto_tender.consumer),
             cost=proto_tender.cost,
             quantity_of_products=proto_tender.quantity_of_products,
+            penalty_per_day=proto_tender.penalty_per_day,
+            warranty_years=proto_tender.warranty_years,
+            payment_form=proto_tender.payment_form,
         )
 
     def _proto_to_workplace(self, proto_workplace) -> Workplace:
@@ -1048,6 +1057,9 @@ class AsyncDatabaseClient(AsyncBaseClient):
                 else None
             ),
             required_stages=list(proto_workplace.required_stages),
+            is_start_node=proto_workplace.is_start_node,
+            is_end_node=proto_workplace.is_end_node,
+            next_workplace_ids=list(proto_workplace.next_workplace_ids),
         )
 
     def _proto_to_route(self, proto_route) -> Route:
@@ -1104,3 +1116,379 @@ class AsyncDatabaseClient(AsyncBaseClient):
         """Упрощенный метод получения рабочих мест (для обратной совместимости)."""
         response = await self.get_all_workplaces()
         return response.workplaces
+
+    # ==================== Справочные данные ====================
+
+    async def get_reference_data(
+        self, data_type: str = ""
+    ) -> "ReferenceDataResponse":
+        """
+        Получить справочные данные.
+
+        Args:
+            data_type: Тип данных (опционально)
+
+        Returns:
+            ReferenceDataResponse: Справочные данные
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                request = simulator_pb2.GetReferenceDataRequest(data_type=data_type)
+                response = await self._with_retry(
+                    self.stub.get_reference_data, request
+                )
+                from .models import ReferenceDataResponse
+
+                return ReferenceDataResponse(
+                    sales_strategies=[
+                        ReferenceDataResponse.SalesStrategyItem(
+                            id=item.id,
+                            name=item.name,
+                            description=item.description,
+                            growth_forecast=item.growth_forecast,
+                            unit_cost=item.unit_cost,
+                            market_impact=item.market_impact,
+                            trend_direction=item.trend_direction,
+                        )
+                        for item in response.sales_strategies
+                    ],
+                    defect_policies=[
+                        ReferenceDataResponse.DefectPolicyItem(
+                            id=item.id, name=item.name, description=item.description
+                        )
+                        for item in response.defect_policies
+                    ],
+                    certifications=[
+                        ReferenceDataResponse.CertificationItem(
+                            id=item.id,
+                            name=item.name,
+                            description=item.description,
+                            implementation_cost=item.implementation_cost,
+                            implementation_time_days=item.implementation_time_days,
+                        )
+                        for item in response.certifications
+                    ],
+                    improvements=[
+                        ReferenceDataResponse.ImprovementItem(
+                            id=item.id,
+                            name=item.name,
+                            description=item.description,
+                            implementation_cost=item.implementation_cost,
+                            efficiency_gain=item.efficiency_gain,
+                        )
+                        for item in response.improvements
+                    ],
+                    company_types=[
+                        ReferenceDataResponse.CompanyTypeItem(
+                            id=item.id, name=item.name, description=item.description
+                        )
+                        for item in response.company_types
+                    ],
+                    specialties=[
+                        ReferenceDataResponse.SpecialtyItem(
+                            id=item.id, name=item.name, description=item.description
+                        )
+                        for item in response.specialties
+                    ],
+                    vehicle_types=[
+                        ReferenceDataResponse.VehicleTypeItem(
+                            id=item.id,
+                            name=item.name,
+                            description=item.description,
+                            speed_modifier=item.speed_modifier,
+                        )
+                        for item in response.vehicle_types
+                    ],
+                    unit_sizes=[
+                        ReferenceDataResponse.UnitSizeItem(
+                            id=item.id, name=item.name, description=item.description
+                        )
+                        for item in response.unit_sizes
+                    ],
+                    product_models=[
+                        ReferenceDataResponse.ProductModelItem(
+                            id=item.id,
+                            name=item.name,
+                            description=item.description,
+                            unit_size=item.unit_size,
+                        )
+                        for item in response.product_models
+                    ],
+                    payment_forms=[
+                        ReferenceDataResponse.PaymentFormItem(
+                            id=item.id, name=item.name, description=item.description
+                        )
+                        for item in response.payment_forms
+                    ],
+                    workplace_types=[
+                        ReferenceDataResponse.WorkplaceTypeItem(
+                            id=item.id,
+                            name=item.name,
+                            description=item.description,
+                            required_specialty=item.required_specialty,
+                            required_qualification=item.required_qualification,
+                            compatible_equipment=list(item.compatible_equipment),
+                        )
+                        for item in response.workplace_types
+                    ],
+                    timestamp=response.timestamp,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Get reference data")
+
+    async def get_material_types(self) -> "MaterialTypesResponse":
+        """
+        Получить типы материалов.
+
+        Returns:
+            MaterialTypesResponse: Типы материалов
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                response = await self._with_retry(
+                    self.stub.get_material_types, simulator_pb2.GetMaterialTypesRequest()
+                )
+                from .models import MaterialTypesResponse
+
+                return MaterialTypesResponse(
+                    material_types=[
+                        MaterialTypesResponse.MaterialType(
+                            material_id=mt.material_id,
+                            name=mt.name,
+                            description=mt.description,
+                            unit=mt.unit,
+                            average_price=mt.average_price,
+                        )
+                        for mt in response.material_types
+                    ],
+                    timestamp=response.timestamp,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Get material types")
+
+    async def get_equipment_types(self) -> "EquipmentTypesResponse":
+        """
+        Получить типы оборудования.
+
+        Returns:
+            EquipmentTypesResponse: Типы оборудования
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                response = await self._with_retry(
+                    self.stub.get_equipment_types,
+                    simulator_pb2.GetEquipmentTypesRequest(),
+                )
+                from .models import EquipmentTypesResponse
+
+                return EquipmentTypesResponse(
+                    equipment_types=[
+                        EquipmentTypesResponse.EquipmentType(
+                            equipment_type_id=et.equipment_type_id,
+                            name=et.name,
+                            description=et.description,
+                            base_reliability=et.base_reliability,
+                            base_maintenance_cost=et.base_maintenance_cost,
+                            base_cost=et.base_cost,
+                            compatible_workplaces=list(et.compatible_workplaces),
+                        )
+                        for et in response.equipment_types
+                    ],
+                    timestamp=response.timestamp,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Get equipment types")
+
+    async def get_workplace_types(self) -> "WorkplaceTypesResponse":
+        """
+        Получить типы рабочих мест.
+
+        Returns:
+            WorkplaceTypesResponse: Типы рабочих мест
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                response = await self._with_retry(
+                    self.stub.get_workplace_types,
+                    simulator_pb2.GetWorkplaceTypesRequest(),
+                )
+                from .models import WorkplaceTypesResponse
+
+                return WorkplaceTypesResponse(
+                    workplace_types=[
+                        WorkplaceTypesResponse.WorkplaceType(
+                            workplace_type_id=wt.workplace_type_id,
+                            name=wt.name,
+                            description=wt.description,
+                            required_specialty=wt.required_specialty,
+                            required_qualification=wt.required_qualification,
+                            compatible_equipment_types=list(
+                                wt.compatible_equipment_types
+                            ),
+                        )
+                        for wt in response.workplace_types
+                    ],
+                    timestamp=response.timestamp,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Get workplace types")
+
+    async def get_available_defect_policies(
+        self,
+    ) -> "DefectPoliciesListResponse":
+        """
+        Получить доступные политики работы с браком.
+
+        Returns:
+            DefectPoliciesListResponse: Список политик
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                response = await self._with_retry(
+                    self.stub.get_available_defect_policies,
+                    simulator_pb2.GetAvailableDefectPoliciesRequest(),
+                )
+                from .models import DefectPoliciesListResponse
+
+                return DefectPoliciesListResponse(
+                    policies=[
+                        DefectPoliciesListResponse.DefectPolicyOption(
+                            id=p.id,
+                            name=p.name,
+                            description=p.description,
+                            cost_multiplier=p.cost_multiplier,
+                            quality_impact=p.quality_impact,
+                            time_impact=p.time_impact,
+                        )
+                        for p in response.policies
+                    ],
+                    timestamp=response.timestamp,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Get available defect policies")
+
+    async def get_available_improvements_list(
+        self,
+    ) -> "ImprovementsListResponse":
+        """
+        Получить список доступных улучшений.
+
+        Returns:
+            ImprovementsListResponse: Список улучшений
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                response = await self._with_retry(
+                    self.stub.get_available_improvements_list,
+                    simulator_pb2.GetAvailableImprovementsListRequest(),
+                )
+                from .models import ImprovementsListResponse
+
+                return ImprovementsListResponse(
+                    improvements=[
+                        ImprovementsListResponse.ImprovementOption(
+                            id=i.id,
+                            name=i.name,
+                            description=i.description,
+                            implementation_cost=i.implementation_cost,
+                            implementation_time_days=i.implementation_time_days,
+                            efficiency_gain=i.efficiency_gain,
+                            quality_improvement=i.quality_improvement,
+                            cost_reduction=i.cost_reduction,
+                        )
+                        for i in response.improvements
+                    ],
+                    timestamp=response.timestamp,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Get available improvements list")
+
+    async def get_available_certifications(
+        self,
+    ) -> "CertificationsListResponse":
+        """
+        Получить доступные сертификации.
+
+        Returns:
+            CertificationsListResponse: Список сертификаций
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                response = await self._with_retry(
+                    self.stub.get_available_certifications,
+                    simulator_pb2.GetAvailableCertificationsRequest(),
+                )
+                from .models import CertificationsListResponse
+
+                return CertificationsListResponse(
+                    certifications=[
+                        CertificationsListResponse.CertificationOption(
+                            id=c.id,
+                            name=c.name,
+                            description=c.description,
+                            implementation_cost=c.implementation_cost,
+                            implementation_time_days=c.implementation_time_days,
+                            market_access_improvement=c.market_access_improvement,
+                            quality_recognition=c.quality_recognition,
+                            government_access=c.government_access,
+                        )
+                        for c in response.certifications
+                    ],
+                    timestamp=response.timestamp,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Get available certifications")
+
+    async def get_available_sales_strategies(
+        self,
+    ) -> "SalesStrategiesListResponse":
+        """
+        Получить доступные стратегии продаж.
+
+        Returns:
+            SalesStrategiesListResponse: Список стратегий
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                response = await self._with_retry(
+                    self.stub.get_available_sales_strategies,
+                    simulator_pb2.GetAvailableSalesStrategiesRequest(),
+                )
+                from .models import SalesStrategiesListResponse
+
+                return SalesStrategiesListResponse(
+                    strategies=[
+                        SalesStrategiesListResponse.SalesStrategyOption(
+                            id=s.id,
+                            name=s.name,
+                            description=s.description,
+                            growth_forecast=s.growth_forecast,
+                            unit_cost=s.unit_cost,
+                            market_impact=s.market_impact,
+                            trend_direction=s.trend_direction,
+                            compatible_product_models=list(
+                                s.compatible_product_models
+                            ),
+                        )
+                        for s in response.strategies
+                    ],
+                    timestamp=response.timestamp,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Get available sales strategies")

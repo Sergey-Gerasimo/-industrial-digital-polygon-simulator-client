@@ -1,11 +1,12 @@
 syntax = "proto3";
 
-// надо реализовать возможность менять стоники!!!
 package simulator; 
 
+// -----------------------------------------------------------------
+//          Основные сообщения
+// -----------------------------------------------------------------
 
 message Supplier { 
-    // храним все в БД и отдаем только по запросу
     string supplier_id = 1;
     string name = 2;
     string product_name = 3;
@@ -18,9 +19,6 @@ message Supplier {
 }
 
 message Warehouse {
-    // По запросу создаем склад. храним в redis
-    // Склад
-    // Размер склада можно будет увеличивать за доп. деньги
     string warehouse_id = 1; 
     Worker inventory_worker = 2; 
     uint32 size = 3; 
@@ -29,53 +27,45 @@ message Warehouse {
 }
 
 message Worker {
-    // Храним в БД, отдаем по запросу
-    // Работник
-    // Квалификацию сотрудника можно будет увеличивать за доп. деньги
-    // Вообще я планирую завести в БД энное кол-во работников
-    string worker_id = 1; // id работника в БД 
-    string name = 2; // имя работника
-    uint32 qualification = 3; // квалификация работника вообще она от 1 до 9 
-    string specialty = 4; // специализация работника
-    uint32 salary = 5; // ЗП сотрудника
+    string worker_id = 1;
+    string name = 2;
+    uint32 qualification = 3;
+    string specialty = 4;
+    uint32 salary = 5;
 }
 
 message Logist { 
-    // Храним в БД, отдаем по запросу
-    // Логист внутри 
-    string worker_id = 1; // id работника в БД 
-    string name = 2; // имя работника
-    uint32 qualification = 3; // квалификация работника вообще она от 1 до 9 
-    string specialty = 4; // специализация работника
-    uint32 salary = 5; // ЗП сотрудника
-    uint32 speed = 6; // скорость логиста
-    string vehicle_type = 7; // тип транспорта
+    string worker_id = 1;
+    string name = 2;
+    uint32 qualification = 3;
+    string specialty = 4;
+    uint32 salary = 5;
+    uint32 speed = 6;
+    string vehicle_type = 7;
 }
 
 message Equipment{
-    // Оборудование
-    // у нас просто будет такое что какое-то оборудование у нас уже есть и его стоимость 0, а другого нет и нам надо его заказть за денюжку
     string equipment_id = 1; 
-    string name = 2; // название 
-    double reliability = 3; // надежность
-    uint32 maintenance_period = 4; // выбирает пользователь
-    uint32 maintenance_cost = 5; // стоимсоть тех. обслуживания
-    uint32 cost = 6; // стоимость покупки + установки
-    uint32 repair_cost = 7; // стоимость ремонта
-    uint32 repair_time = 8; // время на ремонт
+    string name = 2;
+    double reliability = 3;
+    uint32 maintenance_period = 4;
+    uint32 maintenance_cost = 5;
+    uint32 cost = 6;
+    uint32 repair_cost = 7;
+    uint32 repair_time = 8;
 }
 
 message Workplace {
-    // Виды рабочих мест храним в БД.
-    // Доступные рабочие места нужны только в графе
-    // Рабочее место. 
     string workplace_id = 1; 
     string workplace_name = 2; 
     string required_speciality = 3; 
     uint32 required_qualification = 4;
-    Worker worker = 5; // эта штука формируется только внутри системы. только во время симуляции
-    Equipment equipment = 6; // эта штука задается пользователем только внутри системы. только во время симуляции
-    repeated string required_stages = 7; // список названий этапов после которых может быть этот
+    Worker worker = 5;
+    Equipment equipment = 6;
+    repeated string required_stages = 7;
+    bool is_start_node = 8;      // является начальным узлом (поставщик)
+    bool is_end_node = 9;        // является конечным узлом (потребитель)
+    repeated string next_workplace_ids = 10; // следующие рабочие места
 }
 
 message Route {
@@ -84,69 +74,663 @@ message Route {
     string to_workplace = 3;
 }
 
-// изменяем карту процесса за деньги в идеале
 message ProcessGraph {
-    // Карту процесса храним в redis. Создаем в момент создания
     string process_graph_id = 1;
     repeated Workplace workplaces = 2; 
     repeated Route routes = 3;
 }
 
-// Заказчик (по контракту)
 message Consumer{
     string consumer_id = 1;
     string name = 2;
-    string type = 3; // тип компании – гос. / не гос. 
+    string type = 3;
 }
 
 message Tender {
     string tender_id = 1;
-    Consumer consumer = 2; // компания
-    uint32 cost = 3; // цена тендера
-    uint32 quantity_of_products = 4; // количество изделий
+    Consumer consumer = 2;
+    uint32 cost = 3;
+    uint32 quantity_of_products = 4;
+    uint32 penalty_per_day = 5;
+    uint32 warranty_years = 6;
+    string payment_form = 7;
+}
+
+// Распределение производственного плана
+message ProductionPlanAssignment {
+    string schedule_item_id = 1;      // ID элемента из ProductionSchedule
+    string workplace_id = 2;          // ID рабочего места в WorkshopPlan
+    uint32 assigned_quantity = 3;     // количество, назначенное на это рабочее место
+    string assigned_worker_id = 4;    // назначенный работник
+    string assigned_equipment_id = 5; // назначенное оборудование
+    double completion_percentage = 6; // процент выполнения
+}
+
+enum DistributionStrategy {
+    DISTRIBUTION_STRATEGY_UNSPECIFIED = 0;
+    DISTRIBUTION_STRATEGY_BALANCED = 1;      // равномерное распределение
+    DISTRIBUTION_STRATEGY_EFFICIENT = 2;     // по эффективности
+    DISTRIBUTION_STRATEGY_CUSTOM = 3;        // ручное распределение
+    DISTRIBUTION_STRATEGY_PRIORITY_BASED = 4; // по приоритету
 }
 
 message SimulationParameters { 
-    // штучка создается только внутри системы и отдается пользователю. 
-    // Все изменения только в системе через геттеры и сеттеры 
+    Logist logist = 1;
+    repeated Supplier suppliers = 2;
+    repeated Supplier backup_suppliers = 3;
+    Warehouse materials_warehouse = 4;
+    Warehouse product_warehouse = 5;
+    ProcessGraph processes = 6;
+    repeated Tender tenders = 7;
+    string dealing_with_defects = 8;
+    bool has_certification = 9;
+    repeated string production_improvements = 10;
+    string sales_strategy = 11;
     
-    Logist logist = 1; // логист
-    repeated Supplier suppliers = 2; // поставщики
-    repeated Supplier backup_suppliers = 3; // запасные поставщики
-    Warehouse materials_warehouse = 4; // склад материалов
-    Warehouse product_warehouse = 5; // склад продукции (нашей готовой)
-
-    ProcessGraph processes = 6; // карта процесса 
-    repeated Tender tenders = 7; // тендеры 
-
-    string dealing_with_defects = 8; // политика работы с браком
-    bool has_certification = 9; // сертификация ГОСТ Р ИСО 
-
-    repeated string production_improvements = 10; // список улучшения производства
-    string sales_strategy = 11; // стратегия продаж
+    map<string, QualityInspection> quality_inspections = 12;
+    map<string, DeliverySchedule> delivery_schedules = 13;
+    map<string, uint32> equipment_maintenance_intervals = 14;
+    SpaghettiDiagram spaghetti_diagram = 15;
+    ProductionSchedule production_schedule = 16;
+    double sales_growth_forecast = 17;
+    uint64 unit_production_cost = 18;
+    repeated Certification certifications = 19;
+    repeated LeanImprovement lean_improvements = 20;
+    
+    // Новые поля для распределения производственного плана
+    map<string, ProductionPlanAssignment> production_assignments = 21;
+    DistributionStrategy distribution_strategy = 22;
+    WorkshopPlan workshop_plan = 23;
 }
 
 message SimulationResults{
-    int64 profit = 1; // прибыль
-    int64 cost = 2; // затраты
-    double profitability = 3; // рентабельность
+    int64 profit = 1;
+    int64 cost = 2;
+    double profitability = 3;
+    
+    FactoryMetrics factory_metrics = 4;
+    ProductionMetrics production_metrics = 5;
+    QualityMetrics quality_metrics = 6;
+    EngineeringMetrics engineering_metrics = 7;
+    CommercialMetrics commercial_metrics = 8;
+    ProcurementMetrics procurement_metrics = 9;
 }
 
 message Simulation {
     uint32 capital = 1;
-    uint32 step = 2; // текущий шаг симуляции (всего 4 этапа)
+    uint32 step = 2;
     string simulation_id = 3; 
     SimulationParameters parameters = 4; 
     SimulationResults results = 5; 
+    string room_id = 6;
+    bool is_completed = 7;
 }
 
 // -----------------------------------------------------------------
-//          Сервисы
+//          Новые сообщения для мониторинга и показателей
+// -----------------------------------------------------------------
+
+message FactoryMetrics {
+    double profitability = 1;
+    double on_time_delivery_rate = 2;
+    double oee = 3;
+    map<string, WarehouseMetrics> warehouse_metrics = 4;
+    uint64 total_procurement_cost = 5;
+    double defect_rate = 6;
+}
+
+message WarehouseMetrics {
+    double fill_level = 1;
+    uint32 current_load = 2;
+    uint32 max_capacity = 3;
+    map<string, uint32> material_levels = 4;
+}
+
+message ProductionMetrics {
+    message MonthlyProductivity {
+        string month = 1;
+        uint32 units_produced = 2;
+    }
+    
+    repeated MonthlyProductivity monthly_productivity = 1;
+    double average_equipment_utilization = 2;
+    uint32 wip_count = 3;
+    uint32 finished_goods_count = 4;
+    map<string, uint32> material_reserves = 5;
+}
+
+message QualityMetrics {
+    double defect_percentage = 1;
+    double good_output_percentage = 2;
+    message DefectCause {
+        string cause = 1;
+        uint32 count = 2;
+        double percentage = 3;
+    }
+    repeated DefectCause defect_causes = 3;
+    double average_material_quality = 4;
+    double average_supplier_failure_probability = 5;
+    uint64 procurement_volume = 6;
+}
+
+message EngineeringMetrics {
+    message OperationTiming {
+        string operation_name = 1;
+        uint32 cycle_time = 2;
+        uint32 takt_time = 3;
+        uint32 timing_cost = 4;
+    }
+    
+    message DowntimeRecord {
+        string cause = 1;
+        uint32 total_minutes = 2;
+        double average_per_shift = 3;
+    }
+    
+    message DefectAnalysis {
+        string defect_type = 1;
+        uint32 count = 2;
+        double percentage = 3;
+        double cumulative_percentage = 4;
+    }
+    
+    repeated OperationTiming operation_timings = 1;
+    repeated DowntimeRecord downtime_records = 2;
+    repeated DefectAnalysis defect_analysis = 3;
+}
+
+message CommercialMetrics {
+    message YearlyRevenue {
+        uint32 year = 1;
+        uint64 revenue = 2;
+    }
+    
+    repeated YearlyRevenue yearly_revenues = 1;
+    uint64 tender_revenue_plan = 2;
+    uint64 total_payments = 3;
+    uint64 total_receipts = 4;
+    map<string, double> sales_forecast = 5;
+    map<string, uint64> strategy_costs = 6;
+    
+    message TenderGraphPoint {
+        string strategy = 1;
+        string unit_size = 2;
+        bool is_mastered = 3;
+    }
+    repeated TenderGraphPoint tender_graph = 7;
+    
+    message ProjectProfitability {
+        string project_name = 1;
+        double profitability = 2;
+    }
+    repeated ProjectProfitability project_profitabilities = 8;
+    
+    uint32 on_time_completed_orders = 9;
+}
+
+message ProcurementMetrics {
+    message SupplierPerformance {
+        string supplier_id = 1;
+        uint32 delivered_quantity = 2;
+        double projected_defect_rate = 3;
+        double planned_reliability = 4;
+        double actual_reliability = 5;
+        uint64 planned_cost = 6;
+        uint64 actual_cost = 7;
+        uint32 actual_defect_count = 8;
+    }
+    
+    repeated SupplierPerformance supplier_performances = 1;
+    uint64 total_procurement_value = 2;
+}
+
+// Объемно-календарный план
+message ProductionSchedule {
+    message ScheduleItem {
+        string item_id = 1;
+        uint32 priority = 2;
+        string plan_number = 3;
+        string plan_date = 4;
+        string product_name = 5;
+        uint32 planned_quantity = 6;
+        uint32 actual_quantity = 7;
+        uint32 remaining_to_produce = 8;
+        string planned_completion_date = 9;
+        string order_number = 10;
+        string tender_id = 11;
+    }
+    
+    repeated ScheduleItem schedule_items = 1;
+}
+
+// План цеха (для Производства)
+message WorkshopPlan {
+    message WorkplaceNode {
+        string workplace_id = 1;
+        Worker assigned_worker = 2;
+        Equipment assigned_equipment = 3;
+        uint32 maintenance_interval = 4;
+        bool is_start_node = 5;
+        bool is_end_node = 6;
+        repeated string assigned_schedule_items = 7; // ссылки на ProductionSchedule
+        uint32 max_capacity_per_day = 8;             // максимальная производительность
+        double current_utilization = 9;              // текущая загрузка
+    }
+    
+    repeated WorkplaceNode workplace_nodes = 1;
+    repeated Route logistic_routes = 2;
+    string production_schedule_id = 3;               // ссылка на ProductionSchedule
+}
+
+// Внеплановый ремонт
+message UnplannedRepair {
+    message RepairRecord {
+        string month = 1;
+        uint64 repair_cost = 2;
+        string equipment_id = 3;
+        string reason = 4;
+    }
+    
+    repeated RepairRecord repairs = 1;
+    uint64 total_repair_cost = 2;
+}
+
+// Спагетти-диаграмма
+message SpaghettiDiagram {
+    message WorkplaceDetail {
+        string workplace_id = 1;
+        Worker assigned_worker = 2;
+        Equipment assigned_equipment = 3;
+        uint32 maintenance_interval = 4;
+    }
+    
+    repeated WorkplaceDetail workplace_details = 1;
+    repeated Route logistic_routes = 2;
+}
+
+message RequiredMaterial {
+    string material_id = 1;
+    string name = 2;
+    bool has_contracted_supplier = 3;
+    uint32 required_quantity = 4;
+    uint32 current_stock = 5;
+}
+
+message QualityInspection {
+    string material_id = 1;
+    bool inspection_enabled = 2;
+    double inspection_strictness = 3;
+}
+
+message DeliverySchedule {
+    string supplier_id = 1;
+    uint32 delivery_period_days = 2;
+    bool is_express_delivery = 3;
+}
+
+message Certification {
+    string certificate_type = 1;
+    bool is_obtained = 2;
+    uint64 implementation_cost = 3;
+    uint32 implementation_time_days = 4;
+}
+
+message LeanImprovement {
+    string improvement_id = 1;
+    string name = 2;
+    bool is_implemented = 3;
+    uint64 implementation_cost = 4;
+    double efficiency_gain = 5;
+}
+
+message WarehouseLoadChart {
+    message LoadPoint {
+        string timestamp = 1;
+        uint32 load = 2;
+        uint32 max_capacity = 3;
+    }
+    
+    repeated LoadPoint data_points = 1;
+    string warehouse_id = 2;
+}
+
+// -----------------------------------------------------------------
+//          Новые сообщения для графиков и диаграмм
+// -----------------------------------------------------------------
+
+message OperationTimingChart {
+    message TimingData {
+        string process_name = 1;
+        uint32 cycle_time = 2;
+        uint32 takt_time = 3;
+        uint32 timing_cost = 4;
+    }
+    
+    repeated TimingData timing_data = 1;
+    string chart_type = 2;
+}
+
+message DowntimeChart {
+    message DowntimeData {
+        string process_name = 1;
+        string cause = 2;
+        uint32 downtime_minutes = 3;
+    }
+    
+    repeated DowntimeData downtime_data = 1;
+    string chart_type = 2;
+}
+
+message ModelMasteryChart {
+    message ModelPoint {
+        string strategy = 1;
+        string unit_size = 2;
+        bool is_mastered = 3;
+        string model_name = 4;
+    }
+    
+    repeated ModelPoint model_points = 1;
+}
+
+message ProjectProfitabilityChart {
+    message ProjectData {
+        string project_name = 1;
+        double profitability = 2;
+    }
+    
+    repeated ProjectData projects = 1;
+    string chart_type = 2;
+}
+
+// -----------------------------------------------------------------
+//          Сообщения для запросов и ответов
+// -----------------------------------------------------------------
+
+message GetReferenceDataRequest {
+    string data_type = 1;
+}
+
+message ReferenceDataResponse {
+    message SalesStrategyItem {
+        string id = 1;
+        string name = 2;
+        string description = 3;
+        double growth_forecast = 4;
+        uint64 unit_cost = 5;
+        string market_impact = 6;
+        string trend_direction = 7;
+    }
+    repeated SalesStrategyItem sales_strategies = 1;
+    
+    message DefectPolicyItem {
+        string id = 1;
+        string name = 2;
+        string description = 3;
+    }
+    repeated DefectPolicyItem defect_policies = 2;
+    
+    message CertificationItem {
+        string id = 1;
+        string name = 2;
+        string description = 3;
+        uint64 implementation_cost = 4;
+        uint32 implementation_time_days = 5;
+    }
+    repeated CertificationItem certifications = 3;
+    
+    message ImprovementItem {
+        string id = 1;
+        string name = 2;
+        string description = 3;
+        uint64 implementation_cost = 4;
+        double efficiency_gain = 5;
+    }
+    repeated ImprovementItem improvements = 4;
+    
+    message CompanyTypeItem {
+        string id = 1;
+        string name = 2;
+        string description = 3;
+    }
+    repeated CompanyTypeItem company_types = 5;
+    
+    message SpecialtyItem {
+        string id = 1;
+        string name = 2;
+        string description = 3;
+    }
+    repeated SpecialtyItem specialties = 6;
+    
+    message VehicleTypeItem {
+        string id = 1;
+        string name = 2;
+        string description = 3;
+        uint32 speed_modifier = 4;
+    }
+    repeated VehicleTypeItem vehicle_types = 7;
+    
+    message UnitSizeItem {
+        string id = 1;
+        string name = 2;
+        string description = 3;
+    }
+    repeated UnitSizeItem unit_sizes = 8;
+    
+    message ProductModelItem {
+        string id = 1;
+        string name = 2;
+        string description = 3;
+        string unit_size = 4;
+    }
+    repeated ProductModelItem product_models = 9;
+    
+    message PaymentFormItem {
+        string id = 1;
+        string name = 2;
+        string description = 3;
+    }
+    repeated PaymentFormItem payment_forms = 10;
+    
+    message WorkplaceTypeItem {
+        string id = 1;
+        string name = 2;
+        string description = 3;
+        string required_specialty = 4;
+        uint32 required_qualification = 5;
+        repeated string compatible_equipment = 6;
+    }
+    repeated WorkplaceTypeItem workplace_types = 11;
+    
+    string timestamp = 12;
+}
+
+// Списки доступных опций (детализированные)
+message GetAvailableDefectPoliciesRequest {}
+
+message DefectPoliciesListResponse {
+    message DefectPolicyOption {
+        string id = 1;
+        string name = 2;
+        string description = 3;
+        double cost_multiplier = 4;
+        double quality_impact = 5;
+        double time_impact = 6;
+    }
+    repeated DefectPolicyOption policies = 1;
+    string timestamp = 2;
+}
+
+message GetAvailableImprovementsListRequest {}
+
+message ImprovementsListResponse {
+    message ImprovementOption {
+        string id = 1;
+        string name = 2;
+        string description = 3;
+        uint64 implementation_cost = 4;
+        uint32 implementation_time_days = 5;
+        double efficiency_gain = 6;
+        double quality_improvement = 7;
+        double cost_reduction = 8;
+    }
+    repeated ImprovementOption improvements = 1;
+    string timestamp = 2;
+}
+
+message GetAvailableCertificationsRequest {}
+
+message CertificationsListResponse {
+    message CertificationOption {
+        string id = 1;
+        string name = 2;
+        string description = 3;
+        uint64 implementation_cost = 4;
+        uint32 implementation_time_days = 5;
+        double market_access_improvement = 6;
+        double quality_recognition = 7;
+        double government_access = 8;
+    }
+    repeated CertificationOption certifications = 1;
+    string timestamp = 2;
+}
+
+message GetAvailableSalesStrategiesRequest {}
+
+message SalesStrategiesListResponse {
+    message SalesStrategyOption {
+        string id = 1;
+        string name = 2;
+        string description = 3;
+        double growth_forecast = 4;
+        uint64 unit_cost = 5;
+        string market_impact = 6;
+        string trend_direction = 7;
+        repeated string compatible_product_models = 8;
+    }
+    repeated SalesStrategyOption strategies = 1;
+    string timestamp = 2;
+}
+
+message GetMaterialTypesRequest {}
+
+message MaterialTypesResponse {
+    message MaterialType {
+        string material_id = 1;
+        string name = 2;
+        string description = 3;
+        string unit = 4;
+        uint32 average_price = 5;
+    }
+    repeated MaterialType material_types = 1;
+    string timestamp = 2;
+}
+
+message GetEquipmentTypesRequest {}
+
+message EquipmentTypesResponse {
+    message EquipmentType {
+        string equipment_type_id = 1;
+        string name = 2;
+        string description = 3;
+        double base_reliability = 4;
+        uint32 base_maintenance_cost = 5;
+        uint32 base_cost = 6;
+        repeated string compatible_workplaces = 7;
+    }
+    repeated EquipmentType equipment_types = 1;
+    string timestamp = 2;
+}
+
+message GetWorkplaceTypesRequest {}
+
+message WorkplaceTypesResponse {
+    message WorkplaceType {
+        string workplace_type_id = 1;
+        string name = 2;
+        string description = 3;
+        string required_specialty = 4;
+        uint32 required_qualification = 5;
+        repeated string compatible_equipment_types = 6;
+    }
+    repeated WorkplaceType workplace_types = 1;
+    string timestamp = 2;
+}
+
+// -----------------------------------------------------------------
+//          Запросы для управления картой процесса (Инженеринг)
+// -----------------------------------------------------------------
+
+message ConfigureWorkplaceInGraphRequest {
+    string simulation_id = 1;
+    string workplace_id = 2;
+    string workplace_type = 3;
+    optional string worker_id = 4;
+    optional string equipment_id = 5;
+    bool is_start_node = 6;
+    bool is_end_node = 7;
+    repeated string next_workplace_ids = 8;
+}
+
+message RemoveWorkplaceFromGraphRequest {
+    string simulation_id = 1;
+    string workplace_id = 2;
+}
+
+message SetWorkplaceAsStartNodeRequest {
+    string simulation_id = 1;
+    string workplace_id = 2;
+}
+
+message SetWorkplaceAsEndNodeRequest {
+    string simulation_id = 1;
+    string workplace_id = 2;
+}
+
+message UpdateProcessGraphRequest {
+    string simulation_id = 1;
+    ProcessGraph process_graph = 2;
+}
+
+// -----------------------------------------------------------------
+//          Запросы для распределения плана (Производство)
+// -----------------------------------------------------------------
+
+message DistributeProductionPlanRequest {
+    string simulation_id = 1;
+    DistributionStrategy strategy = 2;
+    bool auto_assign_workers = 3;
+    bool auto_assign_equipment = 4;
+}
+
+message ProductionPlanDistributionResponse {
+    repeated ProductionPlanAssignment assignments = 1;
+    double efficiency_score = 2;
+    uint32 total_assigned_quantity = 3;
+    repeated string warnings = 4;
+    string timestamp = 5;
+}
+
+message GetProductionPlanDistributionRequest {
+    string simulation_id = 1;
+}
+
+message UpdateProductionAssignmentRequest {
+    string simulation_id = 1;
+    ProductionPlanAssignment assignment = 2;
+}
+
+message UpdateWorkshopPlanRequest {
+    string simulation_id = 1;
+    WorkshopPlan workshop_plan = 2;
+}
+
+// -----------------------------------------------------------------
+//          Базовые запросы и ответы
 // -----------------------------------------------------------------
 
 message SimulationResponse { 
     Simulation simulation = 1;
-    string timestamp = 2; // iso формат 
+    string timestamp = 2;
 }
 
 message GetSimulationRequest {
@@ -179,47 +763,47 @@ message SetWarehouseInventoryWorkerRequest{
 message IncreaseWarehouseSizeRequest{
     string simulation_id = 1; 
     WarehouseType warehouse_type = 2;
-    uint32 size = 3; // на сколько увеличиваем размер склада
+    uint32 size = 3;
 }
 
 message AddTenderRequest{
     string simulation_id = 1; 
-    string tender_id = 2; // нам надо будет преобразовывать в Tender
+    string tender_id = 2;
 }
 
 message RemoveTenderRequest{
     string simulation_id = 1; 
-    string tender_id = 2; // если нет тендера то ничего не делаем
+    string tender_id = 2;
 }
 
 message SetDealingWithDefectsRequest{
     string simulation_id = 1; 
-    string dealing_with_defects = 2; // политика работы с браком
+    string dealing_with_defects = 2;
 }
 
 message SetHasCertificationRequest{
     string simulation_id = 1; 
-    bool has_certification = 2; // сертификация ГОСТ Р ИСО
+    bool has_certification = 2;
 }
 
 message DeleteSupplierRequest{
     string simulation_id = 1; 
-    string supplier_id = 2; // если нет поставщика то ничего не делаем
+    string supplier_id = 2;
 }
 
 message AddProductionImprovementRequest{
     string simulation_id = 1; 
-    string production_improvement = 2; // улучшение производства
+    string production_improvement = 2;
 }
 
 message DeleteProductionImprovementRequest{
     string simulation_id = 1; 
-    string production_improvement = 2; // улучшение производства
+    string production_improvement = 2;
 }
 
 message SetSalesStrategyRequest{
     string simulation_id = 1; 
-    string sales_strategy = 2; // стратегия продаж
+    string sales_strategy = 2;
 }
 
 message RunSimulationRequest{
@@ -259,44 +843,10 @@ message SetEquipmentOnWorkplaceRequst{
     string workplace_id = 2;
     string equipment_id = 3; 
 }
+
 message UnSetEquipmentOnWorkplaceRequst{
     string simulation_id = 1; 
     string workplace_id = 2;
-}
-
-service SimulationService{
-    rpc create_simulation(CreateSimulationRquest) returns (SimulationResponse); // возвращает пустую симуляцию (параметры заполняются через геттеры и сеттеры)
-
-    rpc get_simulation(GetSimulationRequest) returns (SimulationResponse); // получаем симуляцию по id 
-    rpc set_logist(SetLogistRequest) returns (SimulationResponse); // устанавливаем логиста
-
-    rpc add_supplier(AddSupplierRequest) returns (SimulationResponse); // добавляем поставщика
-    rpc delete_supplier(DeleteSupplierRequest) returns (SimulationResponse); // удаляем поставщика
-
-    rpc set_warehouse_inventory_worker(SetWarehouseInventoryWorkerRequest) returns (SimulationResponse); // устанавливаем работника на склад
-    rpc increase_warehouse_size(IncreaseWarehouseSizeRequest) returns (SimulationResponse); // увеличиваем размер склада
-    
-    rpc add_process_rote(AddProcessRouteRequest) returns (SimulationResponse); // Добавляем путь для логиста
-    rpc delete_process_rote(DeleteProcesRouteRequest) returns (SimulationResponse); // Удафлем путь для логиста
-    rpc set_worker_on_workerplace(SetWorkerOnWorkerplaceRequest) returns (SimulationResponse); // Устанавливаем работника на рабочее место
-    rpc set_equipment_on_workplace(SetEquipmentOnWorkplaceRequst) returns (SimulationResponse);
-    rpc unset_worker_on_workerplace(UnSetWorkerOnWorkerplaceRequest) returns (SimulationResponse); // убираем работника с рабочего места
-    rpc unset_equipment_on_workplace(UnSetEquipmentOnWorkplaceRequst) returns (SimulationResponse);
-    
-    rpc add_tender(AddTenderRequest) returns (SimulationResponse); // добавляем тендер
-    rpc delete_tender(RemoveTenderRequest) returns (SimulationResponse); // удаляем тендер
-
-    rpc set_dealing_with_defects(SetDealingWithDefectsRequest) returns (SimulationResponse); // устанавливаем политику работы с браком
-    rpc set_has_certification(SetHasCertificationRequest) returns (SimulationResponse); // устанавливаем сертификацию ГОСТ Р ИСО
-
-    rpc add_production_improvement(AddProductionImprovementRequest) returns (SimulationResponse); // добавляем улучшение производства
-    rpc delete_production_improvement(DeleteProductionImprovementRequest) returns (SimulationResponse); // удаляем улучшение производства
-
-    rpc set_sales_strategy(SetSalesStrategyRequest) returns (SimulationResponse); // устанавливаем стратегию продаж
-
-    rpc run_simulation(RunSimulationRequest) returns (SimulationResponse); // запускаем симуляцию
-
-    rpc ping(PingRequest) returns (SuccessResponse); // проверка сервиса
 }
 
 message SuccessResponse{
@@ -304,6 +854,10 @@ message SuccessResponse{
     string message = 2; 
     string timestamp = 3;
 }
+
+// -----------------------------------------------------------------
+//          Запросы для Database Manager
+// -----------------------------------------------------------------
 
 message CreateSupplierRequest {
     string name = 1; 
@@ -362,22 +916,22 @@ message GetAllWorkersResponse{
 }
 
 message CreateLogistRequest{
-    string name = 1; // имя работника
-    uint32 qualification = 2; // квалификация работника вообще она от 1 до 9 
-    string specialty = 3; // специализация работника
-    uint32 salary = 4; // ЗП сотрудника
-    uint32 speed = 5; // скорость логиста
-    string vehicle_type = 6; // тип транспорта
+    string name = 1;
+    uint32 qualification = 2;
+    string specialty = 3;
+    uint32 salary = 4;
+    uint32 speed = 5;
+    string vehicle_type = 6;
 }
 
 message UpdateLogistRequest {
-    string worker_id = 1; // id работника в БД 
-    string name = 2; // имя работника
-    uint32 qualification = 3; // квалификация работника вообще она от 1 до 9 
-    string specialty = 4; // специализация работника
-    uint32 salary = 5; // ЗП сотрудника
-    uint32 speed = 6; // скорость логиста
-    string vehicle_type = 7; // тип транспорта
+    string worker_id = 1;
+    string name = 2;
+    uint32 qualification = 3;
+    string specialty = 4;
+    uint32 salary = 5;
+    uint32 speed = 6;
+    string vehicle_type = 7;
 }
 
 message DeleteLogistRequest{
@@ -392,7 +946,7 @@ message GetAllLogistsResponse{
 message CreateWorkplaceRequest{
     string workplace_name = 1; 
     string required_speciality = 2; 
-    string required_qualification = 3; 
+    uint32 required_qualification = 3; 
     string worker_id = 4;
     repeated string required_stages = 5;
 }
@@ -401,7 +955,7 @@ message UpdateWorkplaceRequest{
     string workplace_id = 1; 
     string workplace_name = 2; 
     string required_speciality = 3; 
-    string required_qualification = 4; 
+    uint32 required_qualification = 4; 
     string worker_id = 5; 
     repeated string required_stages = 6;
 }
@@ -421,13 +975,13 @@ message GetProcessGraphRequest{
 
 message CreateConsumerRequest{
     string name = 1;
-    string type = 2; // тип компании – гос. / не гос. 
+    string type = 2;
 }
 
 message UpdateConsumerRequest{
     string consumer_id = 1;
     string name = 2;
-    string type = 3; // тип компании – гос. / не гос. 
+    string type = 3;
 }
 
 message DeleteConsumerRequest{
@@ -440,16 +994,22 @@ message GetAllConsumersResponse{
 }
 
 message CreateTenderRequest {
-    string consumer_id = 1; // компания
-    uint32 cost = 2; // цена тендера
-    uint32 quantity_of_products = 3; // количество изделий
+    string consumer_id = 1;
+    uint32 cost = 2;
+    uint32 quantity_of_products = 3;
+    uint32 penalty_per_day = 4;
+    uint32 warranty_years = 5;
+    string payment_form = 6;
 }
 
 message UpdateTenderRequest {
     string tender_id = 1;
-    string consumer_id = 2; // компания
-    uint32 cost = 3; // цена тендера
-    uint32 quantity_of_products = 4; // количество изделий
+    string consumer_id = 2;
+    uint32 cost = 3;
+    uint32 quantity_of_products = 4;
+    uint32 penalty_per_day = 5;
+    uint32 warranty_years = 6;
+    string payment_form = 7;
 }
 
 message DeleteTenderRequest {
@@ -461,120 +1021,413 @@ message GetAllTendersResponse {
     uint32 total_count = 2; 
 }
 
-message GetAllSuppliersRequest{
+message GetAllSuppliersRequest{}
 
-}
+message GetAllWorkersRequest{}
 
-message GetAllWorkersRequest{
+message GetAllLogistsRequest{}
 
-}
+message GetAllWorkplacesRequest{}
 
-message GetAllLogistsRequest{
+message GetAllConsumersRequest{}
 
-}
+message GetAllTendersRequest{}
 
-message GetAllWorkplacesRequest{
-
-}
-
-message GetAllConsumersRequest{
-
-}
-
-message GetAllTendersRequest{
-
-}
-
-message PingRequest{
-
-}
+message PingRequest{}
 
 message CreateEquipmentRequest{
-    string name = 1; // название 
-    double reliability = 2; // надежность
-    uint32 maintenance_period = 3; // выбирает пользователь
-    uint32 maintenance_cost = 4; // стоимсоть тех. обслуживания
-    uint32 cost = 5; // стоимость покупки + установки
-    uint32 repair_cost = 6; // стоимость ремонта
-    uint32 repair_time = 7; 
+    string name = 1;
+    double reliability = 2;
+    uint32 maintenance_period = 3;
+    uint32 maintenance_cost = 4;
+    uint32 cost = 5;
+    uint32 repair_cost = 6;
+    uint32 repair_time = 7;
 }
 
 message UpdateEquipmentRequest{
     string equipment_id = 1; 
-    string name = 2; // название 
-    double reliability = 3; // надежность
-    uint32 maintenance_period = 4; // выбирает пользователь
-    uint32 maintenance_cost = 5; // стоимсоть тех. обслуживания
-    uint32 cost = 6; // стоимость покупки + установки
-    uint32 repair_cost = 7; // стоимость ремонта
-    uint32 repair_time = 8; // время на ремонт
+    string name = 2;
+    double reliability = 3;
+    uint32 maintenance_period = 4;
+    uint32 maintenance_cost = 5;
+    uint32 cost = 6;
+    uint32 repair_cost = 7;
+    uint32 repair_time = 8;
 }
 
 message DeleteEquipmentRequest {
     string equipment_id = 1;
 }
 
-message GetAllEquipmentRequest{
-
-}
+message GetAllEquipmentRequest{}
 
 message GetAllEquipmentResopnse {
     repeated Equipment equipments = 1; 
     uint32 total_count = 2; 
 }
 
-service SimulationDatabaseManager{
-    // Проблема – при получении сложного сообщения (с ссылкой на другое сообщение) у нас о вложенной сущности только id а получить инфу не можем. 
-    // Лучше возвращать сложные сообщения с вложением сообщений а не со ссылкой
+// -----------------------------------------------------------------
+//          Запросы для мониторинга
+// -----------------------------------------------------------------
 
+message GetMetricsRequest {
+    string simulation_id = 1;
+    optional uint32 step = 2;
+}
+
+message FactoryMetricsResponse {
+    FactoryMetrics metrics = 1;
+    string timestamp = 2;
+}
+
+message ProductionMetricsResponse {
+    ProductionMetrics metrics = 1;
+    UnplannedRepair unplanned_repairs = 2;
+    string timestamp = 3;
+}
+
+message QualityMetricsResponse {
+    QualityMetrics metrics = 1;
+    string timestamp = 2;
+}
+
+message EngineeringMetricsResponse {
+    EngineeringMetrics metrics = 1;
+    OperationTimingChart operation_timing_chart = 2;
+    DowntimeChart downtime_chart = 3;
+    string timestamp = 4;
+}
+
+message CommercialMetricsResponse {
+    CommercialMetrics metrics = 1;
+    ModelMasteryChart model_mastery_chart = 2;
+    ProjectProfitabilityChart project_profitability_chart = 3;
+    string timestamp = 4;
+}
+
+message ProcurementMetricsResponse {
+    ProcurementMetrics metrics = 1;
+    string timestamp = 2;
+}
+
+message GetProductionScheduleRequest {
+    string simulation_id = 1;
+}
+
+message ProductionScheduleResponse {
+    ProductionSchedule schedule = 1;
+    string timestamp = 2;
+}
+
+message UpdateProductionScheduleRequest {
+    string simulation_id = 1;
+    ProductionSchedule schedule = 2;
+}
+
+message GetWorkshopPlanRequest {
+    string simulation_id = 1;
+}
+
+message WorkshopPlanResponse {
+    WorkshopPlan workshop_plan = 1;
+    string timestamp = 2;
+}
+
+message GetUnplannedRepairRequest {
+    string simulation_id = 1;
+}
+
+message UnplannedRepairResponse {
+    UnplannedRepair unplanned_repair = 1;
+    string timestamp = 2;
+}
+
+message GetWarehouseLoadChartRequest {
+    string simulation_id = 1;
+    string warehouse_id = 2;
+}
+
+message WarehouseLoadChartResponse {
+    WarehouseLoadChart chart = 1;
+    string timestamp = 2;
+}
+
+message SetQualityInspectionRequest {
+    string simulation_id = 1;
+    string material_id = 2;
+    QualityInspection inspection = 3;
+}
+
+message SetDeliveryScheduleRequest {
+    string simulation_id = 1;
+    string supplier_id = 2;
+    DeliverySchedule schedule = 3;
+}
+
+message SetEquipmentMaintenanceIntervalRequest {
+    string simulation_id = 1;
+    string equipment_id = 2;
+    uint32 interval_days = 3;
+}
+
+message SetCertificationStatusRequest {
+    string simulation_id = 1;
+    string certificate_type = 2;
+    bool is_obtained = 3;
+}
+
+message SetLeanImprovementStatusRequest {
+    string simulation_id = 1;
+    string improvement_id = 2;
+    bool is_implemented = 3;
+}
+
+message SetSalesStrategyWithDetailsRequest {
+    string simulation_id = 1;
+    string strategy = 2;
+    double growth_forecast = 3;
+    uint64 unit_cost = 4;
+    string market_impact = 5;
+    string trend_direction = 6;
+}
+
+message GetRequiredMaterialsRequest {
+    string simulation_id = 1;
+}
+
+message RequiredMaterialsResponse {
+    repeated RequiredMaterial materials = 1;
+    string timestamp = 2;
+}
+
+message GetAvailableImprovementsRequest {
+    string simulation_id = 1;
+}
+
+message AvailableImprovementsResponse {
+    repeated LeanImprovement improvements = 1;
+    string timestamp = 2;
+}
+
+message GetDefectPoliciesRequest {
+    string simulation_id = 1;
+}
+
+message DefectPoliciesResponse {
+    repeated string available_policies = 1;
+    string current_policy = 2;
+    string timestamp = 3;
+}
+
+message RunSimulationStepRequest {
+    string simulation_id = 1;
+    uint32 step_count = 2;
+}
+
+message SimulationStepResponse {
+    Simulation simulation = 1;
+    FactoryMetrics factory_metrics = 2;
+    ProductionMetrics production_metrics = 3;
+    QualityMetrics quality_metrics = 4;
+    EngineeringMetrics engineering_metrics = 5;
+    CommercialMetrics commercial_metrics = 6;
+    ProcurementMetrics procurement_metrics = 7;
+    string timestamp = 8;
+}
+
+message GetSimulationHistoryRequest {
+    string simulation_id = 1;
+}
+
+message SimulationHistoryResponse {
+    repeated SimulationStepResponse steps = 1;
+    string timestamp = 2;
+}
+
+message GetAllMetricsRequest {
+    string simulation_id = 1;
+}
+
+message AllMetricsResponse {
+    FactoryMetrics factory = 1;
+    ProductionMetrics production = 2;
+    QualityMetrics quality = 3;
+    EngineeringMetrics engineering = 4;
+    CommercialMetrics commercial = 5;
+    ProcurementMetrics procurement = 6;
+    string timestamp = 7;
+}
+
+message ValidateConfigurationRequest {
+    string simulation_id = 1;
+}
+
+message ValidationResponse {
+    bool is_valid = 1;
+    repeated string errors = 2;
+    repeated string warnings = 3;
+    string timestamp = 4;
+}
+
+// -----------------------------------------------------------------
+//          Сервисы
+// -----------------------------------------------------------------
+
+service SimulationService{
+    // Базовые методы симуляции
+    rpc create_simulation(CreateSimulationRquest) returns (SimulationResponse);
+    rpc get_simulation(GetSimulationRequest) returns (SimulationResponse);
+    rpc run_simulation(RunSimulationRequest) returns (SimulationResponse);
+    rpc run_simulation_step(RunSimulationStepRequest) returns (SimulationStepResponse);
+    
+    // Конфигурация персонала
+    rpc set_logist(SetLogistRequest) returns (SimulationResponse);
+    rpc set_warehouse_inventory_worker(SetWarehouseInventoryWorkerRequest) returns (SimulationResponse);
+    rpc set_worker_on_workerplace(SetWorkerOnWorkerplaceRequest) returns (SimulationResponse);
+    rpc unset_worker_on_workerplace(UnSetWorkerOnWorkerplaceRequest) returns (SimulationResponse);
+    
+    // Конфигурация поставщиков
+    rpc add_supplier(AddSupplierRequest) returns (SimulationResponse);
+    rpc delete_supplier(DeleteSupplierRequest) returns (SimulationResponse);
+    
+    // Конфигурация складов
+    rpc increase_warehouse_size(IncreaseWarehouseSizeRequest) returns (SimulationResponse);
+    
+    // Конфигурация процесса (Инженеринг)
+    rpc add_process_rote(AddProcessRouteRequest) returns (SimulationResponse);
+    rpc delete_process_rote(DeleteProcesRouteRequest) returns (SimulationResponse);
+    rpc set_equipment_on_workplace(SetEquipmentOnWorkplaceRequst) returns (SimulationResponse);
+    rpc unset_equipment_on_workplace(UnSetEquipmentOnWorkplaceRequst) returns (SimulationResponse);
+    
+    // Управление картой процесса (Инженеринг)
+    rpc configure_workplace_in_graph(ConfigureWorkplaceInGraphRequest) returns (SimulationResponse);
+    rpc remove_workplace_from_graph(RemoveWorkplaceFromGraphRequest) returns (SimulationResponse);
+    rpc set_workplace_as_start_node(SetWorkplaceAsStartNodeRequest) returns (SimulationResponse);
+    rpc set_workplace_as_end_node(SetWorkplaceAsEndNodeRequest) returns (SimulationResponse);
+    rpc update_process_graph(UpdateProcessGraphRequest) returns (SimulationResponse);
+    
+    // Распределение производственного плана (Производство)
+    rpc distribute_production_plan(DistributeProductionPlanRequest) returns (ProductionPlanDistributionResponse);
+    rpc get_production_plan_distribution(GetProductionPlanDistributionRequest) returns (ProductionPlanDistributionResponse);
+    rpc update_production_assignment(UpdateProductionAssignmentRequest) returns (SimulationResponse);
+    rpc update_workshop_plan(UpdateWorkshopPlanRequest) returns (SimulationResponse);
+    
+    // Конфигурация тендеров
+    rpc add_tender(AddTenderRequest) returns (SimulationResponse);
+    rpc delete_tender(RemoveTenderRequest) returns (SimulationResponse);
+    
+    // Общие настройки
+    rpc set_dealing_with_defects(SetDealingWithDefectsRequest) returns (SimulationResponse);
+    rpc set_has_certification(SetHasCertificationRequest) returns (SimulationResponse);
+    rpc add_production_improvement(AddProductionImprovementRequest) returns (SimulationResponse);
+    rpc delete_production_improvement(DeleteProductionImprovementRequest) returns (SimulationResponse);
+    rpc set_sales_strategy(SetSalesStrategyRequest) returns (SimulationResponse);
+    
+    // Специфичные настройки по ролям
+    rpc set_quality_inspection(SetQualityInspectionRequest) returns (SimulationResponse);
+    rpc set_delivery_schedule(SetDeliveryScheduleRequest) returns (SimulationResponse);
+    rpc set_equipment_maintenance_interval(SetEquipmentMaintenanceIntervalRequest) returns (SimulationResponse);
+    rpc update_production_schedule(UpdateProductionScheduleRequest) returns (SimulationResponse);
+    rpc set_certification_status(SetCertificationStatusRequest) returns (SimulationResponse);
+    rpc set_lean_improvement_status(SetLeanImprovementStatusRequest) returns (SimulationResponse);
+    rpc set_sales_strategy_with_details(SetSalesStrategyWithDetailsRequest) returns (SimulationResponse);
+    
+    // Методы получения метрик и мониторинга
+    rpc get_factory_metrics(GetMetricsRequest) returns (FactoryMetricsResponse);
+    rpc get_production_metrics(GetMetricsRequest) returns (ProductionMetricsResponse);
+    rpc get_quality_metrics(GetMetricsRequest) returns (QualityMetricsResponse);
+    rpc get_engineering_metrics(GetMetricsRequest) returns (EngineeringMetricsResponse);
+    rpc get_commercial_metrics(GetMetricsRequest) returns (CommercialMetricsResponse);
+    rpc get_procurement_metrics(GetMetricsRequest) returns (ProcurementMetricsResponse);
+    rpc get_all_metrics(GetAllMetricsRequest) returns (AllMetricsResponse);
+    
+    // Методы получения данных для вкладок
+    rpc get_production_schedule(GetProductionScheduleRequest) returns (ProductionScheduleResponse);
+    rpc get_workshop_plan(GetWorkshopPlanRequest) returns (WorkshopPlanResponse);
+    rpc get_unplanned_repair(GetUnplannedRepairRequest) returns (UnplannedRepairResponse);
+    rpc get_warehouse_load_chart(GetWarehouseLoadChartRequest) returns (WarehouseLoadChartResponse);
+    rpc get_required_materials(GetRequiredMaterialsRequest) returns (RequiredMaterialsResponse);
+    rpc get_available_improvements(GetAvailableImprovementsRequest) returns (AvailableImprovementsResponse);
+    rpc get_defect_policies(GetDefectPoliciesRequest) returns (DefectPoliciesResponse);
+    rpc get_simulation_history(GetSimulationHistoryRequest) returns (SimulationHistoryResponse);
+    
+    // Справочные данные
+    rpc get_reference_data(GetReferenceDataRequest) returns (ReferenceDataResponse);
+    rpc get_material_types(GetMaterialTypesRequest) returns (MaterialTypesResponse);
+    rpc get_equipment_types(GetEquipmentTypesRequest) returns (EquipmentTypesResponse);
+    rpc get_workplace_types(GetWorkplaceTypesRequest) returns (WorkplaceTypesResponse);
+    rpc get_available_defect_policies(GetAvailableDefectPoliciesRequest) returns (DefectPoliciesListResponse);
+    rpc get_available_improvements_list(GetAvailableImprovementsListRequest) returns (ImprovementsListResponse);
+    rpc get_available_certifications(GetAvailableCertificationsRequest) returns (CertificationsListResponse);
+    rpc get_available_sales_strategies(GetAvailableSalesStrategiesRequest) returns (SalesStrategiesListResponse);
+    
+    // Валидация
+    rpc validate_configuration(ValidateConfigurationRequest) returns (ValidationResponse);
+    
+    // Проверка сервиса
+    rpc ping(PingRequest) returns (SuccessResponse);
+}
+
+service SimulationDatabaseManager{
     // методы поставщика
-    rpc create_supplier(CreateSupplierRequest) returns (Supplier); // из БД
-    rpc update_supplier(UpdateSupplierRequest) returns (Supplier); // из БД 
-    rpc delete_supplier(DeleteSupplierRequest) returns (SuccessResponse); // из БД
-    rpc get_all_suppliers(GetAllSuppliersRequest) returns (GetAllSuppliersResponse); // из БД
+    rpc create_supplier(CreateSupplierRequest) returns (Supplier);
+    rpc update_supplier(UpdateSupplierRequest) returns (Supplier);
+    rpc delete_supplier(DeleteSupplierRequest) returns (SuccessResponse);
+    rpc get_all_suppliers(GetAllSuppliersRequest) returns (GetAllSuppliersResponse);
 
     // методы склада
-    rpc get_warehouse(GetWarehouseRequest) returns (Warehouse); // из redis
+    rpc get_warehouse(GetWarehouseRequest) returns (Warehouse);
 
     // методы рабочих
-    rpc create_worker(CreateWorkerRequest) returns (Worker);  // из БД 
-    rpc update_worker(UpdateWorkerRequest) returns (Worker); // из БД
-    rpc delete_worker(DeleteWorkerRequest) returns (SuccessResponse); // из БД 
-    rpc get_all_workers(GetAllWorkersRequest) returns (GetAllWorkersResponse); // из БД 
+    rpc create_worker(CreateWorkerRequest) returns (Worker);
+    rpc update_worker(UpdateWorkerRequest) returns (Worker);
+    rpc delete_worker(DeleteWorkerRequest) returns (SuccessResponse);
+    rpc get_all_workers(GetAllWorkersRequest) returns (GetAllWorkersResponse);
 
     // методы логиста
-    rpc create_logist(CreateLogistRequest) returns (Logist); // из БД 
-    rpc update_logist(UpdateLogistRequest) returns (Logist); 
-    rpc delete_logist(DeleteLogistRequest) returns (SuccessResponse); 
-    rpc get_all_logists(GetAllLogistsRequest) returns (GetAllLogistsResponse); 
+    rpc create_logist(CreateLogistRequest) returns (Logist);
+    rpc update_logist(UpdateLogistRequest) returns (Logist);
+    rpc delete_logist(DeleteLogistRequest) returns (SuccessResponse);
+    rpc get_all_logists(GetAllLogistsRequest) returns (GetAllLogistsResponse);
 
     // методы рабочих мест 
-    rpc create_workplace(CreateWorkplaceRequest) returns (Workplace); 
+    rpc create_workplace(CreateWorkplaceRequest) returns (Workplace);
     rpc update_workplace(UpdateWorkplaceRequest) returns (Workplace);
-    rpc delete_workplace(DeleteWorkplaceRequest) returns (SuccessResponse); 
-    rpc get_all_workplaces(GetAllWorkplacesRequest) returns (GetAllWorkplacesResponse); 
+    rpc delete_workplace(DeleteWorkplaceRequest) returns (SuccessResponse);
+    rpc get_all_workplaces(GetAllWorkplacesRequest) returns (GetAllWorkplacesResponse);
 
     // методы карты процесса 
-    rpc get_process_graph(GetProcessGraphRequest) returns (ProcessGraph); // из Redis
+    rpc get_process_graph(GetProcessGraphRequest) returns (ProcessGraph);
 
     // методы заказчика
-    rpc create_consumer(CreateConsumerRequest) returns (Consumer); 
-    rpc update_consumer(UpdateConsumerRequest) returns (Consumer); 
-    rpc delete_consumer(DeleteConsumerRequest) returns (SuccessResponse); 
-    rpc get_all_consumers(GetAllConsumersRequest) returns (GetAllConsumersResponse); 
+    rpc create_consumer(CreateConsumerRequest) returns (Consumer);
+    rpc update_consumer(UpdateConsumerRequest) returns (Consumer);
+    rpc delete_consumer(DeleteConsumerRequest) returns (SuccessResponse);
+    rpc get_all_consumers(GetAllConsumersRequest) returns (GetAllConsumersResponse);
 
     // методы тендеров
-    rpc create_tender(CreateTenderRequest) returns (Tender); 
-    rpc update_tender(UpdateTenderRequest) returns (Tender); 
+    rpc create_tender(CreateTenderRequest) returns (Tender);
+    rpc update_tender(UpdateTenderRequest) returns (Tender);
     rpc delete_tender(DeleteTenderRequest) returns (SuccessResponse);
-    rpc get_all_tenders(GetAllTendersRequest) returns (GetAllTendersResponse); 
+    rpc get_all_tenders(GetAllTendersRequest) returns (GetAllTendersResponse);
 
-    // TODO: реализовать методы менеджемнта equipment
-    rpc create_equipment(CreateEquipmentRequest) returns (Equipment); // надо реализовать
-    rpc update_equipment(UpdateEquipmentRequest) returns (Equipment); // надо реализовать 
-    rpc delete_equipment(DeleteEquipmentRequest) returns (SuccessResponse); // надо реализовать 
-    rpc get_all_equipment(GetAllEquipmentRequest) returns (GetAllEquipmentResopnse); // надо реализовать
+    // методы оборудования
+    rpc create_equipment(CreateEquipmentRequest) returns (Equipment);
+    rpc update_equipment(UpdateEquipmentRequest) returns (Equipment);
+    rpc delete_equipment(DeleteEquipmentRequest) returns (SuccessResponse);
+    rpc get_all_equipment(GetAllEquipmentRequest) returns (GetAllEquipmentResopnse);
+
+    // Справочные данные
+    rpc get_reference_data(GetReferenceDataRequest) returns (ReferenceDataResponse);
+    rpc get_material_types(GetMaterialTypesRequest) returns (MaterialTypesResponse);
+    rpc get_equipment_types(GetEquipmentTypesRequest) returns (EquipmentTypesResponse);
+    rpc get_workplace_types(GetWorkplaceTypesRequest) returns (WorkplaceTypesResponse);
+    rpc get_available_defect_policies(GetAvailableDefectPoliciesRequest) returns (DefectPoliciesListResponse);
+    rpc get_available_improvements_list(GetAvailableImprovementsListRequest) returns (ImprovementsListResponse);
+    rpc get_available_certifications(GetAvailableCertificationsRequest) returns (CertificationsListResponse);
+    rpc get_available_sales_strategies(GetAvailableSalesStrategiesRequest) returns (SalesStrategiesListResponse);
 
     // методы проверки состояния
-    rpc ping(PingRequest) returns (SuccessResponse); 
+    rpc ping(PingRequest) returns (SuccessResponse);
 }

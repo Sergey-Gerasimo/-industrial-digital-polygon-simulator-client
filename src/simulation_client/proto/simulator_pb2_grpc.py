@@ -26,7 +26,11 @@ if _version_not_supported:
 
 
 class SimulationServiceStub(object):
-    """Missing associated documentation comment in .proto file."""
+    """-----------------------------------------------------------------
+    Сервисы
+    -----------------------------------------------------------------
+
+    """
 
     def __init__(self, channel):
         """Constructor.
@@ -44,9 +48,34 @@ class SimulationServiceStub(object):
                 request_serializer=simulator__pb2.GetSimulationRequest.SerializeToString,
                 response_deserializer=simulator__pb2.SimulationResponse.FromString,
                 _registered_method=True)
+        self.run_simulation = channel.unary_unary(
+                '/simulator.SimulationService/run_simulation',
+                request_serializer=simulator__pb2.RunSimulationRequest.SerializeToString,
+                response_deserializer=simulator__pb2.SimulationResponse.FromString,
+                _registered_method=True)
+        self.run_simulation_step = channel.unary_unary(
+                '/simulator.SimulationService/run_simulation_step',
+                request_serializer=simulator__pb2.RunSimulationStepRequest.SerializeToString,
+                response_deserializer=simulator__pb2.SimulationStepResponse.FromString,
+                _registered_method=True)
         self.set_logist = channel.unary_unary(
                 '/simulator.SimulationService/set_logist',
                 request_serializer=simulator__pb2.SetLogistRequest.SerializeToString,
+                response_deserializer=simulator__pb2.SimulationResponse.FromString,
+                _registered_method=True)
+        self.set_warehouse_inventory_worker = channel.unary_unary(
+                '/simulator.SimulationService/set_warehouse_inventory_worker',
+                request_serializer=simulator__pb2.SetWarehouseInventoryWorkerRequest.SerializeToString,
+                response_deserializer=simulator__pb2.SimulationResponse.FromString,
+                _registered_method=True)
+        self.set_worker_on_workerplace = channel.unary_unary(
+                '/simulator.SimulationService/set_worker_on_workerplace',
+                request_serializer=simulator__pb2.SetWorkerOnWorkerplaceRequest.SerializeToString,
+                response_deserializer=simulator__pb2.SimulationResponse.FromString,
+                _registered_method=True)
+        self.unset_worker_on_workerplace = channel.unary_unary(
+                '/simulator.SimulationService/unset_worker_on_workerplace',
+                request_serializer=simulator__pb2.UnSetWorkerOnWorkerplaceRequest.SerializeToString,
                 response_deserializer=simulator__pb2.SimulationResponse.FromString,
                 _registered_method=True)
         self.add_supplier = channel.unary_unary(
@@ -57,11 +86,6 @@ class SimulationServiceStub(object):
         self.delete_supplier = channel.unary_unary(
                 '/simulator.SimulationService/delete_supplier',
                 request_serializer=simulator__pb2.DeleteSupplierRequest.SerializeToString,
-                response_deserializer=simulator__pb2.SimulationResponse.FromString,
-                _registered_method=True)
-        self.set_warehouse_inventory_worker = channel.unary_unary(
-                '/simulator.SimulationService/set_warehouse_inventory_worker',
-                request_serializer=simulator__pb2.SetWarehouseInventoryWorkerRequest.SerializeToString,
                 response_deserializer=simulator__pb2.SimulationResponse.FromString,
                 _registered_method=True)
         self.increase_warehouse_size = channel.unary_unary(
@@ -79,24 +103,59 @@ class SimulationServiceStub(object):
                 request_serializer=simulator__pb2.DeleteProcesRouteRequest.SerializeToString,
                 response_deserializer=simulator__pb2.SimulationResponse.FromString,
                 _registered_method=True)
-        self.set_worker_on_workerplace = channel.unary_unary(
-                '/simulator.SimulationService/set_worker_on_workerplace',
-                request_serializer=simulator__pb2.SetWorkerOnWorkerplaceRequest.SerializeToString,
-                response_deserializer=simulator__pb2.SimulationResponse.FromString,
-                _registered_method=True)
         self.set_equipment_on_workplace = channel.unary_unary(
                 '/simulator.SimulationService/set_equipment_on_workplace',
                 request_serializer=simulator__pb2.SetEquipmentOnWorkplaceRequst.SerializeToString,
                 response_deserializer=simulator__pb2.SimulationResponse.FromString,
                 _registered_method=True)
-        self.unset_worker_on_workerplace = channel.unary_unary(
-                '/simulator.SimulationService/unset_worker_on_workerplace',
-                request_serializer=simulator__pb2.UnSetWorkerOnWorkerplaceRequest.SerializeToString,
-                response_deserializer=simulator__pb2.SimulationResponse.FromString,
-                _registered_method=True)
         self.unset_equipment_on_workplace = channel.unary_unary(
                 '/simulator.SimulationService/unset_equipment_on_workplace',
                 request_serializer=simulator__pb2.UnSetEquipmentOnWorkplaceRequst.SerializeToString,
+                response_deserializer=simulator__pb2.SimulationResponse.FromString,
+                _registered_method=True)
+        self.configure_workplace_in_graph = channel.unary_unary(
+                '/simulator.SimulationService/configure_workplace_in_graph',
+                request_serializer=simulator__pb2.ConfigureWorkplaceInGraphRequest.SerializeToString,
+                response_deserializer=simulator__pb2.SimulationResponse.FromString,
+                _registered_method=True)
+        self.remove_workplace_from_graph = channel.unary_unary(
+                '/simulator.SimulationService/remove_workplace_from_graph',
+                request_serializer=simulator__pb2.RemoveWorkplaceFromGraphRequest.SerializeToString,
+                response_deserializer=simulator__pb2.SimulationResponse.FromString,
+                _registered_method=True)
+        self.set_workplace_as_start_node = channel.unary_unary(
+                '/simulator.SimulationService/set_workplace_as_start_node',
+                request_serializer=simulator__pb2.SetWorkplaceAsStartNodeRequest.SerializeToString,
+                response_deserializer=simulator__pb2.SimulationResponse.FromString,
+                _registered_method=True)
+        self.set_workplace_as_end_node = channel.unary_unary(
+                '/simulator.SimulationService/set_workplace_as_end_node',
+                request_serializer=simulator__pb2.SetWorkplaceAsEndNodeRequest.SerializeToString,
+                response_deserializer=simulator__pb2.SimulationResponse.FromString,
+                _registered_method=True)
+        self.update_process_graph = channel.unary_unary(
+                '/simulator.SimulationService/update_process_graph',
+                request_serializer=simulator__pb2.UpdateProcessGraphRequest.SerializeToString,
+                response_deserializer=simulator__pb2.SimulationResponse.FromString,
+                _registered_method=True)
+        self.distribute_production_plan = channel.unary_unary(
+                '/simulator.SimulationService/distribute_production_plan',
+                request_serializer=simulator__pb2.DistributeProductionPlanRequest.SerializeToString,
+                response_deserializer=simulator__pb2.ProductionPlanDistributionResponse.FromString,
+                _registered_method=True)
+        self.get_production_plan_distribution = channel.unary_unary(
+                '/simulator.SimulationService/get_production_plan_distribution',
+                request_serializer=simulator__pb2.GetProductionPlanDistributionRequest.SerializeToString,
+                response_deserializer=simulator__pb2.ProductionPlanDistributionResponse.FromString,
+                _registered_method=True)
+        self.update_production_assignment = channel.unary_unary(
+                '/simulator.SimulationService/update_production_assignment',
+                request_serializer=simulator__pb2.UpdateProductionAssignmentRequest.SerializeToString,
+                response_deserializer=simulator__pb2.SimulationResponse.FromString,
+                _registered_method=True)
+        self.update_workshop_plan = channel.unary_unary(
+                '/simulator.SimulationService/update_workshop_plan',
+                request_serializer=simulator__pb2.UpdateWorkshopPlanRequest.SerializeToString,
                 response_deserializer=simulator__pb2.SimulationResponse.FromString,
                 _registered_method=True)
         self.add_tender = channel.unary_unary(
@@ -134,10 +193,160 @@ class SimulationServiceStub(object):
                 request_serializer=simulator__pb2.SetSalesStrategyRequest.SerializeToString,
                 response_deserializer=simulator__pb2.SimulationResponse.FromString,
                 _registered_method=True)
-        self.run_simulation = channel.unary_unary(
-                '/simulator.SimulationService/run_simulation',
-                request_serializer=simulator__pb2.RunSimulationRequest.SerializeToString,
+        self.set_quality_inspection = channel.unary_unary(
+                '/simulator.SimulationService/set_quality_inspection',
+                request_serializer=simulator__pb2.SetQualityInspectionRequest.SerializeToString,
                 response_deserializer=simulator__pb2.SimulationResponse.FromString,
+                _registered_method=True)
+        self.set_delivery_schedule = channel.unary_unary(
+                '/simulator.SimulationService/set_delivery_schedule',
+                request_serializer=simulator__pb2.SetDeliveryScheduleRequest.SerializeToString,
+                response_deserializer=simulator__pb2.SimulationResponse.FromString,
+                _registered_method=True)
+        self.set_equipment_maintenance_interval = channel.unary_unary(
+                '/simulator.SimulationService/set_equipment_maintenance_interval',
+                request_serializer=simulator__pb2.SetEquipmentMaintenanceIntervalRequest.SerializeToString,
+                response_deserializer=simulator__pb2.SimulationResponse.FromString,
+                _registered_method=True)
+        self.update_production_schedule = channel.unary_unary(
+                '/simulator.SimulationService/update_production_schedule',
+                request_serializer=simulator__pb2.UpdateProductionScheduleRequest.SerializeToString,
+                response_deserializer=simulator__pb2.SimulationResponse.FromString,
+                _registered_method=True)
+        self.set_certification_status = channel.unary_unary(
+                '/simulator.SimulationService/set_certification_status',
+                request_serializer=simulator__pb2.SetCertificationStatusRequest.SerializeToString,
+                response_deserializer=simulator__pb2.SimulationResponse.FromString,
+                _registered_method=True)
+        self.set_lean_improvement_status = channel.unary_unary(
+                '/simulator.SimulationService/set_lean_improvement_status',
+                request_serializer=simulator__pb2.SetLeanImprovementStatusRequest.SerializeToString,
+                response_deserializer=simulator__pb2.SimulationResponse.FromString,
+                _registered_method=True)
+        self.set_sales_strategy_with_details = channel.unary_unary(
+                '/simulator.SimulationService/set_sales_strategy_with_details',
+                request_serializer=simulator__pb2.SetSalesStrategyWithDetailsRequest.SerializeToString,
+                response_deserializer=simulator__pb2.SimulationResponse.FromString,
+                _registered_method=True)
+        self.get_factory_metrics = channel.unary_unary(
+                '/simulator.SimulationService/get_factory_metrics',
+                request_serializer=simulator__pb2.GetMetricsRequest.SerializeToString,
+                response_deserializer=simulator__pb2.FactoryMetricsResponse.FromString,
+                _registered_method=True)
+        self.get_production_metrics = channel.unary_unary(
+                '/simulator.SimulationService/get_production_metrics',
+                request_serializer=simulator__pb2.GetMetricsRequest.SerializeToString,
+                response_deserializer=simulator__pb2.ProductionMetricsResponse.FromString,
+                _registered_method=True)
+        self.get_quality_metrics = channel.unary_unary(
+                '/simulator.SimulationService/get_quality_metrics',
+                request_serializer=simulator__pb2.GetMetricsRequest.SerializeToString,
+                response_deserializer=simulator__pb2.QualityMetricsResponse.FromString,
+                _registered_method=True)
+        self.get_engineering_metrics = channel.unary_unary(
+                '/simulator.SimulationService/get_engineering_metrics',
+                request_serializer=simulator__pb2.GetMetricsRequest.SerializeToString,
+                response_deserializer=simulator__pb2.EngineeringMetricsResponse.FromString,
+                _registered_method=True)
+        self.get_commercial_metrics = channel.unary_unary(
+                '/simulator.SimulationService/get_commercial_metrics',
+                request_serializer=simulator__pb2.GetMetricsRequest.SerializeToString,
+                response_deserializer=simulator__pb2.CommercialMetricsResponse.FromString,
+                _registered_method=True)
+        self.get_procurement_metrics = channel.unary_unary(
+                '/simulator.SimulationService/get_procurement_metrics',
+                request_serializer=simulator__pb2.GetMetricsRequest.SerializeToString,
+                response_deserializer=simulator__pb2.ProcurementMetricsResponse.FromString,
+                _registered_method=True)
+        self.get_all_metrics = channel.unary_unary(
+                '/simulator.SimulationService/get_all_metrics',
+                request_serializer=simulator__pb2.GetAllMetricsRequest.SerializeToString,
+                response_deserializer=simulator__pb2.AllMetricsResponse.FromString,
+                _registered_method=True)
+        self.get_production_schedule = channel.unary_unary(
+                '/simulator.SimulationService/get_production_schedule',
+                request_serializer=simulator__pb2.GetProductionScheduleRequest.SerializeToString,
+                response_deserializer=simulator__pb2.ProductionScheduleResponse.FromString,
+                _registered_method=True)
+        self.get_workshop_plan = channel.unary_unary(
+                '/simulator.SimulationService/get_workshop_plan',
+                request_serializer=simulator__pb2.GetWorkshopPlanRequest.SerializeToString,
+                response_deserializer=simulator__pb2.WorkshopPlanResponse.FromString,
+                _registered_method=True)
+        self.get_unplanned_repair = channel.unary_unary(
+                '/simulator.SimulationService/get_unplanned_repair',
+                request_serializer=simulator__pb2.GetUnplannedRepairRequest.SerializeToString,
+                response_deserializer=simulator__pb2.UnplannedRepairResponse.FromString,
+                _registered_method=True)
+        self.get_warehouse_load_chart = channel.unary_unary(
+                '/simulator.SimulationService/get_warehouse_load_chart',
+                request_serializer=simulator__pb2.GetWarehouseLoadChartRequest.SerializeToString,
+                response_deserializer=simulator__pb2.WarehouseLoadChartResponse.FromString,
+                _registered_method=True)
+        self.get_required_materials = channel.unary_unary(
+                '/simulator.SimulationService/get_required_materials',
+                request_serializer=simulator__pb2.GetRequiredMaterialsRequest.SerializeToString,
+                response_deserializer=simulator__pb2.RequiredMaterialsResponse.FromString,
+                _registered_method=True)
+        self.get_available_improvements = channel.unary_unary(
+                '/simulator.SimulationService/get_available_improvements',
+                request_serializer=simulator__pb2.GetAvailableImprovementsRequest.SerializeToString,
+                response_deserializer=simulator__pb2.AvailableImprovementsResponse.FromString,
+                _registered_method=True)
+        self.get_defect_policies = channel.unary_unary(
+                '/simulator.SimulationService/get_defect_policies',
+                request_serializer=simulator__pb2.GetDefectPoliciesRequest.SerializeToString,
+                response_deserializer=simulator__pb2.DefectPoliciesResponse.FromString,
+                _registered_method=True)
+        self.get_simulation_history = channel.unary_unary(
+                '/simulator.SimulationService/get_simulation_history',
+                request_serializer=simulator__pb2.GetSimulationHistoryRequest.SerializeToString,
+                response_deserializer=simulator__pb2.SimulationHistoryResponse.FromString,
+                _registered_method=True)
+        self.get_reference_data = channel.unary_unary(
+                '/simulator.SimulationService/get_reference_data',
+                request_serializer=simulator__pb2.GetReferenceDataRequest.SerializeToString,
+                response_deserializer=simulator__pb2.ReferenceDataResponse.FromString,
+                _registered_method=True)
+        self.get_material_types = channel.unary_unary(
+                '/simulator.SimulationService/get_material_types',
+                request_serializer=simulator__pb2.GetMaterialTypesRequest.SerializeToString,
+                response_deserializer=simulator__pb2.MaterialTypesResponse.FromString,
+                _registered_method=True)
+        self.get_equipment_types = channel.unary_unary(
+                '/simulator.SimulationService/get_equipment_types',
+                request_serializer=simulator__pb2.GetEquipmentTypesRequest.SerializeToString,
+                response_deserializer=simulator__pb2.EquipmentTypesResponse.FromString,
+                _registered_method=True)
+        self.get_workplace_types = channel.unary_unary(
+                '/simulator.SimulationService/get_workplace_types',
+                request_serializer=simulator__pb2.GetWorkplaceTypesRequest.SerializeToString,
+                response_deserializer=simulator__pb2.WorkplaceTypesResponse.FromString,
+                _registered_method=True)
+        self.get_available_defect_policies = channel.unary_unary(
+                '/simulator.SimulationService/get_available_defect_policies',
+                request_serializer=simulator__pb2.GetAvailableDefectPoliciesRequest.SerializeToString,
+                response_deserializer=simulator__pb2.DefectPoliciesListResponse.FromString,
+                _registered_method=True)
+        self.get_available_improvements_list = channel.unary_unary(
+                '/simulator.SimulationService/get_available_improvements_list',
+                request_serializer=simulator__pb2.GetAvailableImprovementsListRequest.SerializeToString,
+                response_deserializer=simulator__pb2.ImprovementsListResponse.FromString,
+                _registered_method=True)
+        self.get_available_certifications = channel.unary_unary(
+                '/simulator.SimulationService/get_available_certifications',
+                request_serializer=simulator__pb2.GetAvailableCertificationsRequest.SerializeToString,
+                response_deserializer=simulator__pb2.CertificationsListResponse.FromString,
+                _registered_method=True)
+        self.get_available_sales_strategies = channel.unary_unary(
+                '/simulator.SimulationService/get_available_sales_strategies',
+                request_serializer=simulator__pb2.GetAvailableSalesStrategiesRequest.SerializeToString,
+                response_deserializer=simulator__pb2.SalesStrategiesListResponse.FromString,
+                _registered_method=True)
+        self.validate_configuration = channel.unary_unary(
+                '/simulator.SimulationService/validate_configuration',
+                request_serializer=simulator__pb2.ValidateConfigurationRequest.SerializeToString,
+                response_deserializer=simulator__pb2.ValidationResponse.FromString,
                 _registered_method=True)
         self.ping = channel.unary_unary(
                 '/simulator.SimulationService/ping',
@@ -147,74 +356,91 @@ class SimulationServiceStub(object):
 
 
 class SimulationServiceServicer(object):
-    """Missing associated documentation comment in .proto file."""
+    """-----------------------------------------------------------------
+    Сервисы
+    -----------------------------------------------------------------
+
+    """
 
     def create_simulation(self, request, context):
-        """возвращает пустую симуляцию (параметры заполняются через геттеры и сеттеры)
+        """Базовые методы симуляции
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def get_simulation(self, request, context):
-        """получаем симуляцию по id 
-        """
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def run_simulation(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def run_simulation_step(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def set_logist(self, request, context):
-        """устанавливаем логиста
-        """
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def add_supplier(self, request, context):
-        """добавляем поставщика
-        """
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def delete_supplier(self, request, context):
-        """удаляем поставщика
+        """Конфигурация персонала
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def set_warehouse_inventory_worker(self, request, context):
-        """устанавливаем работника на склад
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def set_worker_on_workerplace(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def unset_worker_on_workerplace(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def add_supplier(self, request, context):
+        """Конфигурация поставщиков
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def delete_supplier(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def increase_warehouse_size(self, request, context):
-        """увеличиваем размер склада
+        """Конфигурация складов
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def add_process_rote(self, request, context):
-        """Добавляем путь для логиста
+        """Конфигурация процесса (Инженеринг)
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def delete_process_rote(self, request, context):
-        """Удафлем путь для логиста
-        """
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def set_worker_on_workerplace(self, request, context):
-        """Устанавливаем работника на рабочее место
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -225,77 +451,305 @@ class SimulationServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def unset_worker_on_workerplace(self, request, context):
-        """убираем работника с рабочего места
-        """
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
     def unset_equipment_on_workplace(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def configure_workplace_in_graph(self, request, context):
+        """Управление картой процесса (Инженеринг)
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def remove_workplace_from_graph(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def set_workplace_as_start_node(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def set_workplace_as_end_node(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def update_process_graph(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def distribute_production_plan(self, request, context):
+        """Распределение производственного плана (Производство)
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_production_plan_distribution(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def update_production_assignment(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def update_workshop_plan(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def add_tender(self, request, context):
-        """добавляем тендер
+        """Конфигурация тендеров
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def delete_tender(self, request, context):
-        """удаляем тендер
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def set_dealing_with_defects(self, request, context):
-        """устанавливаем политику работы с браком
+        """Общие настройки
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def set_has_certification(self, request, context):
-        """устанавливаем сертификацию ГОСТ Р ИСО
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def add_production_improvement(self, request, context):
-        """добавляем улучшение производства
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def delete_production_improvement(self, request, context):
-        """удаляем улучшение производства
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def set_sales_strategy(self, request, context):
-        """устанавливаем стратегию продаж
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def set_quality_inspection(self, request, context):
+        """Специфичные настройки по ролям
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def run_simulation(self, request, context):
-        """запускаем симуляцию
+    def set_delivery_schedule(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def set_equipment_maintenance_interval(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def update_production_schedule(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def set_certification_status(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def set_lean_improvement_status(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def set_sales_strategy_with_details(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_factory_metrics(self, request, context):
+        """Методы получения метрик и мониторинга
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_production_metrics(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_quality_metrics(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_engineering_metrics(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_commercial_metrics(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_procurement_metrics(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_all_metrics(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_production_schedule(self, request, context):
+        """Методы получения данных для вкладок
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_workshop_plan(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_unplanned_repair(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_warehouse_load_chart(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_required_materials(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_available_improvements(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_defect_policies(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_simulation_history(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_reference_data(self, request, context):
+        """Справочные данные
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_material_types(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_equipment_types(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_workplace_types(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_available_defect_policies(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_available_improvements_list(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_available_certifications(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_available_sales_strategies(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def validate_configuration(self, request, context):
+        """Валидация
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def ping(self, request, context):
-        """проверка сервиса
+        """Проверка сервиса
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -314,9 +768,34 @@ def add_SimulationServiceServicer_to_server(servicer, server):
                     request_deserializer=simulator__pb2.GetSimulationRequest.FromString,
                     response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
             ),
+            'run_simulation': grpc.unary_unary_rpc_method_handler(
+                    servicer.run_simulation,
+                    request_deserializer=simulator__pb2.RunSimulationRequest.FromString,
+                    response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
+            ),
+            'run_simulation_step': grpc.unary_unary_rpc_method_handler(
+                    servicer.run_simulation_step,
+                    request_deserializer=simulator__pb2.RunSimulationStepRequest.FromString,
+                    response_serializer=simulator__pb2.SimulationStepResponse.SerializeToString,
+            ),
             'set_logist': grpc.unary_unary_rpc_method_handler(
                     servicer.set_logist,
                     request_deserializer=simulator__pb2.SetLogistRequest.FromString,
+                    response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
+            ),
+            'set_warehouse_inventory_worker': grpc.unary_unary_rpc_method_handler(
+                    servicer.set_warehouse_inventory_worker,
+                    request_deserializer=simulator__pb2.SetWarehouseInventoryWorkerRequest.FromString,
+                    response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
+            ),
+            'set_worker_on_workerplace': grpc.unary_unary_rpc_method_handler(
+                    servicer.set_worker_on_workerplace,
+                    request_deserializer=simulator__pb2.SetWorkerOnWorkerplaceRequest.FromString,
+                    response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
+            ),
+            'unset_worker_on_workerplace': grpc.unary_unary_rpc_method_handler(
+                    servicer.unset_worker_on_workerplace,
+                    request_deserializer=simulator__pb2.UnSetWorkerOnWorkerplaceRequest.FromString,
                     response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
             ),
             'add_supplier': grpc.unary_unary_rpc_method_handler(
@@ -327,11 +806,6 @@ def add_SimulationServiceServicer_to_server(servicer, server):
             'delete_supplier': grpc.unary_unary_rpc_method_handler(
                     servicer.delete_supplier,
                     request_deserializer=simulator__pb2.DeleteSupplierRequest.FromString,
-                    response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
-            ),
-            'set_warehouse_inventory_worker': grpc.unary_unary_rpc_method_handler(
-                    servicer.set_warehouse_inventory_worker,
-                    request_deserializer=simulator__pb2.SetWarehouseInventoryWorkerRequest.FromString,
                     response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
             ),
             'increase_warehouse_size': grpc.unary_unary_rpc_method_handler(
@@ -349,24 +823,59 @@ def add_SimulationServiceServicer_to_server(servicer, server):
                     request_deserializer=simulator__pb2.DeleteProcesRouteRequest.FromString,
                     response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
             ),
-            'set_worker_on_workerplace': grpc.unary_unary_rpc_method_handler(
-                    servicer.set_worker_on_workerplace,
-                    request_deserializer=simulator__pb2.SetWorkerOnWorkerplaceRequest.FromString,
-                    response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
-            ),
             'set_equipment_on_workplace': grpc.unary_unary_rpc_method_handler(
                     servicer.set_equipment_on_workplace,
                     request_deserializer=simulator__pb2.SetEquipmentOnWorkplaceRequst.FromString,
                     response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
             ),
-            'unset_worker_on_workerplace': grpc.unary_unary_rpc_method_handler(
-                    servicer.unset_worker_on_workerplace,
-                    request_deserializer=simulator__pb2.UnSetWorkerOnWorkerplaceRequest.FromString,
-                    response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
-            ),
             'unset_equipment_on_workplace': grpc.unary_unary_rpc_method_handler(
                     servicer.unset_equipment_on_workplace,
                     request_deserializer=simulator__pb2.UnSetEquipmentOnWorkplaceRequst.FromString,
+                    response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
+            ),
+            'configure_workplace_in_graph': grpc.unary_unary_rpc_method_handler(
+                    servicer.configure_workplace_in_graph,
+                    request_deserializer=simulator__pb2.ConfigureWorkplaceInGraphRequest.FromString,
+                    response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
+            ),
+            'remove_workplace_from_graph': grpc.unary_unary_rpc_method_handler(
+                    servicer.remove_workplace_from_graph,
+                    request_deserializer=simulator__pb2.RemoveWorkplaceFromGraphRequest.FromString,
+                    response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
+            ),
+            'set_workplace_as_start_node': grpc.unary_unary_rpc_method_handler(
+                    servicer.set_workplace_as_start_node,
+                    request_deserializer=simulator__pb2.SetWorkplaceAsStartNodeRequest.FromString,
+                    response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
+            ),
+            'set_workplace_as_end_node': grpc.unary_unary_rpc_method_handler(
+                    servicer.set_workplace_as_end_node,
+                    request_deserializer=simulator__pb2.SetWorkplaceAsEndNodeRequest.FromString,
+                    response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
+            ),
+            'update_process_graph': grpc.unary_unary_rpc_method_handler(
+                    servicer.update_process_graph,
+                    request_deserializer=simulator__pb2.UpdateProcessGraphRequest.FromString,
+                    response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
+            ),
+            'distribute_production_plan': grpc.unary_unary_rpc_method_handler(
+                    servicer.distribute_production_plan,
+                    request_deserializer=simulator__pb2.DistributeProductionPlanRequest.FromString,
+                    response_serializer=simulator__pb2.ProductionPlanDistributionResponse.SerializeToString,
+            ),
+            'get_production_plan_distribution': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_production_plan_distribution,
+                    request_deserializer=simulator__pb2.GetProductionPlanDistributionRequest.FromString,
+                    response_serializer=simulator__pb2.ProductionPlanDistributionResponse.SerializeToString,
+            ),
+            'update_production_assignment': grpc.unary_unary_rpc_method_handler(
+                    servicer.update_production_assignment,
+                    request_deserializer=simulator__pb2.UpdateProductionAssignmentRequest.FromString,
+                    response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
+            ),
+            'update_workshop_plan': grpc.unary_unary_rpc_method_handler(
+                    servicer.update_workshop_plan,
+                    request_deserializer=simulator__pb2.UpdateWorkshopPlanRequest.FromString,
                     response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
             ),
             'add_tender': grpc.unary_unary_rpc_method_handler(
@@ -404,10 +913,160 @@ def add_SimulationServiceServicer_to_server(servicer, server):
                     request_deserializer=simulator__pb2.SetSalesStrategyRequest.FromString,
                     response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
             ),
-            'run_simulation': grpc.unary_unary_rpc_method_handler(
-                    servicer.run_simulation,
-                    request_deserializer=simulator__pb2.RunSimulationRequest.FromString,
+            'set_quality_inspection': grpc.unary_unary_rpc_method_handler(
+                    servicer.set_quality_inspection,
+                    request_deserializer=simulator__pb2.SetQualityInspectionRequest.FromString,
                     response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
+            ),
+            'set_delivery_schedule': grpc.unary_unary_rpc_method_handler(
+                    servicer.set_delivery_schedule,
+                    request_deserializer=simulator__pb2.SetDeliveryScheduleRequest.FromString,
+                    response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
+            ),
+            'set_equipment_maintenance_interval': grpc.unary_unary_rpc_method_handler(
+                    servicer.set_equipment_maintenance_interval,
+                    request_deserializer=simulator__pb2.SetEquipmentMaintenanceIntervalRequest.FromString,
+                    response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
+            ),
+            'update_production_schedule': grpc.unary_unary_rpc_method_handler(
+                    servicer.update_production_schedule,
+                    request_deserializer=simulator__pb2.UpdateProductionScheduleRequest.FromString,
+                    response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
+            ),
+            'set_certification_status': grpc.unary_unary_rpc_method_handler(
+                    servicer.set_certification_status,
+                    request_deserializer=simulator__pb2.SetCertificationStatusRequest.FromString,
+                    response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
+            ),
+            'set_lean_improvement_status': grpc.unary_unary_rpc_method_handler(
+                    servicer.set_lean_improvement_status,
+                    request_deserializer=simulator__pb2.SetLeanImprovementStatusRequest.FromString,
+                    response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
+            ),
+            'set_sales_strategy_with_details': grpc.unary_unary_rpc_method_handler(
+                    servicer.set_sales_strategy_with_details,
+                    request_deserializer=simulator__pb2.SetSalesStrategyWithDetailsRequest.FromString,
+                    response_serializer=simulator__pb2.SimulationResponse.SerializeToString,
+            ),
+            'get_factory_metrics': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_factory_metrics,
+                    request_deserializer=simulator__pb2.GetMetricsRequest.FromString,
+                    response_serializer=simulator__pb2.FactoryMetricsResponse.SerializeToString,
+            ),
+            'get_production_metrics': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_production_metrics,
+                    request_deserializer=simulator__pb2.GetMetricsRequest.FromString,
+                    response_serializer=simulator__pb2.ProductionMetricsResponse.SerializeToString,
+            ),
+            'get_quality_metrics': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_quality_metrics,
+                    request_deserializer=simulator__pb2.GetMetricsRequest.FromString,
+                    response_serializer=simulator__pb2.QualityMetricsResponse.SerializeToString,
+            ),
+            'get_engineering_metrics': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_engineering_metrics,
+                    request_deserializer=simulator__pb2.GetMetricsRequest.FromString,
+                    response_serializer=simulator__pb2.EngineeringMetricsResponse.SerializeToString,
+            ),
+            'get_commercial_metrics': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_commercial_metrics,
+                    request_deserializer=simulator__pb2.GetMetricsRequest.FromString,
+                    response_serializer=simulator__pb2.CommercialMetricsResponse.SerializeToString,
+            ),
+            'get_procurement_metrics': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_procurement_metrics,
+                    request_deserializer=simulator__pb2.GetMetricsRequest.FromString,
+                    response_serializer=simulator__pb2.ProcurementMetricsResponse.SerializeToString,
+            ),
+            'get_all_metrics': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_all_metrics,
+                    request_deserializer=simulator__pb2.GetAllMetricsRequest.FromString,
+                    response_serializer=simulator__pb2.AllMetricsResponse.SerializeToString,
+            ),
+            'get_production_schedule': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_production_schedule,
+                    request_deserializer=simulator__pb2.GetProductionScheduleRequest.FromString,
+                    response_serializer=simulator__pb2.ProductionScheduleResponse.SerializeToString,
+            ),
+            'get_workshop_plan': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_workshop_plan,
+                    request_deserializer=simulator__pb2.GetWorkshopPlanRequest.FromString,
+                    response_serializer=simulator__pb2.WorkshopPlanResponse.SerializeToString,
+            ),
+            'get_unplanned_repair': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_unplanned_repair,
+                    request_deserializer=simulator__pb2.GetUnplannedRepairRequest.FromString,
+                    response_serializer=simulator__pb2.UnplannedRepairResponse.SerializeToString,
+            ),
+            'get_warehouse_load_chart': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_warehouse_load_chart,
+                    request_deserializer=simulator__pb2.GetWarehouseLoadChartRequest.FromString,
+                    response_serializer=simulator__pb2.WarehouseLoadChartResponse.SerializeToString,
+            ),
+            'get_required_materials': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_required_materials,
+                    request_deserializer=simulator__pb2.GetRequiredMaterialsRequest.FromString,
+                    response_serializer=simulator__pb2.RequiredMaterialsResponse.SerializeToString,
+            ),
+            'get_available_improvements': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_available_improvements,
+                    request_deserializer=simulator__pb2.GetAvailableImprovementsRequest.FromString,
+                    response_serializer=simulator__pb2.AvailableImprovementsResponse.SerializeToString,
+            ),
+            'get_defect_policies': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_defect_policies,
+                    request_deserializer=simulator__pb2.GetDefectPoliciesRequest.FromString,
+                    response_serializer=simulator__pb2.DefectPoliciesResponse.SerializeToString,
+            ),
+            'get_simulation_history': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_simulation_history,
+                    request_deserializer=simulator__pb2.GetSimulationHistoryRequest.FromString,
+                    response_serializer=simulator__pb2.SimulationHistoryResponse.SerializeToString,
+            ),
+            'get_reference_data': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_reference_data,
+                    request_deserializer=simulator__pb2.GetReferenceDataRequest.FromString,
+                    response_serializer=simulator__pb2.ReferenceDataResponse.SerializeToString,
+            ),
+            'get_material_types': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_material_types,
+                    request_deserializer=simulator__pb2.GetMaterialTypesRequest.FromString,
+                    response_serializer=simulator__pb2.MaterialTypesResponse.SerializeToString,
+            ),
+            'get_equipment_types': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_equipment_types,
+                    request_deserializer=simulator__pb2.GetEquipmentTypesRequest.FromString,
+                    response_serializer=simulator__pb2.EquipmentTypesResponse.SerializeToString,
+            ),
+            'get_workplace_types': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_workplace_types,
+                    request_deserializer=simulator__pb2.GetWorkplaceTypesRequest.FromString,
+                    response_serializer=simulator__pb2.WorkplaceTypesResponse.SerializeToString,
+            ),
+            'get_available_defect_policies': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_available_defect_policies,
+                    request_deserializer=simulator__pb2.GetAvailableDefectPoliciesRequest.FromString,
+                    response_serializer=simulator__pb2.DefectPoliciesListResponse.SerializeToString,
+            ),
+            'get_available_improvements_list': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_available_improvements_list,
+                    request_deserializer=simulator__pb2.GetAvailableImprovementsListRequest.FromString,
+                    response_serializer=simulator__pb2.ImprovementsListResponse.SerializeToString,
+            ),
+            'get_available_certifications': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_available_certifications,
+                    request_deserializer=simulator__pb2.GetAvailableCertificationsRequest.FromString,
+                    response_serializer=simulator__pb2.CertificationsListResponse.SerializeToString,
+            ),
+            'get_available_sales_strategies': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_available_sales_strategies,
+                    request_deserializer=simulator__pb2.GetAvailableSalesStrategiesRequest.FromString,
+                    response_serializer=simulator__pb2.SalesStrategiesListResponse.SerializeToString,
+            ),
+            'validate_configuration': grpc.unary_unary_rpc_method_handler(
+                    servicer.validate_configuration,
+                    request_deserializer=simulator__pb2.ValidateConfigurationRequest.FromString,
+                    response_serializer=simulator__pb2.ValidationResponse.SerializeToString,
             ),
             'ping': grpc.unary_unary_rpc_method_handler(
                     servicer.ping,
@@ -423,7 +1082,11 @@ def add_SimulationServiceServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class SimulationService(object):
-    """Missing associated documentation comment in .proto file."""
+    """-----------------------------------------------------------------
+    Сервисы
+    -----------------------------------------------------------------
+
+    """
 
     @staticmethod
     def create_simulation(request,
@@ -480,6 +1143,60 @@ class SimulationService(object):
             _registered_method=True)
 
     @staticmethod
+    def run_simulation(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/run_simulation',
+            simulator__pb2.RunSimulationRequest.SerializeToString,
+            simulator__pb2.SimulationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def run_simulation_step(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/run_simulation_step',
+            simulator__pb2.RunSimulationStepRequest.SerializeToString,
+            simulator__pb2.SimulationStepResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
     def set_logist(request,
             target,
             options=(),
@@ -495,6 +1212,87 @@ class SimulationService(object):
             target,
             '/simulator.SimulationService/set_logist',
             simulator__pb2.SetLogistRequest.SerializeToString,
+            simulator__pb2.SimulationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def set_warehouse_inventory_worker(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/set_warehouse_inventory_worker',
+            simulator__pb2.SetWarehouseInventoryWorkerRequest.SerializeToString,
+            simulator__pb2.SimulationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def set_worker_on_workerplace(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/set_worker_on_workerplace',
+            simulator__pb2.SetWorkerOnWorkerplaceRequest.SerializeToString,
+            simulator__pb2.SimulationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def unset_worker_on_workerplace(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/unset_worker_on_workerplace',
+            simulator__pb2.UnSetWorkerOnWorkerplaceRequest.SerializeToString,
             simulator__pb2.SimulationResponse.FromString,
             options,
             channel_credentials,
@@ -549,33 +1347,6 @@ class SimulationService(object):
             target,
             '/simulator.SimulationService/delete_supplier',
             simulator__pb2.DeleteSupplierRequest.SerializeToString,
-            simulator__pb2.SimulationResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
-    def set_warehouse_inventory_worker(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/simulator.SimulationService/set_warehouse_inventory_worker',
-            simulator__pb2.SetWarehouseInventoryWorkerRequest.SerializeToString,
             simulator__pb2.SimulationResponse.FromString,
             options,
             channel_credentials,
@@ -669,33 +1440,6 @@ class SimulationService(object):
             _registered_method=True)
 
     @staticmethod
-    def set_worker_on_workerplace(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/simulator.SimulationService/set_worker_on_workerplace',
-            simulator__pb2.SetWorkerOnWorkerplaceRequest.SerializeToString,
-            simulator__pb2.SimulationResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
     def set_equipment_on_workplace(request,
             target,
             options=(),
@@ -723,33 +1467,6 @@ class SimulationService(object):
             _registered_method=True)
 
     @staticmethod
-    def unset_worker_on_workerplace(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/simulator.SimulationService/unset_worker_on_workerplace',
-            simulator__pb2.UnSetWorkerOnWorkerplaceRequest.SerializeToString,
-            simulator__pb2.SimulationResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
     def unset_equipment_on_workplace(request,
             target,
             options=(),
@@ -765,6 +1482,249 @@ class SimulationService(object):
             target,
             '/simulator.SimulationService/unset_equipment_on_workplace',
             simulator__pb2.UnSetEquipmentOnWorkplaceRequst.SerializeToString,
+            simulator__pb2.SimulationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def configure_workplace_in_graph(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/configure_workplace_in_graph',
+            simulator__pb2.ConfigureWorkplaceInGraphRequest.SerializeToString,
+            simulator__pb2.SimulationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def remove_workplace_from_graph(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/remove_workplace_from_graph',
+            simulator__pb2.RemoveWorkplaceFromGraphRequest.SerializeToString,
+            simulator__pb2.SimulationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def set_workplace_as_start_node(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/set_workplace_as_start_node',
+            simulator__pb2.SetWorkplaceAsStartNodeRequest.SerializeToString,
+            simulator__pb2.SimulationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def set_workplace_as_end_node(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/set_workplace_as_end_node',
+            simulator__pb2.SetWorkplaceAsEndNodeRequest.SerializeToString,
+            simulator__pb2.SimulationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def update_process_graph(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/update_process_graph',
+            simulator__pb2.UpdateProcessGraphRequest.SerializeToString,
+            simulator__pb2.SimulationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def distribute_production_plan(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/distribute_production_plan',
+            simulator__pb2.DistributeProductionPlanRequest.SerializeToString,
+            simulator__pb2.ProductionPlanDistributionResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_production_plan_distribution(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/get_production_plan_distribution',
+            simulator__pb2.GetProductionPlanDistributionRequest.SerializeToString,
+            simulator__pb2.ProductionPlanDistributionResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def update_production_assignment(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/update_production_assignment',
+            simulator__pb2.UpdateProductionAssignmentRequest.SerializeToString,
+            simulator__pb2.SimulationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def update_workshop_plan(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/update_workshop_plan',
+            simulator__pb2.UpdateWorkshopPlanRequest.SerializeToString,
             simulator__pb2.SimulationResponse.FromString,
             options,
             channel_credentials,
@@ -966,7 +1926,7 @@ class SimulationService(object):
             _registered_method=True)
 
     @staticmethod
-    def run_simulation(request,
+    def set_quality_inspection(request,
             target,
             options=(),
             channel_credentials=None,
@@ -979,9 +1939,819 @@ class SimulationService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/simulator.SimulationService/run_simulation',
-            simulator__pb2.RunSimulationRequest.SerializeToString,
+            '/simulator.SimulationService/set_quality_inspection',
+            simulator__pb2.SetQualityInspectionRequest.SerializeToString,
             simulator__pb2.SimulationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def set_delivery_schedule(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/set_delivery_schedule',
+            simulator__pb2.SetDeliveryScheduleRequest.SerializeToString,
+            simulator__pb2.SimulationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def set_equipment_maintenance_interval(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/set_equipment_maintenance_interval',
+            simulator__pb2.SetEquipmentMaintenanceIntervalRequest.SerializeToString,
+            simulator__pb2.SimulationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def update_production_schedule(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/update_production_schedule',
+            simulator__pb2.UpdateProductionScheduleRequest.SerializeToString,
+            simulator__pb2.SimulationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def set_certification_status(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/set_certification_status',
+            simulator__pb2.SetCertificationStatusRequest.SerializeToString,
+            simulator__pb2.SimulationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def set_lean_improvement_status(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/set_lean_improvement_status',
+            simulator__pb2.SetLeanImprovementStatusRequest.SerializeToString,
+            simulator__pb2.SimulationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def set_sales_strategy_with_details(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/set_sales_strategy_with_details',
+            simulator__pb2.SetSalesStrategyWithDetailsRequest.SerializeToString,
+            simulator__pb2.SimulationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_factory_metrics(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/get_factory_metrics',
+            simulator__pb2.GetMetricsRequest.SerializeToString,
+            simulator__pb2.FactoryMetricsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_production_metrics(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/get_production_metrics',
+            simulator__pb2.GetMetricsRequest.SerializeToString,
+            simulator__pb2.ProductionMetricsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_quality_metrics(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/get_quality_metrics',
+            simulator__pb2.GetMetricsRequest.SerializeToString,
+            simulator__pb2.QualityMetricsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_engineering_metrics(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/get_engineering_metrics',
+            simulator__pb2.GetMetricsRequest.SerializeToString,
+            simulator__pb2.EngineeringMetricsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_commercial_metrics(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/get_commercial_metrics',
+            simulator__pb2.GetMetricsRequest.SerializeToString,
+            simulator__pb2.CommercialMetricsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_procurement_metrics(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/get_procurement_metrics',
+            simulator__pb2.GetMetricsRequest.SerializeToString,
+            simulator__pb2.ProcurementMetricsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_all_metrics(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/get_all_metrics',
+            simulator__pb2.GetAllMetricsRequest.SerializeToString,
+            simulator__pb2.AllMetricsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_production_schedule(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/get_production_schedule',
+            simulator__pb2.GetProductionScheduleRequest.SerializeToString,
+            simulator__pb2.ProductionScheduleResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_workshop_plan(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/get_workshop_plan',
+            simulator__pb2.GetWorkshopPlanRequest.SerializeToString,
+            simulator__pb2.WorkshopPlanResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_unplanned_repair(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/get_unplanned_repair',
+            simulator__pb2.GetUnplannedRepairRequest.SerializeToString,
+            simulator__pb2.UnplannedRepairResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_warehouse_load_chart(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/get_warehouse_load_chart',
+            simulator__pb2.GetWarehouseLoadChartRequest.SerializeToString,
+            simulator__pb2.WarehouseLoadChartResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_required_materials(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/get_required_materials',
+            simulator__pb2.GetRequiredMaterialsRequest.SerializeToString,
+            simulator__pb2.RequiredMaterialsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_available_improvements(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/get_available_improvements',
+            simulator__pb2.GetAvailableImprovementsRequest.SerializeToString,
+            simulator__pb2.AvailableImprovementsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_defect_policies(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/get_defect_policies',
+            simulator__pb2.GetDefectPoliciesRequest.SerializeToString,
+            simulator__pb2.DefectPoliciesResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_simulation_history(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/get_simulation_history',
+            simulator__pb2.GetSimulationHistoryRequest.SerializeToString,
+            simulator__pb2.SimulationHistoryResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_reference_data(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/get_reference_data',
+            simulator__pb2.GetReferenceDataRequest.SerializeToString,
+            simulator__pb2.ReferenceDataResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_material_types(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/get_material_types',
+            simulator__pb2.GetMaterialTypesRequest.SerializeToString,
+            simulator__pb2.MaterialTypesResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_equipment_types(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/get_equipment_types',
+            simulator__pb2.GetEquipmentTypesRequest.SerializeToString,
+            simulator__pb2.EquipmentTypesResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_workplace_types(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/get_workplace_types',
+            simulator__pb2.GetWorkplaceTypesRequest.SerializeToString,
+            simulator__pb2.WorkplaceTypesResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_available_defect_policies(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/get_available_defect_policies',
+            simulator__pb2.GetAvailableDefectPoliciesRequest.SerializeToString,
+            simulator__pb2.DefectPoliciesListResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_available_improvements_list(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/get_available_improvements_list',
+            simulator__pb2.GetAvailableImprovementsListRequest.SerializeToString,
+            simulator__pb2.ImprovementsListResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_available_certifications(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/get_available_certifications',
+            simulator__pb2.GetAvailableCertificationsRequest.SerializeToString,
+            simulator__pb2.CertificationsListResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_available_sales_strategies(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/get_available_sales_strategies',
+            simulator__pb2.GetAvailableSalesStrategiesRequest.SerializeToString,
+            simulator__pb2.SalesStrategiesListResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def validate_configuration(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationService/validate_configuration',
+            simulator__pb2.ValidateConfigurationRequest.SerializeToString,
+            simulator__pb2.ValidationResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1021,9 +2791,7 @@ class SimulationService(object):
 
 
 class SimulationDatabaseManagerStub(object):
-    """Проблема – при получении сложного сообщения (с ссылкой на другое сообщение) у нас о вложенной сущности только id а получить инфу не можем. 
-    Лучше возвращать сложные сообщения с вложением сообщений а не со ссылкой
-    """
+    """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
         """Constructor.
@@ -1181,6 +2949,46 @@ class SimulationDatabaseManagerStub(object):
                 request_serializer=simulator__pb2.GetAllEquipmentRequest.SerializeToString,
                 response_deserializer=simulator__pb2.GetAllEquipmentResopnse.FromString,
                 _registered_method=True)
+        self.get_reference_data = channel.unary_unary(
+                '/simulator.SimulationDatabaseManager/get_reference_data',
+                request_serializer=simulator__pb2.GetReferenceDataRequest.SerializeToString,
+                response_deserializer=simulator__pb2.ReferenceDataResponse.FromString,
+                _registered_method=True)
+        self.get_material_types = channel.unary_unary(
+                '/simulator.SimulationDatabaseManager/get_material_types',
+                request_serializer=simulator__pb2.GetMaterialTypesRequest.SerializeToString,
+                response_deserializer=simulator__pb2.MaterialTypesResponse.FromString,
+                _registered_method=True)
+        self.get_equipment_types = channel.unary_unary(
+                '/simulator.SimulationDatabaseManager/get_equipment_types',
+                request_serializer=simulator__pb2.GetEquipmentTypesRequest.SerializeToString,
+                response_deserializer=simulator__pb2.EquipmentTypesResponse.FromString,
+                _registered_method=True)
+        self.get_workplace_types = channel.unary_unary(
+                '/simulator.SimulationDatabaseManager/get_workplace_types',
+                request_serializer=simulator__pb2.GetWorkplaceTypesRequest.SerializeToString,
+                response_deserializer=simulator__pb2.WorkplaceTypesResponse.FromString,
+                _registered_method=True)
+        self.get_available_defect_policies = channel.unary_unary(
+                '/simulator.SimulationDatabaseManager/get_available_defect_policies',
+                request_serializer=simulator__pb2.GetAvailableDefectPoliciesRequest.SerializeToString,
+                response_deserializer=simulator__pb2.DefectPoliciesListResponse.FromString,
+                _registered_method=True)
+        self.get_available_improvements_list = channel.unary_unary(
+                '/simulator.SimulationDatabaseManager/get_available_improvements_list',
+                request_serializer=simulator__pb2.GetAvailableImprovementsListRequest.SerializeToString,
+                response_deserializer=simulator__pb2.ImprovementsListResponse.FromString,
+                _registered_method=True)
+        self.get_available_certifications = channel.unary_unary(
+                '/simulator.SimulationDatabaseManager/get_available_certifications',
+                request_serializer=simulator__pb2.GetAvailableCertificationsRequest.SerializeToString,
+                response_deserializer=simulator__pb2.CertificationsListResponse.FromString,
+                _registered_method=True)
+        self.get_available_sales_strategies = channel.unary_unary(
+                '/simulator.SimulationDatabaseManager/get_available_sales_strategies',
+                request_serializer=simulator__pb2.GetAvailableSalesStrategiesRequest.SerializeToString,
+                response_deserializer=simulator__pb2.SalesStrategiesListResponse.FromString,
+                _registered_method=True)
         self.ping = channel.unary_unary(
                 '/simulator.SimulationDatabaseManager/ping',
                 request_serializer=simulator__pb2.PingRequest.SerializeToString,
@@ -1189,42 +2997,35 @@ class SimulationDatabaseManagerStub(object):
 
 
 class SimulationDatabaseManagerServicer(object):
-    """Проблема – при получении сложного сообщения (с ссылкой на другое сообщение) у нас о вложенной сущности только id а получить инфу не можем. 
-    Лучше возвращать сложные сообщения с вложением сообщений а не со ссылкой
-    """
+    """Missing associated documentation comment in .proto file."""
 
     def create_supplier(self, request, context):
         """методы поставщика
-        из БД
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def update_supplier(self, request, context):
-        """из БД 
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def delete_supplier(self, request, context):
-        """из БД
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def get_all_suppliers(self, request, context):
-        """из БД
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def get_warehouse(self, request, context):
         """методы склада
-        из redis
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -1232,36 +3033,31 @@ class SimulationDatabaseManagerServicer(object):
 
     def create_worker(self, request, context):
         """методы рабочих
-        из БД 
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def update_worker(self, request, context):
-        """из БД
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def delete_worker(self, request, context):
-        """из БД 
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def get_all_workers(self, request, context):
-        """из БД 
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def create_logist(self, request, context):
         """методы логиста
-        из БД 
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -1312,7 +3108,6 @@ class SimulationDatabaseManagerServicer(object):
 
     def get_process_graph(self, request, context):
         """методы карты процесса 
-        из Redis
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -1369,30 +3164,75 @@ class SimulationDatabaseManagerServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def create_equipment(self, request, context):
-        """TODO: реализовать методы менеджемнта equipment
-        надо реализовать
+        """методы оборудования
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def update_equipment(self, request, context):
-        """надо реализовать 
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def delete_equipment(self, request, context):
-        """надо реализовать 
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def get_all_equipment(self, request, context):
-        """надо реализовать
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_reference_data(self, request, context):
+        """Справочные данные
         """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_material_types(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_equipment_types(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_workplace_types(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_available_defect_policies(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_available_improvements_list(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_available_certifications(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def get_available_sales_strategies(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -1557,6 +3397,46 @@ def add_SimulationDatabaseManagerServicer_to_server(servicer, server):
                     request_deserializer=simulator__pb2.GetAllEquipmentRequest.FromString,
                     response_serializer=simulator__pb2.GetAllEquipmentResopnse.SerializeToString,
             ),
+            'get_reference_data': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_reference_data,
+                    request_deserializer=simulator__pb2.GetReferenceDataRequest.FromString,
+                    response_serializer=simulator__pb2.ReferenceDataResponse.SerializeToString,
+            ),
+            'get_material_types': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_material_types,
+                    request_deserializer=simulator__pb2.GetMaterialTypesRequest.FromString,
+                    response_serializer=simulator__pb2.MaterialTypesResponse.SerializeToString,
+            ),
+            'get_equipment_types': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_equipment_types,
+                    request_deserializer=simulator__pb2.GetEquipmentTypesRequest.FromString,
+                    response_serializer=simulator__pb2.EquipmentTypesResponse.SerializeToString,
+            ),
+            'get_workplace_types': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_workplace_types,
+                    request_deserializer=simulator__pb2.GetWorkplaceTypesRequest.FromString,
+                    response_serializer=simulator__pb2.WorkplaceTypesResponse.SerializeToString,
+            ),
+            'get_available_defect_policies': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_available_defect_policies,
+                    request_deserializer=simulator__pb2.GetAvailableDefectPoliciesRequest.FromString,
+                    response_serializer=simulator__pb2.DefectPoliciesListResponse.SerializeToString,
+            ),
+            'get_available_improvements_list': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_available_improvements_list,
+                    request_deserializer=simulator__pb2.GetAvailableImprovementsListRequest.FromString,
+                    response_serializer=simulator__pb2.ImprovementsListResponse.SerializeToString,
+            ),
+            'get_available_certifications': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_available_certifications,
+                    request_deserializer=simulator__pb2.GetAvailableCertificationsRequest.FromString,
+                    response_serializer=simulator__pb2.CertificationsListResponse.SerializeToString,
+            ),
+            'get_available_sales_strategies': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_available_sales_strategies,
+                    request_deserializer=simulator__pb2.GetAvailableSalesStrategiesRequest.FromString,
+                    response_serializer=simulator__pb2.SalesStrategiesListResponse.SerializeToString,
+            ),
             'ping': grpc.unary_unary_rpc_method_handler(
                     servicer.ping,
                     request_deserializer=simulator__pb2.PingRequest.FromString,
@@ -1571,9 +3451,7 @@ def add_SimulationDatabaseManagerServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class SimulationDatabaseManager(object):
-    """Проблема – при получении сложного сообщения (с ссылкой на другое сообщение) у нас о вложенной сущности только id а получить инфу не можем. 
-    Лучше возвращать сложные сообщения с вложением сообщений а не со ссылкой
-    """
+    """Missing associated documentation comment in .proto file."""
 
     @staticmethod
     def create_supplier(request,
@@ -2375,6 +4253,222 @@ class SimulationDatabaseManager(object):
             '/simulator.SimulationDatabaseManager/get_all_equipment',
             simulator__pb2.GetAllEquipmentRequest.SerializeToString,
             simulator__pb2.GetAllEquipmentResopnse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_reference_data(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationDatabaseManager/get_reference_data',
+            simulator__pb2.GetReferenceDataRequest.SerializeToString,
+            simulator__pb2.ReferenceDataResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_material_types(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationDatabaseManager/get_material_types',
+            simulator__pb2.GetMaterialTypesRequest.SerializeToString,
+            simulator__pb2.MaterialTypesResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_equipment_types(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationDatabaseManager/get_equipment_types',
+            simulator__pb2.GetEquipmentTypesRequest.SerializeToString,
+            simulator__pb2.EquipmentTypesResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_workplace_types(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationDatabaseManager/get_workplace_types',
+            simulator__pb2.GetWorkplaceTypesRequest.SerializeToString,
+            simulator__pb2.WorkplaceTypesResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_available_defect_policies(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationDatabaseManager/get_available_defect_policies',
+            simulator__pb2.GetAvailableDefectPoliciesRequest.SerializeToString,
+            simulator__pb2.DefectPoliciesListResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_available_improvements_list(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationDatabaseManager/get_available_improvements_list',
+            simulator__pb2.GetAvailableImprovementsListRequest.SerializeToString,
+            simulator__pb2.ImprovementsListResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_available_certifications(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationDatabaseManager/get_available_certifications',
+            simulator__pb2.GetAvailableCertificationsRequest.SerializeToString,
+            simulator__pb2.CertificationsListResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def get_available_sales_strategies(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/simulator.SimulationDatabaseManager/get_available_sales_strategies',
+            simulator__pb2.GetAvailableSalesStrategiesRequest.SerializeToString,
+            simulator__pb2.SalesStrategiesListResponse.FromString,
             options,
             channel_credentials,
             insecure,

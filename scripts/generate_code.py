@@ -18,7 +18,7 @@ def generate_proto_code():
     output_dir.mkdir(parents=True, exist_ok=True)
 
     cmd = [
-        "python",
+        "python3",
         "-m",
         "grpc_tools.protoc",
         f"-I.",

@@ -486,6 +486,303 @@ class AsyncUnifiedClient:
             simulation_id, from_workplace, to_workplace
         )
 
+    async def configure_workplace_in_graph(
+        self,
+        simulation_id: str,
+        workplace_id: str,
+        workplace_type: str,
+        worker_id: Optional[str] = None,
+        equipment_id: Optional[str] = None,
+        is_start_node: bool = False,
+        is_end_node: bool = False,
+        next_workplace_ids: Optional[List[str]] = None,
+    ) -> SimulationResponse:
+        """Настроить рабочее место в графе процесса."""
+        return await self.sim_client.configure_workplace_in_graph(
+            simulation_id,
+            workplace_id,
+            workplace_type,
+            worker_id,
+            equipment_id,
+            is_start_node,
+            is_end_node,
+            next_workplace_ids,
+        )
+
+    async def remove_workplace_from_graph(
+        self, simulation_id: str, workplace_id: str
+    ) -> SimulationResponse:
+        """Удалить рабочее место из графа процесса."""
+        return await self.sim_client.remove_workplace_from_graph(
+            simulation_id, workplace_id
+        )
+
+    async def set_workplace_as_start_node(
+        self, simulation_id: str, workplace_id: str
+    ) -> SimulationResponse:
+        """Установить рабочее место как начальный узел."""
+        return await self.sim_client.set_workplace_as_start_node(
+            simulation_id, workplace_id
+        )
+
+    async def set_workplace_as_end_node(
+        self, simulation_id: str, workplace_id: str
+    ) -> SimulationResponse:
+        """Установить рабочее место как конечный узел."""
+        return await self.sim_client.set_workplace_as_end_node(
+            simulation_id, workplace_id
+        )
+
+    async def update_process_graph(
+        self, simulation_id: str, process_graph: "ProcessGraph"
+    ) -> SimulationResponse:
+        """Обновить граф процесса."""
+        return await self.sim_client.update_process_graph(simulation_id, process_graph)
+
+    async def distribute_production_plan(
+        self,
+        simulation_id: str,
+        strategy: "DistributionStrategy",
+        auto_assign_workers: bool = False,
+        auto_assign_equipment: bool = False,
+    ) -> "ProductionPlanDistributionResponse":
+        """Распределить производственный план."""
+        return await self.sim_client.distribute_production_plan(
+            simulation_id, strategy, auto_assign_workers, auto_assign_equipment
+        )
+
+    async def get_production_plan_distribution(
+        self, simulation_id: str
+    ) -> "ProductionPlanDistributionResponse":
+        """Получить распределение производственного плана."""
+        return await self.sim_client.get_production_plan_distribution(simulation_id)
+
+    async def update_production_assignment(
+        self, simulation_id: str, assignment: "ProductionPlanAssignment"
+    ) -> SimulationResponse:
+        """Обновить назначение производства."""
+        return await self.sim_client.update_production_assignment(
+            simulation_id, assignment
+        )
+
+    async def update_workshop_plan(
+        self, simulation_id: str, workshop_plan: "WorkshopPlan"
+    ) -> SimulationResponse:
+        """Обновить план цеха."""
+        return await self.sim_client.update_workshop_plan(simulation_id, workshop_plan)
+
+    async def run_simulation_step(
+        self, simulation_id: str, step_count: int = 1
+    ) -> "SimulationStepResponse":
+        """Запустить шаг симуляции."""
+        return await self.sim_client.run_simulation_step(simulation_id, step_count)
+
+    async def get_factory_metrics(
+        self, simulation_id: str, step: Optional[int] = None
+    ) -> "FactoryMetricsResponse":
+        """Получить метрики завода."""
+        return await self.sim_client.get_factory_metrics(simulation_id, step)
+
+    async def get_production_metrics(
+        self, simulation_id: str, step: Optional[int] = None
+    ) -> "ProductionMetricsResponse":
+        """Получить метрики производства."""
+        return await self.sim_client.get_production_metrics(simulation_id, step)
+
+    async def get_quality_metrics(
+        self, simulation_id: str, step: Optional[int] = None
+    ) -> "QualityMetricsResponse":
+        """Получить метрики качества."""
+        return await self.sim_client.get_quality_metrics(simulation_id, step)
+
+    async def get_engineering_metrics(
+        self, simulation_id: str, step: Optional[int] = None
+    ) -> "EngineeringMetricsResponse":
+        """Получить метрики инженерии."""
+        return await self.sim_client.get_engineering_metrics(simulation_id, step)
+
+    async def get_commercial_metrics(
+        self, simulation_id: str, step: Optional[int] = None
+    ) -> "CommercialMetricsResponse":
+        """Получить метрики коммерции."""
+        return await self.sim_client.get_commercial_metrics(simulation_id, step)
+
+    async def get_procurement_metrics(
+        self, simulation_id: str, step: Optional[int] = None
+    ) -> "ProcurementMetricsResponse":
+        """Получить метрики закупок."""
+        return await self.sim_client.get_procurement_metrics(simulation_id, step)
+
+    async def get_all_metrics(self, simulation_id: str) -> "AllMetricsResponse":
+        """Получить все метрики."""
+        return await self.sim_client.get_all_metrics(simulation_id)
+
+    async def get_production_schedule(
+        self, simulation_id: str
+    ) -> "ProductionScheduleResponse":
+        """Получить производственный план."""
+        return await self.sim_client.get_production_schedule(simulation_id)
+
+    async def update_production_schedule(
+        self, simulation_id: str, schedule: "ProductionSchedule"
+    ) -> SimulationResponse:
+        """Обновить производственный план."""
+        return await self.sim_client.update_production_schedule(
+            simulation_id, schedule
+        )
+
+    async def get_workshop_plan(
+        self, simulation_id: str
+    ) -> "WorkshopPlanResponse":
+        """Получить план цеха."""
+        return await self.sim_client.get_workshop_plan(simulation_id)
+
+    async def get_unplanned_repair(
+        self, simulation_id: str
+    ) -> "UnplannedRepairResponse":
+        """Получить внеплановые ремонты."""
+        return await self.sim_client.get_unplanned_repair(simulation_id)
+
+    async def get_warehouse_load_chart(
+        self, simulation_id: str, warehouse_id: str
+    ) -> "WarehouseLoadChartResponse":
+        """Получить график загрузки склада."""
+        return await self.sim_client.get_warehouse_load_chart(
+            simulation_id, warehouse_id
+        )
+
+    async def get_required_materials(
+        self, simulation_id: str
+    ) -> "RequiredMaterialsResponse":
+        """Получить требуемые материалы."""
+        return await self.sim_client.get_required_materials(simulation_id)
+
+    async def get_available_improvements(
+        self, simulation_id: str
+    ) -> "AvailableImprovementsResponse":
+        """Получить доступные улучшения."""
+        return await self.sim_client.get_available_improvements(simulation_id)
+
+    async def get_defect_policies(
+        self, simulation_id: str
+    ) -> "DefectPoliciesResponse":
+        """Получить политики работы с браком."""
+        return await self.sim_client.get_defect_policies(simulation_id)
+
+    async def get_simulation_history(
+        self, simulation_id: str
+    ) -> "SimulationHistoryResponse":
+        """Получить историю симуляции."""
+        return await self.sim_client.get_simulation_history(simulation_id)
+
+    async def validate_configuration(
+        self, simulation_id: str
+    ) -> "ValidationResponse":
+        """Валидировать конфигурацию симуляции."""
+        return await self.sim_client.validate_configuration(simulation_id)
+
+    async def set_quality_inspection(
+        self,
+        simulation_id: str,
+        material_id: str,
+        inspection: "QualityInspection",
+    ) -> SimulationResponse:
+        """Установить контроль качества."""
+        return await self.sim_client.set_quality_inspection(
+            simulation_id, material_id, inspection
+        )
+
+    async def set_delivery_schedule(
+        self,
+        simulation_id: str,
+        supplier_id: str,
+        schedule: "DeliverySchedule",
+    ) -> SimulationResponse:
+        """Установить график поставок."""
+        return await self.sim_client.set_delivery_schedule(
+            simulation_id, supplier_id, schedule
+        )
+
+    async def set_equipment_maintenance_interval(
+        self, simulation_id: str, equipment_id: str, interval_days: int
+    ) -> SimulationResponse:
+        """Установить интервал обслуживания оборудования."""
+        return await self.sim_client.set_equipment_maintenance_interval(
+            simulation_id, equipment_id, interval_days
+        )
+
+    async def set_certification_status(
+        self, simulation_id: str, certificate_type: str, is_obtained: bool
+    ) -> SimulationResponse:
+        """Установить статус сертификации."""
+        return await self.sim_client.set_certification_status(
+            simulation_id, certificate_type, is_obtained
+        )
+
+    async def set_lean_improvement_status(
+        self, simulation_id: str, improvement_id: str, is_implemented: bool
+    ) -> SimulationResponse:
+        """Установить статус улучшения Lean."""
+        return await self.sim_client.set_lean_improvement_status(
+            simulation_id, improvement_id, is_implemented
+        )
+
+    async def set_sales_strategy_with_details(
+        self,
+        simulation_id: str,
+        strategy: str,
+        growth_forecast: float = 0.0,
+        unit_cost: int = 0,
+        market_impact: str = "",
+        trend_direction: str = "",
+    ) -> SimulationResponse:
+        """Установить стратегию продаж с деталями."""
+        return await self.sim_client.set_sales_strategy_with_details(
+            simulation_id, strategy, growth_forecast, unit_cost, market_impact, trend_direction
+        )
+
+    async def get_reference_data(
+        self, data_type: str = ""
+    ) -> "ReferenceDataResponse":
+        """Получить справочные данные."""
+        return await self.sim_client.get_reference_data(data_type)
+
+    async def get_material_types(self) -> "MaterialTypesResponse":
+        """Получить типы материалов."""
+        return await self.sim_client.get_material_types()
+
+    async def get_equipment_types(self) -> "EquipmentTypesResponse":
+        """Получить типы оборудования."""
+        return await self.sim_client.get_equipment_types()
+
+    async def get_workplace_types(self) -> "WorkplaceTypesResponse":
+        """Получить типы рабочих мест."""
+        return await self.sim_client.get_workplace_types()
+
+    async def get_available_defect_policies(
+        self,
+    ) -> "DefectPoliciesListResponse":
+        """Получить доступные политики работы с браком."""
+        return await self.sim_client.get_available_defect_policies()
+
+    async def get_available_improvements_list(
+        self,
+    ) -> "ImprovementsListResponse":
+        """Получить список доступных улучшений."""
+        return await self.sim_client.get_available_improvements_list()
+
+    async def get_available_certifications(
+        self,
+    ) -> "CertificationsListResponse":
+        """Получить доступные сертификации."""
+        return await self.sim_client.get_available_certifications()
+
+    async def get_available_sales_strategies(
+        self,
+    ) -> "SalesStrategiesListResponse":
+        """Получить доступные стратегии продаж."""
+        return await self.sim_client.get_available_sales_strategies()
+
     # ==================== Прокси-методы для DatabaseManager ====================
 
     async def get_all_suppliers(self) -> GetAllSuppliersResponse:
@@ -830,6 +1127,48 @@ class AsyncUnifiedClient:
             ProcessGraph: Карта процесса
         """
         return await self.db_client.get_process_graph(request)
+
+    async def get_reference_data_db(
+        self, data_type: str = ""
+    ) -> "ReferenceDataResponse":
+        """Получить справочные данные из DatabaseManager."""
+        return await self.db_client.get_reference_data(data_type)
+
+    async def get_material_types_db(self) -> "MaterialTypesResponse":
+        """Получить типы материалов из DatabaseManager."""
+        return await self.db_client.get_material_types()
+
+    async def get_equipment_types_db(self) -> "EquipmentTypesResponse":
+        """Получить типы оборудования из DatabaseManager."""
+        return await self.db_client.get_equipment_types()
+
+    async def get_workplace_types_db(self) -> "WorkplaceTypesResponse":
+        """Получить типы рабочих мест из DatabaseManager."""
+        return await self.db_client.get_workplace_types()
+
+    async def get_available_defect_policies_db(
+        self,
+    ) -> "DefectPoliciesListResponse":
+        """Получить доступные политики работы с браком из DatabaseManager."""
+        return await self.db_client.get_available_defect_policies()
+
+    async def get_available_improvements_list_db(
+        self,
+    ) -> "ImprovementsListResponse":
+        """Получить список доступных улучшений из DatabaseManager."""
+        return await self.db_client.get_available_improvements_list()
+
+    async def get_available_certifications_db(
+        self,
+    ) -> "CertificationsListResponse":
+        """Получить доступные сертификации из DatabaseManager."""
+        return await self.db_client.get_available_certifications()
+
+    async def get_available_sales_strategies_db(
+        self,
+    ) -> "SalesStrategiesListResponse":
+        """Получить доступные стратегии продаж из DatabaseManager."""
+        return await self.db_client.get_available_sales_strategies()
 
     # ==================== Упрощенные методы для обратной совместимости ====================
 
