@@ -657,6 +657,58 @@ print(f"ROI: {results.roi:.2f}%")
 
 ---
 
+## AsyncDatabaseClient
+
+Отдельный клиент для работы с сервисом управления базой данных (SimulationDatabaseManager). Этот клиент работает на порту 50052 и предоставляет полный набор CRUD операций для всех сущностей системы.
+
+### Инициализация
+
+```python
+from simulation_client import AsyncDatabaseClient
+
+client = AsyncDatabaseClient(
+    host: str = "localhost",           # Хост сервиса базы данных
+    port: int = 50052,                 # Порт сервиса базы данных (отличается от SimulationService!)
+    max_retries: int = 3,              # Максимальное количество повторных попыток
+    timeout: float = 30.0,             # Таймаут операций в секундах
+    rate_limit: Optional[float] = None,  # Ограничение запросов в секунду
+    enable_logging: bool = True,       # Включить логирование
+)
+```
+
+### Методы подключения
+
+#### `async def connect() -> None`
+Подключиться к серверу SimulationDatabaseManager.
+
+#### `async def close() -> None`
+Закрыть соединение с сервером.
+
+#### `async def ping() -> bool`
+Проверить доступность DatabaseManager.
+
+**Returns:** `bool` - True если сервер доступен
+
+### Использование контекстного менеджера
+
+```python
+async with AsyncDatabaseClient("localhost", 50052) as db_client:
+    suppliers = await db_client.get_all_suppliers()
+    workers = await db_client.get_all_workers()
+    equipment = await db_client.get_all_equipment()
+```
+
+### Особенности
+
+- **Отдельный порт**: DatabaseManager работает на порту 50052 (в отличие от SimulationService на 50051)
+- **CRUD операции**: Полный набор операций Create, Read, Update, Delete для всех сущностей
+- **Справочные данные**: Доступ к справочникам системы (типы материалов, оборудования, стратегии и т.д.)
+- **Асинхронность**: Все операции полностью асинхронные
+- **Автоматические повторы**: Встроенная логика повторных попыток при ошибках
+- **Rate limiting**: Опциональное ограничение частоты запросов
+
+---
+
 ## Методы работы с базой данных
 
 ### Управление поставщиками
@@ -947,6 +999,512 @@ supplier = await client.create_supplier(request)
 Получить доступные стратегии продаж.
 
 **Returns:** `SalesStrategiesListResponse` - список доступных стратегий продаж
+
+### Примеры использования AsyncDatabaseClient
+
+#### Базовый пример работы с базой данных
+
+```python
+import asyncio
+from simulation_client import AsyncDatabaseClient
+from simulation_client.models import (
+    CreateSupplierRequest,
+    CreateWorkerRequest,
+    CreateEquipmentRequest,
+    CreateTenderRequest,
+    CreateConsumerRequest,
+    CreateLogistRequest,
+    UpdateSupplierRequest,
+    DeleteSupplierRequest,
+    GetWarehouseRequest,
+    GetProcessGraphRequest
+)
+from simulation_client.exceptions import NotFoundError
+from datetime import datetime
+
+async def basic_database_example():
+    """Базовый пример работы с базой данных"""
+    async with AsyncDatabaseClient("localhost", 50052) as db_client:
+        # 1. Получаем все ресурсы
+        suppliers = await db_client.get_all_suppliers()
+        workers = await db_client.get_all_workers()
+        equipment = await db_client.get_all_equipment()
+        tenders = await db_client.get_all_tenders()
+        consumers = await db_client.get_all_consumers()
+        workplaces = await db_client.get_all_workplaces()
+        
+        print(f"Найдено:")
+        print(f"  Поставщиков: {suppliers.total_count}")
+        print(f"  Работников: {workers.total_count}")
+        print(f"  Оборудования: {equipment.total_count}")
+        print(f"  Тендеров: {tenders.total_count}")
+        print(f"  Заказчиков: {consumers.total_count}")
+        print(f"  Рабочих мест: {workplaces.total_count}")
+
+if __name__ == "__main__":
+    asyncio.run(basic_database_example())
+```
+
+#### Создание полного набора ресурсов
+
+```python
+async def create_resources_example():
+    """Пример создания полного набора ресурсов для симуляции"""
+    async with AsyncDatabaseClient("localhost", 50052) as db_client:
+        # 1. Создаем заказчика
+        consumer = await db_client.create_consumer(
+            CreateConsumerRequest(
+                name="Государственный заказчик",
+                type="государственный"
+            )
+        )
+        print(f"Создан заказчик: {consumer.name} (ID: {consumer.consumer_id})")
+        
+        # 2. Создаем тендер
+        tender = await db_client.create_tender(
+            CreateTenderRequest(
+                consumer_id=consumer.consumer_id,
+                cost=1000000,
+                quantity_of_products=100,
+                penalty_per_day=5000,
+                warranty_years=2,
+                payment_form="предоплата"
+            )
+        )
+        print(f"Создан тендер: {tender.tender_id}, стоимость: {tender.cost:,} ₽")
+        
+        # 3. Создаем поставщика
+        supplier = await db_client.create_supplier(
+            CreateSupplierRequest(
+                name="ООО МеталлСнаб",
+                product_name="Сталь марки Ст3",
+                delivery_period=14,
+                special_delivery_period=7,
+                reliability=0.95,
+                product_quality=0.92,
+                cost=50000,
+                special_delivery_cost=75000
+            )
+        )
+        print(f"Создан поставщик: {supplier.name} (ID: {supplier.supplier_id})")
+        
+        # 4. Создаем работника
+        worker = await db_client.create_worker(
+            CreateWorkerRequest(
+                name="Иванов Иван Иванович",
+                qualification=5,
+                specialty="сварщик",
+                salary=50000
+            )
+        )
+        print(f"Создан работник: {worker.name} (ID: {worker.worker_id})")
+        
+        # 5. Создаем логиста
+        logist = await db_client.create_logist(
+            CreateLogistRequest(
+                name="Петров Петр Петрович",
+                qualification=4,
+                specialty="логист",
+                salary=45000,
+                speed=60,
+                vehicle_type="грузовик"
+            )
+        )
+        print(f"Создан логист: {logist.name} (ID: {logist.worker_id})")
+        
+        # 6. Создаем оборудование
+        equipment = await db_client.create_equipment(
+            CreateEquipmentRequest(
+                name="Сварочный аппарат АРС-250",
+                reliability=0.90,
+                maintenance_period=30,
+                maintenance_cost=10000,
+                cost=150000,
+                repair_cost=30000,
+                repair_time=2
+            )
+        )
+        print(f"Создано оборудование: {equipment.name} (ID: {equipment.equipment_id})")
+        
+        return {
+            "consumer": consumer,
+            "tender": tender,
+            "supplier": supplier,
+            "worker": worker,
+            "logist": logist,
+            "equipment": equipment
+        }
+```
+
+#### Обновление и удаление ресурсов
+
+```python
+async def update_delete_example():
+    """Пример обновления и удаления ресурсов"""
+    async with AsyncDatabaseClient("localhost", 50052) as db_client:
+        # 1. Получаем поставщика
+        suppliers = await db_client.get_all_suppliers()
+        if not suppliers.suppliers:
+            print("Нет поставщиков для обновления")
+            return
+        
+        supplier = suppliers.suppliers[0]
+        
+        # 2. Обновляем поставщика
+        updated_supplier = await db_client.update_supplier(
+            UpdateSupplierRequest(
+                supplier_id=supplier.supplier_id,
+                name=supplier.name + " (обновлено)",
+                product_name=supplier.product_name,
+                delivery_period=supplier.delivery_period - 2,  # Улучшаем сроки
+                special_delivery_period=supplier.special_delivery_period,
+                reliability=supplier.reliability + 0.02,  # Улучшаем надежность
+                product_quality=supplier.product_quality,
+                cost=supplier.cost,
+                special_delivery_cost=supplier.special_delivery_cost
+            )
+        )
+        print(f"Обновлен поставщик: {updated_supplier.name}")
+        print(f"  Новый период доставки: {updated_supplier.delivery_period} дней")
+        print(f"  Новая надежность: {updated_supplier.reliability:.2%}")
+        
+        # 3. Удаляем поставщика (если нужно)
+        # delete_result = await db_client.delete_supplier(
+        #     DeleteSupplierRequest(supplier_id=supplier.supplier_id)
+        # )
+        # print(f"Удаление: {delete_result.message}")
+```
+
+#### Работа со справочными данными
+
+```python
+async def reference_data_example():
+    """Пример работы со справочными данными"""
+    async with AsyncDatabaseClient("localhost", 50052) as db_client:
+        # 1. Получаем все справочные данные
+        reference_data = await db_client.get_reference_data()
+        
+        print("Стратегии продаж:")
+        for strategy in reference_data.sales_strategies:
+            print(f"  - {strategy.name}: {strategy.description}")
+            print(f"    Прогноз роста: {strategy.growth_forecast:.1%}")
+        
+        print("\nПолитики работы с браком:")
+        for policy in reference_data.defect_policies:
+            print(f"  - {policy.name}: {policy.description}")
+        
+        print("\nСертификации:")
+        for cert in reference_data.certifications:
+            print(f"  - {cert.name}: {cert.description}")
+            print(f"    Стоимость внедрения: {cert.implementation_cost:,} ₽")
+        
+        # 2. Получаем типы материалов
+        material_types = await db_client.get_material_types()
+        print("\nТипы материалов:")
+        for mt in material_types.material_types:
+            print(f"  - {mt.name}: {mt.description}")
+            print(f"    Средняя цена: {mt.average_price:,} ₽/{mt.unit}")
+        
+        # 3. Получаем типы оборудования
+        equipment_types = await db_client.get_equipment_types()
+        print("\nТипы оборудования:")
+        for et in equipment_types.equipment_types:
+            print(f"  - {et.name}: {et.description}")
+            print(f"    Базовая стоимость: {et.base_cost:,} ₽")
+            print(f"    Надежность: {et.base_reliability:.2%}")
+        
+        # 4. Получаем доступные стратегии продаж
+        sales_strategies = await db_client.get_available_sales_strategies()
+        print("\nДоступные стратегии продаж:")
+        for strategy in sales_strategies.strategies:
+            print(f"  - {strategy.name}")
+            print(f"    Описание: {strategy.description}")
+            print(f"    Прогноз роста: {strategy.growth_forecast:.1%}")
+            print(f"    Стоимость единицы: {strategy.unit_cost:,} ₽")
+```
+
+#### Получение информации о складе
+
+```python
+async def warehouse_example():
+    """Пример работы со складами"""
+    async with AsyncDatabaseClient("localhost", 50052) as db_client:
+        # Получаем информацию о складе
+        # Примечание: warehouse_id должен быть известен из симуляции
+        warehouse_id = "warehouse-123"  # Пример ID
+        
+        try:
+            warehouse = await db_client.get_warehouse(
+                GetWarehouseRequest(warehouse_id=warehouse_id)
+            )
+            
+            print(f"Склад ID: {warehouse.warehouse_id}")
+            print(f"Размер: {warehouse.size}")
+            print(f"Загрузка: {warehouse.loading}")
+            print(f"Доступное место: {warehouse.available_space}")
+            
+            if warehouse.inventory_worker:
+                print(f"Работник склада: {warehouse.inventory_worker.name}")
+            
+            print("\nМатериалы на складе:")
+            for material_id, quantity in warehouse.materials.items():
+                print(f"  {material_id}: {quantity} единиц")
+        except NotFoundError:
+            print(f"Склад {warehouse_id} не найден")
+```
+
+#### Получение карты процесса
+
+```python
+async def process_graph_example():
+    """Пример работы с картой процесса"""
+    async with AsyncDatabaseClient("localhost", 50052) as db_client:
+        # Получаем карту процесса
+        # Примечание: process_graph_id должен быть известен
+        process_graph_id = "process-graph-123"  # Пример ID
+        
+        try:
+            process_graph = await db_client.get_process_graph(
+                GetProcessGraphRequest(process_graph_id=process_graph_id)
+            )
+            
+            print(f"Карта процесса ID: {process_graph.process_graph_id}")
+            print(f"Рабочих мест: {len(process_graph.workplaces)}")
+            print(f"Маршрутов: {len(process_graph.routes)}")
+            
+            print("\nРабочие места:")
+            for workplace in process_graph.workplaces:
+                print(f"  - {workplace.workplace_name} (ID: {workplace.workplace_id})")
+                if workplace.worker:
+                    print(f"    Работник: {workplace.worker.name}")
+                if workplace.equipment:
+                    print(f"    Оборудование: {workplace.equipment.name}")
+                if workplace.is_start_node:
+                    print(f"    [Начальный узел]")
+                if workplace.is_end_node:
+                    print(f"    [Конечный узел]")
+            
+            print("\nМаршруты:")
+            for route in process_graph.routes:
+                print(f"  {route.from_workplace} -> {route.to_workplace} (длина: {route.length})")
+        except NotFoundError:
+            print(f"Карта процесса {process_graph_id} не найдена")
+```
+
+### Use Cases для работы с базой данных
+
+#### Use Case 1: Инициализация базы данных для новой симуляции
+
+```python
+async def initialize_database_for_simulation():
+    """Инициализация базы данных для новой симуляции"""
+    async with AsyncDatabaseClient("localhost", 50052) as db_client:
+        resources = {}
+        
+        # Создаем заказчика
+        consumer = await db_client.create_consumer(
+            CreateConsumerRequest(
+                name="Новый заказчик",
+                type="частный"
+            )
+        )
+        resources["consumer"] = consumer
+        
+        # Создаем тендер
+        tender = await db_client.create_tender(
+            CreateTenderRequest(
+                consumer_id=consumer.consumer_id,
+                cost=2000000,
+                quantity_of_products=200,
+                penalty_per_day=10000,
+                warranty_years=3,
+                payment_form="по факту"
+            )
+        )
+        resources["tender"] = tender
+        
+        # Создаем несколько поставщиков
+        suppliers = []
+        for i in range(3):
+            supplier = await db_client.create_supplier(
+                CreateSupplierRequest(
+                    name=f"Поставщик {i+1}",
+                    product_name="Материал",
+                    delivery_period=10 + i * 2,
+                    special_delivery_period=5 + i,
+                    reliability=0.90 + i * 0.02,
+                    product_quality=0.85 + i * 0.03,
+                    cost=40000 + i * 5000,
+                    special_delivery_cost=60000 + i * 5000
+                )
+            )
+            suppliers.append(supplier)
+        resources["suppliers"] = suppliers
+        
+        # Создаем работников
+        workers = []
+        specialties = ["сварщик", "токарь", "фрезеровщик"]
+        for specialty in specialties:
+            worker = await db_client.create_worker(
+                CreateWorkerRequest(
+                    name=f"Работник {specialty}",
+                    qualification=4,
+                    specialty=specialty,
+                    salary=45000
+                )
+            )
+            workers.append(worker)
+        resources["workers"] = workers
+        
+        # Создаем логиста
+        logist = await db_client.create_logist(
+            CreateLogistRequest(
+                name="Логист",
+                qualification=5,
+                specialty="логист",
+                salary=50000,
+                speed=70,
+                vehicle_type="фургон"
+            )
+        )
+        resources["logist"] = logist
+        
+        return resources
+```
+
+#### Use Case 2: Массовое обновление ресурсов
+
+```python
+async def bulk_update_resources():
+    """Массовое обновление ресурсов"""
+    async with AsyncDatabaseClient("localhost", 50052) as db_client:
+        # Получаем всех поставщиков
+        suppliers_response = await db_client.get_all_suppliers()
+        
+        # Обновляем всех поставщиков (например, увеличиваем надежность)
+        updated_suppliers = []
+        for supplier in suppliers_response.suppliers:
+            updated = await db_client.update_supplier(
+                UpdateSupplierRequest(
+                    supplier_id=supplier.supplier_id,
+                    name=supplier.name,
+                    product_name=supplier.product_name,
+                    delivery_period=supplier.delivery_period,
+                    special_delivery_period=supplier.special_delivery_period,
+                    reliability=min(0.99, supplier.reliability + 0.01),  # Увеличиваем надежность
+                    product_quality=supplier.product_quality,
+                    cost=supplier.cost,
+                    special_delivery_cost=supplier.special_delivery_cost
+                )
+            )
+            updated_suppliers.append(updated)
+        
+        print(f"Обновлено поставщиков: {len(updated_suppliers)}")
+        return updated_suppliers
+```
+
+#### Use Case 3: Экспорт данных из базы
+
+```python
+import asyncio
+import json
+from datetime import datetime
+from simulation_client import AsyncDatabaseClient
+
+async def export_database_data():
+    """Экспорт всех данных из базы"""
+    async with AsyncDatabaseClient("localhost", 50052) as db_client:
+        # Получаем все ресурсы параллельно
+        suppliers, workers, logists, equipment, tenders, consumers, workplaces = await asyncio.gather(
+            db_client.get_all_suppliers(),
+            db_client.get_all_workers(),
+            db_client.get_all_logists(),
+            db_client.get_all_equipment(),
+            db_client.get_all_tenders(),
+            db_client.get_all_consumers(),
+            db_client.get_all_workplaces()
+        )
+        
+        # Формируем структуру данных для экспорта
+        export_data = {
+            "suppliers": [s.model_dump() for s in suppliers.suppliers],
+            "workers": [w.model_dump() for w in workers.workers],
+            "logists": [l.model_dump() for l in logists.logists],
+            "equipment": [e.model_dump() for e in equipment.equipments],
+            "tenders": [t.model_dump() for t in tenders.tenders],
+            "consumers": [c.model_dump() for c in consumers.consumers],
+            "workplaces": [wp.model_dump() for wp in workplaces.workplaces],
+            "export_timestamp": datetime.now().isoformat()
+        }
+        
+        # Сохраняем в JSON
+        with open("database_export.json", "w", encoding="utf-8") as f:
+            json.dump(export_data, f, ensure_ascii=False, indent=2)
+        
+        print(f"Экспортировано:")
+        print(f"  Поставщиков: {len(export_data['suppliers'])}")
+        print(f"  Работников: {len(export_data['workers'])}")
+        print(f"  Логистов: {len(export_data['logists'])}")
+        print(f"  Оборудования: {len(export_data['equipment'])}")
+        print(f"  Тендеров: {len(export_data['tenders'])}")
+        print(f"  Заказчиков: {len(export_data['consumers'])}")
+        print(f"  Рабочих мест: {len(export_data['workplaces'])}")
+        
+        return export_data
+```
+
+#### Use Case 4: Валидация данных перед использованием
+
+```python
+async def validate_resources_before_simulation():
+    """Валидация ресурсов перед созданием симуляции"""
+    async with AsyncDatabaseClient("localhost", 50052) as db_client:
+        errors = []
+        warnings = []
+        
+        # Проверяем наличие необходимых ресурсов
+        suppliers = await db_client.get_all_suppliers()
+        if suppliers.total_count < 1:
+            errors.append("Необходимо создать хотя бы одного поставщика")
+        elif suppliers.total_count < 2:
+            warnings.append("Рекомендуется иметь минимум 2 поставщика")
+        
+        logists = await db_client.get_all_logists()
+        if logists.total_count < 1:
+            errors.append("Необходимо создать хотя бы одного логиста")
+        
+        workers = await db_client.get_all_workers()
+        if workers.total_count < 3:
+            warnings.append("Рекомендуется иметь минимум 3 работников")
+        
+        equipment = await db_client.get_all_equipment()
+        if equipment.total_count < 1:
+            warnings.append("Рекомендуется создать оборудование")
+        
+        tenders = await db_client.get_all_tenders()
+        if tenders.total_count < 1:
+            warnings.append("Рекомендуется создать хотя бы один тендер")
+        
+        # Выводим результаты валидации
+        if errors:
+            print("ОШИБКИ:")
+            for error in errors:
+                print(f"  ❌ {error}")
+        
+        if warnings:
+            print("\nПРЕДУПРЕЖДЕНИЯ:")
+            for warning in warnings:
+                print(f"  ⚠️  {warning}")
+        
+        if not errors and not warnings:
+            print("✅ Все ресурсы готовы для создания симуляции")
+        
+        return {
+            "valid": len(errors) == 0,
+            "errors": errors,
+            "warnings": warnings
+        }
+```
 
 ---
 
