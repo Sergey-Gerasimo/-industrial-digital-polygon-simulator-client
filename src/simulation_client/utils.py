@@ -200,7 +200,7 @@ def proto_to_dict(proto) -> Dict:
         value = getattr(proto, field_name)
 
         # Проверяем тип поля
-        if field.label == FieldDescriptor.LABEL_REPEATED:
+        if field.is_repeated:
             if field.message_type:
                 # Список сообщений
                 result[field_name] = [proto_to_dict(item) for item in value]

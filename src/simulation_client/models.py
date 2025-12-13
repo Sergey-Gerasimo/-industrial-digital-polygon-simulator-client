@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pydantic import BaseModel, Field, validator, ConfigDict
 from typing import Optional, List, Dict, Any, Union
 from enum import Enum
@@ -26,6 +28,9 @@ class DistributionStrategy(str, Enum):
     DISTRIBUTION_STRATEGY_PRIORITY_BASED = "DISTRIBUTION_STRATEGY_PRIORITY_BASED"
 
 
+# Qualification и ConsumerType удалены - их нет в proto файле
+
+
 # ==================== DATA MODELS (основные сущности) ====================
 
 
@@ -35,6 +40,7 @@ class Supplier(BaseModel):
     supplier_id: str
     name: str
     product_name: str
+    material_type: str
     delivery_period: int
     special_delivery_period: int
     reliability: float
@@ -76,6 +82,7 @@ class Equipment(BaseModel):
 
     equipment_id: str
     name: str
+    equipment_type: str
     reliability: float
     maintenance_period: int
     maintenance_cost: int
@@ -93,6 +100,7 @@ class Workplace(BaseModel):
     workplace_name: str
     required_speciality: str
     required_qualification: int
+    required_equipment: str = ""  # Из proto: string required_equipment = 5;
     worker: Optional["Worker"] = None
     equipment: Optional["Equipment"] = None
     required_stages: List[str] = Field(default_factory=list)
@@ -175,27 +183,18 @@ class SimulationParameters(BaseModel):
     processes: Optional[ProcessGraph] = None
     tenders: List[Tender] = Field(default_factory=list)
     dealing_with_defects: str = ""
-    has_certification: bool = False
-    production_improvements: List[str] = Field(default_factory=list)
+    production_improvements: List["LeanImprovement"] = Field(default_factory=list)  # В proto: repeated LeanImprovement
     sales_strategy: str = ""
-    quality_inspections: Dict[str, "QualityInspection"] = Field(default_factory=dict)
-    delivery_schedules: Dict[str, "DeliverySchedule"] = Field(default_factory=dict)
-    equipment_maintenance_intervals: Dict[str, int] = Field(default_factory=dict)
-    spaghetti_diagram: Optional["SpaghettiDiagram"] = None
     production_schedule: Optional["ProductionSchedule"] = None
-    sales_growth_forecast: float = 0.0
-    unit_production_cost: int = 0
     certifications: List["Certification"] = Field(default_factory=list)
     lean_improvements: List["LeanImprovement"] = Field(default_factory=list)
-    production_assignments: Dict[str, "ProductionPlanAssignment"] = Field(
-        default_factory=dict
-    )
     distribution_strategy: DistributionStrategy = (
         DistributionStrategy.DISTRIBUTION_STRATEGY_UNSPECIFIED
     )
-    workshop_plan: Optional["WorkshopPlan"] = None
+    step: int = 0
+    capital: int = 0
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, extra='ignore')  # Игнорируем лишние поля из proto (например, has_certification)
 
 
 class SimulationResults(BaseModel):
@@ -241,17 +240,6 @@ class Simulation(BaseModel):
 
 
 # ==================== METRICS MODELS (модели метрик) ====================
-
-
-class WarehouseMetrics(BaseModel):
-    """Метрики склада - точное соответствие protobuf WarehouseMetrics."""
-
-    fill_level: float = 0.0
-    current_load: int = 0
-    max_capacity: int = 0
-    material_levels: Dict[str, int] = Field(default_factory=dict)
-
-    model_config = ConfigDict(from_attributes=True)
 
 
 class FactoryMetrics(BaseModel):
@@ -415,67 +403,9 @@ class ProcurementMetrics(BaseModel):
 # ==================== PRODUCTION PLANNING MODELS ====================
 
 
-class ProductionPlanAssignment(BaseModel):
-    """Распределение производственного плана - точное соответствие protobuf ProductionPlanAssignment."""
-
-    schedule_item_id: str = ""
-    workplace_id: str = ""
-    assigned_quantity: int = 0
-    assigned_worker_id: str = ""
-    assigned_equipment_id: str = ""
-    completion_percentage: float = 0.0
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class ProductionSchedule(BaseModel):
-    """Объемно-календарный план - точное соответствие protobuf ProductionSchedule."""
-
-    class ScheduleItem(BaseModel):
-        """Элемент плана."""
-
-        item_id: str = ""
-        priority: int = 0
-        plan_number: str = ""
-        plan_date: str = ""
-        product_name: str = ""
-        planned_quantity: int = 0
-        actual_quantity: int = 0
-        remaining_to_produce: int = 0
-        planned_completion_date: str = ""
-        order_number: str = ""
-        tender_id: str = ""
-
-        model_config = ConfigDict(from_attributes=True)
-
-    schedule_items: List[ScheduleItem] = Field(default_factory=list)
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class WorkshopPlan(BaseModel):
-    """План цеха - точное соответствие protobuf WorkshopPlan."""
-
-    class WorkplaceNode(BaseModel):
-        """Узел рабочего места."""
-
-        workplace_id: str = ""
-        assigned_worker: Optional[Worker] = None
-        assigned_equipment: Optional[Equipment] = None
-        maintenance_interval: int = 0
-        is_start_node: bool = False
-        is_end_node: bool = False
-        assigned_schedule_items: List[str] = Field(default_factory=list)
-        max_capacity_per_day: int = 0
-        current_utilization: float = 0.0
-
-        model_config = ConfigDict(from_attributes=True)
-
-    workplace_nodes: List[WorkplaceNode] = Field(default_factory=list)
-    logistic_routes: List[Route] = Field(default_factory=list)
-    production_schedule_id: str = ""
-
-    model_config = ConfigDict(from_attributes=True)
+# ProductionPlanAssignment, старый ProductionSchedule и WorkshopPlan удалены - их нет в proto файле
+# ProductionSchedule определен ниже (строка 2101) и соответствует proto
+# WorkshopPlanResponse использует ProcessGraph согласно proto
 
 
 class UnplannedRepair(BaseModel):
@@ -497,23 +427,7 @@ class UnplannedRepair(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class SpaghettiDiagram(BaseModel):
-    """Спагетти-диаграмма - точное соответствие protobuf SpaghettiDiagram."""
-
-    class WorkplaceDetail(BaseModel):
-        """Детали рабочего места."""
-
-        workplace_id: str = ""
-        assigned_worker: Optional[Worker] = None
-        assigned_equipment: Optional[Equipment] = None
-        maintenance_interval: int = 0
-
-        model_config = ConfigDict(from_attributes=True)
-
-    workplace_details: List[WorkplaceDetail] = Field(default_factory=list)
-    logistic_routes: List[Route] = Field(default_factory=list)
-
-    model_config = ConfigDict(from_attributes=True)
+# SpaghettiDiagram удален - его нет в proto файле
 
 
 class RequiredMaterial(BaseModel):
@@ -528,24 +442,7 @@ class RequiredMaterial(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class QualityInspection(BaseModel):
-    """Контроль качества - точное соответствие protobuf QualityInspection."""
-
-    material_id: str = ""
-    inspection_enabled: bool = False
-    inspection_strictness: float = 0.0
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class DeliverySchedule(BaseModel):
-    """График поставок - точное соответствие protobuf DeliverySchedule."""
-
-    supplier_id: str = ""
-    delivery_period_days: int = 0
-    is_express_delivery: bool = False
-
-    model_config = ConfigDict(from_attributes=True)
+# QualityInspection и DeliverySchedule удалены - их нет в proto файле
 
 
 class Certification(BaseModel):
@@ -674,16 +571,8 @@ class GetAllEquipmentResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class ProductionPlanDistributionResponse(BaseModel):
-    """Ответ распределения производственного плана - точное соответствие protobuf."""
-
-    assignments: List[ProductionPlanAssignment] = Field(default_factory=list)
-    efficiency_score: float = 0.0
-    total_assigned_quantity: int = 0
-    warnings: List[str] = Field(default_factory=list)
-    timestamp: str = ""
-
-    model_config = ConfigDict(from_attributes=True)
+# ProductionPlanDistributionResponse удален - его нет в proto файле
+# ProductionPlanAssignment также удален - его нет в proto файле
 
 
 class FactoryMetricsResponse(BaseModel):
@@ -748,19 +637,13 @@ class ProcurementMetricsResponse(BaseModel):
 class ProductionScheduleResponse(BaseModel):
     """Ответ производственного плана - точное соответствие protobuf."""
 
-    schedule: ProductionSchedule
+    schedule: "ProductionSchedule"  # Forward reference
     timestamp: str = ""
 
     model_config = ConfigDict(from_attributes=True)
 
 
-class WorkshopPlanResponse(BaseModel):
-    """Ответ плана цеха - точное соответствие protobuf."""
-
-    workshop_plan: WorkshopPlan
-    timestamp: str = ""
-
-    model_config = ConfigDict(from_attributes=True)
+# Старый WorkshopPlanResponse удален - дубликат, правильная версия ниже (строка 2496) использует ProcessGraph
 
 
 class UnplannedRepairResponse(BaseModel):
@@ -936,135 +819,10 @@ class ProjectProfitabilityChart(BaseModel):
 # ==================== REFERENCE DATA MODELS ====================
 
 
-class ReferenceDataResponse(BaseModel):
-    """Ответ справочных данных - точное соответствие protobuf."""
-
-    class SalesStrategyItem(BaseModel):
-        """Элемент стратегии продаж."""
-
-        id: str = ""
-        name: str = ""
-        description: str = ""
-        growth_forecast: float = 0.0
-        unit_cost: int = 0
-        market_impact: str = ""
-        trend_direction: str = ""
-
-        model_config = ConfigDict(from_attributes=True)
-
-    class DefectPolicyItem(BaseModel):
-        """Элемент политики работы с браком."""
-
-        id: str = ""
-        name: str = ""
-        description: str = ""
-
-        model_config = ConfigDict(from_attributes=True)
-
-    class CertificationItem(BaseModel):
-        """Элемент сертификации."""
-
-        id: str = ""
-        name: str = ""
-        description: str = ""
-        implementation_cost: int = 0
-        implementation_time_days: int = 0
-
-        model_config = ConfigDict(from_attributes=True)
-
-    class ImprovementItem(BaseModel):
-        """Элемент улучшения."""
-
-        id: str = ""
-        name: str = ""
-        description: str = ""
-        implementation_cost: int = 0
-        efficiency_gain: float = 0.0
-
-        model_config = ConfigDict(from_attributes=True)
-
-    class CompanyTypeItem(BaseModel):
-        """Элемент типа компании."""
-
-        id: str = ""
-        name: str = ""
-        description: str = ""
-
-        model_config = ConfigDict(from_attributes=True)
-
-    class SpecialtyItem(BaseModel):
-        """Элемент специальности."""
-
-        id: str = ""
-        name: str = ""
-        description: str = ""
-
-        model_config = ConfigDict(from_attributes=True)
-
-    class VehicleTypeItem(BaseModel):
-        """Элемент типа транспорта."""
-
-        id: str = ""
-        name: str = ""
-        description: str = ""
-        speed_modifier: int = 0
-
-        model_config = ConfigDict(from_attributes=True)
-
-    class UnitSizeItem(BaseModel):
-        """Элемент размера единицы."""
-
-        id: str = ""
-        name: str = ""
-        description: str = ""
-
-        model_config = ConfigDict(from_attributes=True)
-
-    class ProductModelItem(BaseModel):
-        """Элемент модели продукта."""
-
-        id: str = ""
-        name: str = ""
-        description: str = ""
-        unit_size: str = ""
-
-        model_config = ConfigDict(from_attributes=True)
-
-    class PaymentFormItem(BaseModel):
-        """Элемент формы оплаты."""
-
-        id: str = ""
-        name: str = ""
-        description: str = ""
-
-        model_config = ConfigDict(from_attributes=True)
-
-    class WorkplaceTypeItem(BaseModel):
-        """Элемент типа рабочего места."""
-
-        id: str = ""
-        name: str = ""
-        description: str = ""
-        required_specialty: str = ""
-        required_qualification: int = 0
-        compatible_equipment: List[str] = Field(default_factory=list)
-
-        model_config = ConfigDict(from_attributes=True)
-
-    sales_strategies: List[SalesStrategyItem] = Field(default_factory=list)
-    defect_policies: List[DefectPolicyItem] = Field(default_factory=list)
-    certifications: List[CertificationItem] = Field(default_factory=list)
-    improvements: List[ImprovementItem] = Field(default_factory=list)
-    company_types: List[CompanyTypeItem] = Field(default_factory=list)
-    specialties: List[SpecialtyItem] = Field(default_factory=list)
-    vehicle_types: List[VehicleTypeItem] = Field(default_factory=list)
-    unit_sizes: List[UnitSizeItem] = Field(default_factory=list)
-    product_models: List[ProductModelItem] = Field(default_factory=list)
-    payment_forms: List[PaymentFormItem] = Field(default_factory=list)
-    workplace_types: List[WorkplaceTypeItem] = Field(default_factory=list)
-    timestamp: str = ""
-
-    model_config = ConfigDict(from_attributes=True)
+# ReferenceDataResponse удален - его нет в proto
+# Используйте отдельные Response модели: DefectPoliciesListResponse, ImprovementsListResponse,
+# CertificationsListResponse, SalesStrategiesListResponse, MaterialTypesResponse,
+# EquipmentTypesResponse, WorkplaceTypesResponse
 
 
 class DefectPoliciesListResponse(BaseModel):
@@ -1297,13 +1055,7 @@ class SetDealingWithDefectsRequest(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class SetHasCertificationRequest(BaseModel):
-    """Запрос установки сертификации - точное соответствие protobuf."""
-
-    simulation_id: str
-    has_certification: bool
-
-    model_config = ConfigDict(from_attributes=True)
+# SetHasCertificationRequest удален - в proto есть SetCertificationStatusRequest
 
 
 class DeleteSupplierRequest(BaseModel):
@@ -1390,72 +1142,15 @@ class UnSetWorkerOnWorkplaceRequest(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class SetEquipmentOnWorkplaceRequest(BaseModel):
-    """Запрос установки оборудования на рабочее место - точное соответствие protobuf SetEquipmentOnWorkplaceRequst."""
-
-    simulation_id: str
-    workplace_id: str
-    equipment_id: str
-
-    model_config = ConfigDict(from_attributes=True)
+# SetEquipmentOnWorkplaceRequest и UnSetEquipmentOnWorkplaceRequest удалены - их нет в proto
 
 
-class UnSetEquipmentOnWorkplaceRequest(BaseModel):
-    """Запрос снятия оборудования с рабочего места - точное соответствие protobuf UnSetEquipmentOnWorkplaceRequst."""
-
-    simulation_id: str
-    workplace_id: str
-
-    model_config = ConfigDict(from_attributes=True)
+# CreateSimulationRequest удален - в proto используется CreateSimulationRquest (опечатка в proto, но нужно следовать proto)
 
 
-class CreateSimulationRequest(BaseModel):
-    """Запрос создания симуляции - точное соответствие protobuf CreateSimulationRquest."""
-
-    # Пустой запрос, как в protobuf
-    pass
-
-
-class ConfigureWorkplaceInGraphRequest(BaseModel):
-    """Запрос настройки рабочего места в графе - точное соответствие protobuf."""
-
-    simulation_id: str
-    workplace_id: str
-    workplace_type: str
-    worker_id: Optional[str] = None
-    equipment_id: Optional[str] = None
-    is_start_node: bool = False
-    is_end_node: bool = False
-    next_workplace_ids: List[str] = Field(default_factory=list)
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class RemoveWorkplaceFromGraphRequest(BaseModel):
-    """Запрос удаления рабочего места из графа - точное соответствие protobuf."""
-
-    simulation_id: str
-    workplace_id: str
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class SetWorkplaceAsStartNodeRequest(BaseModel):
-    """Запрос установки рабочего места как начального узла - точное соответствие protobuf."""
-
-    simulation_id: str
-    workplace_id: str
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class SetWorkplaceAsEndNodeRequest(BaseModel):
-    """Запрос установки рабочего места как конечного узла - точное соответствие protobuf."""
-
-    simulation_id: str
-    workplace_id: str
-
-    model_config = ConfigDict(from_attributes=True)
+# ConfigureWorkplaceInGraphRequest, RemoveWorkplaceFromGraphRequest, 
+# SetWorkplaceAsStartNodeRequest, SetWorkplaceAsEndNodeRequest удалены - их нет в proto
+# Используйте UpdateProcessGraphRequest для изменения графа процесса
 
 
 class UpdateProcessGraphRequest(BaseModel):
@@ -1467,41 +1162,8 @@ class UpdateProcessGraphRequest(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class DistributeProductionPlanRequest(BaseModel):
-    """Запрос распределения производственного плана - точное соответствие protobuf."""
-
-    simulation_id: str
-    strategy: DistributionStrategy
-    auto_assign_workers: bool = False
-    auto_assign_equipment: bool = False
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class GetProductionPlanDistributionRequest(BaseModel):
-    """Запрос получения распределения производственного плана - точное соответствие protobuf."""
-
-    simulation_id: str
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class UpdateProductionAssignmentRequest(BaseModel):
-    """Запрос обновления назначения производства - точное соответствие protobuf."""
-
-    simulation_id: str
-    assignment: ProductionPlanAssignment
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class UpdateWorkshopPlanRequest(BaseModel):
-    """Запрос обновления плана цеха - точное соответствие protobuf."""
-
-    simulation_id: str
-    workshop_plan: WorkshopPlan
-
-    model_config = ConfigDict(from_attributes=True)
+# DistributeProductionPlanRequest, GetProductionPlanDistributionRequest,
+# UpdateProductionAssignmentRequest, UpdateWorkshopPlanRequest удалены - их нет в proto
 
 
 class GetMetricsRequest(BaseModel):
@@ -1521,13 +1183,8 @@ class GetProductionScheduleRequest(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class UpdateProductionScheduleRequest(BaseModel):
-    """Запрос обновления производственного плана - точное соответствие protobuf."""
-
-    simulation_id: str
-    schedule: ProductionSchedule
-
-    model_config = ConfigDict(from_attributes=True)
+# UpdateProductionScheduleRequest удален - его нет в proto
+# Используйте SetProductionPlanRowRequest для обновления отдельных строк плана
 
 
 class GetWorkshopPlanRequest(BaseModel):
@@ -1555,24 +1212,8 @@ class GetWarehouseLoadChartRequest(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class SetQualityInspectionRequest(BaseModel):
-    """Запрос установки контроля качества - точное соответствие protobuf."""
-
-    simulation_id: str
-    material_id: str
-    inspection: QualityInspection
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class SetDeliveryScheduleRequest(BaseModel):
-    """Запрос установки графика поставок - точное соответствие protobuf."""
-
-    simulation_id: str
-    supplier_id: str
-    schedule: DeliverySchedule
-
-    model_config = ConfigDict(from_attributes=True)
+# Старый SetQualityInspectionRequest удален - в proto используется другой формат (SetQualityInspectionRequest с supplier_id и inspection_enabled)
+# SetDeliveryScheduleRequest удален - в proto используется SetDeliveryPeriodRequest
 
 
 class SetEquipmentMaintenanceIntervalRequest(BaseModel):
@@ -1595,27 +1236,10 @@ class SetCertificationStatusRequest(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class SetLeanImprovementStatusRequest(BaseModel):
-    """Запрос установки статуса улучшения Lean - точное соответствие protobuf."""
-
-    simulation_id: str
-    improvement_id: str
-    is_implemented: bool
-
-    model_config = ConfigDict(from_attributes=True)
+# Старый SetLeanImprovementStatusRequest удален - дубликат, правильная версия ниже (строка 2317) использует name
 
 
-class SetSalesStrategyWithDetailsRequest(BaseModel):
-    """Запрос установки стратегии продаж с деталями - точное соответствие protobuf."""
-
-    simulation_id: str
-    strategy: str
-    growth_forecast: float = 0.0
-    unit_cost: int = 0
-    market_impact: str = ""
-    trend_direction: str = ""
-
-    model_config = ConfigDict(from_attributes=True)
+# SetSalesStrategyWithDetailsRequest удален - в proto есть только SetSalesStrategyRequest
 
 
 class GetRequiredMaterialsRequest(BaseModel):
@@ -1675,12 +1299,7 @@ class ValidateConfigurationRequest(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class GetReferenceDataRequest(BaseModel):
-    """Запрос получения справочных данных - точное соответствие protobuf."""
-
-    data_type: str = ""
-
-    model_config = ConfigDict(from_attributes=True)
+# GetReferenceDataRequest удален - его нет в proto
 
 
 class GetAvailableDefectPoliciesRequest(BaseModel):
@@ -1747,6 +1366,7 @@ class CreateSupplierRequest(BaseModel):
 
     name: str
     product_name: str
+    material_type: str
     delivery_period: int
     special_delivery_period: int
     reliability: float
@@ -1763,6 +1383,7 @@ class UpdateSupplierRequest(BaseModel):
     supplier_id: str
     name: str
     product_name: str
+    material_type: str
     delivery_period: int
     special_delivery_period: int
     reliability: float
@@ -1853,8 +1474,9 @@ class CreateWorkplaceRequest(BaseModel):
     workplace_name: str
     required_speciality: str
     required_qualification: int
-    worker_id: str
+    required_equipment: str = ""  # Из proto: string required_equipment = 4;
     required_stages: List[str] = Field(default_factory=list)
+    # worker_id отсутствует в proto, убираем его
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -1866,7 +1488,7 @@ class UpdateWorkplaceRequest(BaseModel):
     workplace_name: str
     required_speciality: str
     required_qualification: int
-    worker_id: str
+    required_equipment: str = ""  # Из proto: string required_equipment = 5;
     required_stages: List[str] = Field(default_factory=list)
 
     model_config = ConfigDict(from_attributes=True)
@@ -1996,6 +1618,7 @@ class CreateEquipmentRequest(BaseModel):
     """Запрос создания оборудования - точное соответствие protobuf."""
 
     name: str
+    equipment_type: str
     reliability: float
     maintenance_period: int
     maintenance_cost: int
@@ -2011,6 +1634,7 @@ class UpdateEquipmentRequest(BaseModel):
 
     equipment_id: str
     name: str
+    equipment_type: str
     reliability: float
     maintenance_period: int
     maintenance_cost: int
@@ -2036,6 +1660,872 @@ class GetAllEquipmentRequest(BaseModel):
     pass
 
 
+# ==================== NEW MODELS (Lean, Certification, Production) ====================
+
+
+class Certification(BaseModel):
+    """Сертификация - точное соответствие protobuf Certification."""
+
+    certificate_type: str
+    is_obtained: bool = False
+    implementation_cost: int = 0
+    implementation_time_days: int = 0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class LeanImprovement(BaseModel):
+    """Улучшение Lean - точное соответствие protobuf LeanImprovement."""
+
+    improvement_id: str
+    name: str
+    is_implemented: bool = False
+    implementation_cost: int = 0
+    efficiency_gain: float = 0.0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ProductionPlanRow(BaseModel):
+    """Строка производственного плана - точное соответствие protobuf ProductionPlanRow."""
+
+    tender_id: str
+    product_name: str = ""
+    priority: int = 0
+    plan_date: str = ""  # DD.MM
+    dse: str = ""
+    short_set: str = ""
+    dse_name: str = ""
+    planned_quantity: int = 0
+    actual_quantity: int = 0
+    remaining_to_produce: int = 0
+    provision_status: str = ""
+    note: str = ""
+    planned_completion_date: str = ""  # DD.MM.YYYY
+    cost_breakdown: str = ""
+    order_number: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ProductionSchedule(BaseModel):
+    """Производственный план - точное соответствие protobuf ProductionSchedule."""
+
+    rows: List[ProductionPlanRow] = Field(default_factory=list)
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class RequiredMaterial(BaseModel):
+    """Требуемый материал - точное соответствие protobuf RequiredMaterial."""
+
+    material_id: str
+    name: str
+    has_contracted_supplier: bool = False
+    required_quantity: int = 0
+    current_stock: int = 0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ==================== METRICS MODELS ====================
+
+
+class MonthlyProductivity(BaseModel):
+    """Месячная продуктивность - точное соответствие protobuf."""
+
+    month: str
+    units_produced: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class WarehouseMetrics(BaseModel):
+    """Метрики склада - точное соответствие protobuf WarehouseMetrics."""
+
+    fill_level: float = 0.0
+    current_load: int = 0
+    max_capacity: int = 0
+    material_levels: Dict[str, int] = Field(default_factory=dict)
+    load_over_time: List[int] = Field(default_factory=list)
+    max_capacity_over_time: List[int] = Field(default_factory=list)
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ProductionMetrics(BaseModel):
+    """Метрики производства - точное соответствие protobuf ProductionMetrics."""
+
+    monthly_productivity: List[MonthlyProductivity] = Field(default_factory=list)
+    average_equipment_utilization: float = 0.0
+    wip_count: int = 0
+    finished_goods_count: int = 0
+    material_reserves: Dict[str, int] = Field(default_factory=dict)
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class DefectCause(BaseModel):
+    """Причина брака - точное соответствие protobuf."""
+
+    cause: str
+    count: int = 0
+    percentage: float = 0.0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class QualityMetrics(BaseModel):
+    """Метрики качества - точное соответствие protobuf QualityMetrics."""
+
+    defect_percentage: float = 0.0
+    good_output_percentage: float = 0.0
+    defect_causes: List[DefectCause] = Field(default_factory=list)
+    average_material_quality: float = 0.0
+    average_supplier_failure_probability: float = 0.0
+    procurement_volume: int = 0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class OperationTiming(BaseModel):
+    """Время операции - точное соответствие protobuf."""
+
+    operation_name: str
+    cycle_time: int = 0
+    takt_time: int = 0
+    timing_cost: int = 0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class DowntimeRecord(BaseModel):
+    """Запись простоя - точное соответствие protobuf."""
+
+    cause: str
+    total_minutes: int = 0
+    average_per_shift: float = 0.0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class DefectAnalysis(BaseModel):
+    """Анализ брака - точное соответствие protobuf."""
+
+    defect_type: str
+    count: int = 0
+    percentage: float = 0.0
+    cumulative_percentage: float = 0.0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class EngineeringMetrics(BaseModel):
+    """Метрики инженерии - точное соответствие protobuf EngineeringMetrics."""
+
+    operation_timings: List[OperationTiming] = Field(default_factory=list)
+    downtime_records: List[DowntimeRecord] = Field(default_factory=list)
+    defect_analysis: List[DefectAnalysis] = Field(default_factory=list)
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class YearlyRevenue(BaseModel):
+    """Годовой доход - точное соответствие protobuf."""
+
+    year: int
+    revenue: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TenderGraphPoint(BaseModel):
+    """Точка графика тендера - точное соответствие protobuf."""
+
+    strategy: str
+    unit_size: str
+    is_mastered: bool = False
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ProjectProfitability(BaseModel):
+    """Прибыльность проекта - точное соответствие protobuf."""
+
+    project_name: str
+    profitability: float = 0.0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CommercialMetrics(BaseModel):
+    """Коммерческие метрики - точное соответствие protobuf CommercialMetrics."""
+
+    yearly_revenues: List[YearlyRevenue] = Field(default_factory=list)
+    tender_revenue_plan: int = 0
+    total_payments: int = 0
+    total_receipts: int = 0
+    sales_forecast: Dict[str, float] = Field(default_factory=dict)
+    strategy_costs: Dict[str, int] = Field(default_factory=dict)
+    tender_graph: List[TenderGraphPoint] = Field(default_factory=list)
+    project_profitabilities: List[ProjectProfitability] = Field(default_factory=list)
+    on_time_completed_orders: int = 0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class SupplierPerformance(BaseModel):
+    """Производительность поставщика - точное соответствие protobuf."""
+
+    supplier_id: str
+    delivered_quantity: int = 0
+    projected_defect_rate: float = 0.0
+    planned_reliability: float = 0.0
+    actual_reliability: float = 0.0
+    planned_cost: int = 0
+    actual_cost: int = 0
+    actual_defect_count: int = 0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ProcurementMetrics(BaseModel):
+    """Метрики закупок - точное соответствие protobuf ProcurementMetrics."""
+
+    supplier_performances: List[SupplierPerformance] = Field(default_factory=list)
+    total_procurement_value: int = 0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class FactoryMetrics(BaseModel):
+    """Метрики завода - точное соответствие protobuf FactoryMetrics."""
+
+    profitability: float = 0.0
+    on_time_delivery_rate: float = 0.0
+    oee: float = 0.0
+    warehouse_metrics: Dict[str, WarehouseMetrics] = Field(default_factory=dict)
+    total_procurement_cost: int = 0
+    defect_rate: float = 0.0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class RepairRecord(BaseModel):
+    """Запись ремонта - точное соответствие protobuf."""
+
+    month: str
+    repair_cost: int = 0
+    equipment_id: str
+    reason: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UnplannedRepair(BaseModel):
+    """Внеплановый ремонт - точное соответствие protobuf UnplannedRepair."""
+
+    repairs: List[RepairRecord] = Field(default_factory=list)
+    total_repair_cost: int = 0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class LoadPoint(BaseModel):
+    """Точка загрузки - точное соответствие protobuf."""
+
+    timestamp: str
+    load: int = 0
+    max_capacity: int = 0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class WarehouseLoadChart(BaseModel):
+    """График загрузки склада - точное соответствие protobuf WarehouseLoadChart."""
+
+    data_points: List[LoadPoint] = Field(default_factory=list)
+    warehouse_id: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TimingData(BaseModel):
+    """Данные по времени - точное соответствие protobuf."""
+
+    process_name: str
+    cycle_time: int = 0
+    takt_time: int = 0
+    timing_cost: int = 0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class OperationTimingChart(BaseModel):
+    """График времени операций - точное соответствие protobuf OperationTimingChart."""
+
+    timing_data: List[TimingData] = Field(default_factory=list)
+    chart_type: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class DowntimeData(BaseModel):
+    """Данные простоя - точное соответствие protobuf."""
+
+    process_name: str
+    cause: str
+    downtime_minutes: int = 0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class DowntimeChart(BaseModel):
+    """График простоя - точное соответствие protobuf DowntimeChart."""
+
+    downtime_data: List[DowntimeData] = Field(default_factory=list)
+    chart_type: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ModelPoint(BaseModel):
+    """Точка модели - точное соответствие protobuf."""
+
+    strategy: str
+    unit_size: str
+    is_mastered: bool = False
+    model_name: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ModelMasteryChart(BaseModel):
+    """График освоения модели - точное соответствие protobuf ModelMasteryChart."""
+
+    model_points: List[ModelPoint] = Field(default_factory=list)
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ProjectData(BaseModel):
+    """Данные проекта - точное соответствие protobuf."""
+
+    project_name: str
+    profitability: float = 0.0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ProjectProfitabilityChart(BaseModel):
+    """График прибыльности проектов - точное соответствие protobuf ProjectProfitabilityChart."""
+
+    projects: List[ProjectData] = Field(default_factory=list)
+    chart_type: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ==================== REQUEST/RESPONSE MODELS ====================
+
+
+class CreateLeanImprovementRequest(BaseModel):
+    """Запрос создания Lean улучшения - точное соответствие protobuf."""
+
+    name: str
+    is_implemented: bool = False
+    implementation_cost: int = 0
+    efficiency_gain: float = 0.0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UpdateLeanImprovementRequest(BaseModel):
+    """Запрос обновления Lean улучшения - точное соответствие protobuf."""
+
+    improvement_id: str
+    name: str
+    is_implemented: bool = False
+    implementation_cost: int = 0
+    efficiency_gain: float = 0.0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class DeleteLeanImprovementRequest(BaseModel):
+    """Запрос удаления Lean улучшения - точное соответствие protobuf."""
+
+    improvement_id: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GetAllLeanImprovementsRequest(BaseModel):
+    """Запрос всех Lean улучшений - точное соответствие protobuf."""
+
+    # Пустой запрос, как в protobuf
+    pass
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GetAllLeanImprovementsResponse(BaseModel):
+    """Ответ со всеми Lean улучшениями - точное соответствие protobuf."""
+
+    improvements: List[LeanImprovement] = Field(default_factory=list)
+    total_count: int = 0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GetAvailableLeanImprovementsRequest(BaseModel):
+    """Запрос доступных Lean улучшений - точное соответствие protobuf."""
+
+    # Пустой запрос, как в protobuf
+    pass
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GetAvailableLeanImprovementsResponse(BaseModel):
+    """Ответ с доступными Lean улучшениями - точное соответствие protobuf."""
+
+    improvements: List[LeanImprovement] = Field(default_factory=list)
+    timestamp: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UpdateProcessGraphRequest(BaseModel):
+    """Запрос обновления графа процесса - точное соответствие protobuf."""
+
+    simulation_id: str
+    process_graph: ProcessGraph
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class SetProductionPlanRowRequest(BaseModel):
+    """Запрос установки строки производственного плана - точное соответствие protobuf."""
+
+    simulation_id: str
+    row: ProductionPlanRow
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GetMetricsRequest(BaseModel):
+    """Запрос метрик - точное соответствие protobuf."""
+
+    simulation_id: str
+    step: Optional[int] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class FactoryMetricsResponse(BaseModel):
+    """Ответ с метриками завода - точное соответствие protobuf."""
+
+    metrics: FactoryMetrics
+    timestamp: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ProductionMetricsResponse(BaseModel):
+    """Ответ с метриками производства - точное соответствие protobuf."""
+
+    metrics: ProductionMetrics
+    unplanned_repairs: Optional[UnplannedRepair] = None
+    timestamp: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class QualityMetricsResponse(BaseModel):
+    """Ответ с метриками качества - точное соответствие protobuf."""
+
+    metrics: QualityMetrics
+    timestamp: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class EngineeringMetricsResponse(BaseModel):
+    """Ответ с метриками инженерии - точное соответствие protobuf."""
+
+    metrics: EngineeringMetrics
+    operation_timing_chart: Optional[OperationTimingChart] = None
+    downtime_chart: Optional[DowntimeChart] = None
+    timestamp: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CommercialMetricsResponse(BaseModel):
+    """Ответ с коммерческими метриками - точное соответствие protobuf."""
+
+    metrics: CommercialMetrics
+    model_mastery_chart: Optional[ModelMasteryChart] = None
+    project_profitability_chart: Optional[ProjectProfitabilityChart] = None
+    timestamp: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ProcurementMetricsResponse(BaseModel):
+    """Ответ с метриками закупок - точное соответствие protobuf."""
+
+    metrics: ProcurementMetrics
+    timestamp: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GetProductionScheduleRequest(BaseModel):
+    """Запрос производственного плана - точное соответствие protobuf."""
+
+    simulation_id: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ProductionScheduleResponse уже определен выше (строка 646), дубликат удален
+
+
+class GetWorkshopPlanRequest(BaseModel):
+    """Запрос плана цеха - точное соответствие protobuf."""
+
+    simulation_id: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class WorkshopPlanResponse(BaseModel):
+    """Ответ с планом цеха - точное соответствие protobuf."""
+
+    workshop_plan: ProcessGraph
+    timestamp: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GetUnplannedRepairRequest(BaseModel):
+    """Запрос внеплановых ремонтов - точное соответствие protobuf."""
+
+    simulation_id: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UnplannedRepairResponse(BaseModel):
+    """Ответ с внеплановыми ремонтами - точное соответствие protobuf."""
+
+    unplanned_repair: UnplannedRepair
+    timestamp: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GetWarehouseLoadChartRequest(BaseModel):
+    """Запрос графика загрузки склада - точное соответствие protobuf."""
+
+    simulation_id: str
+    warehouse_id: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class WarehouseLoadChartResponse(BaseModel):
+    """Ответ с графиком загрузки склада - точное соответствие protobuf."""
+
+    chart: WarehouseLoadChart
+    timestamp: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class SetQualityInspectionRequest(BaseModel):
+    """Запрос установки контроля качества - точное соответствие protobuf."""
+
+    simulation_id: str
+    supplier_id: str
+    inspection_enabled: bool = True
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class SetDeliveryPeriodRequest(BaseModel):
+    """Запрос установки периода поставок - точное соответствие protobuf."""
+
+    simulation_id: str
+    supplier_id: str
+    delivery_period_days: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class SetEquipmentMaintenanceIntervalRequest(BaseModel):
+    """Запрос установки интервала обслуживания оборудования - точное соответствие protobuf."""
+
+    simulation_id: str
+    equipment_id: str
+    interval_days: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class SetCertificationStatusRequest(BaseModel):
+    """Запрос установки статуса сертификации - точное соответствие protobuf."""
+
+    simulation_id: str
+    certificate_type: str
+    is_obtained: bool = False
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class SetLeanImprovementStatusRequest(BaseModel):
+    """Запрос установки статуса Lean улучшения - точное соответствие protobuf."""
+
+    simulation_id: str
+    name: str
+    is_implemented: bool = False
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class SetSalesStrategyRequest(BaseModel):
+    """Запрос установки стратегии продаж - точное соответствие protobuf."""
+
+    simulation_id: str
+    strategy: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GetRequiredMaterialsRequest(BaseModel):
+    """Запрос требуемых материалов - точное соответствие protobuf."""
+
+    simulation_id: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class RequiredMaterialsResponse(BaseModel):
+    """Ответ с требуемыми материалами - точное соответствие protobuf."""
+
+    materials: List[RequiredMaterial] = Field(default_factory=list)
+    timestamp: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GetAvailableImprovementsRequest(BaseModel):
+    """Запрос доступных улучшений - точное соответствие protobuf."""
+
+    simulation_id: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AvailableImprovementsResponse(BaseModel):
+    """Ответ с доступными улучшениями - точное соответствие protobuf."""
+
+    improvements: List[LeanImprovement] = Field(default_factory=list)
+    timestamp: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GetDefectPoliciesRequest(BaseModel):
+    """Запрос политик работы с браком - точное соответствие protobuf."""
+
+    simulation_id: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class DefectPoliciesResponse(BaseModel):
+    """Ответ с политиками работы с браком - точное соответствие protobuf."""
+
+    available_policies: List[str] = Field(default_factory=list)
+    current_policy: str = ""
+    timestamp: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GetAllMetricsRequest(BaseModel):
+    """Запрос всех метрик - точное соответствие protobuf."""
+
+    simulation_id: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AllMetricsResponse(BaseModel):
+    """Ответ со всеми метриками - точное соответствие protobuf."""
+
+    factory: FactoryMetrics
+    production: ProductionMetrics
+    quality: QualityMetrics
+    engineering: EngineeringMetrics
+    commercial: CommercialMetrics
+    procurement: ProcurementMetrics
+    timestamp: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ValidateConfigurationRequest(BaseModel):
+    """Запрос валидации конфигурации - точное соответствие protobuf."""
+
+    simulation_id: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ValidationResponse(BaseModel):
+    """Ответ валидации - точное соответствие protobuf."""
+
+    is_valid: bool = False
+    errors: List[str] = Field(default_factory=list)
+    warnings: List[str] = Field(default_factory=list)
+    timestamp: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ==================== REFERENCE DATA REQUESTS ====================
+
+
+class GetAvailableDefectPoliciesRequest(BaseModel):
+    """Запрос доступных политик работы с браком - точное соответствие protobuf."""
+
+    # Пустой запрос, как в protobuf
+    pass
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class DefectPoliciesListResponse(BaseModel):
+    """Ответ со списком политик работы с браком - точное соответствие protobuf."""
+
+    policies: List[str] = Field(default_factory=list)
+    timestamp: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GetAvailableImprovementsListRequest(BaseModel):
+    """Запрос списка доступных улучшений - точное соответствие protobuf."""
+
+    # Пустой запрос, как в protobuf
+    pass
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ImprovementsListResponse(BaseModel):
+    """Ответ со списком улучшений - точное соответствие protobuf."""
+
+    improvements: List[str] = Field(default_factory=list)
+    timestamp: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GetAvailableCertificationsRequest(BaseModel):
+    """Запрос доступных сертификаций - точное соответствие protobuf."""
+
+    # Пустой запрос, как в protobuf
+    pass
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CertificationsListResponse(BaseModel):
+    """Ответ со списком сертификаций - точное соответствие protobuf."""
+
+    certifications: List[str] = Field(default_factory=list)
+    timestamp: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GetAvailableSalesStrategiesRequest(BaseModel):
+    """Запрос доступных стратегий продаж - точное соответствие protobuf."""
+
+    # Пустой запрос, как в protobuf
+    pass
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class SalesStrategiesListResponse(BaseModel):
+    """Ответ со списком стратегий продаж - точное соответствие protobuf."""
+
+    strategies: List[str] = Field(default_factory=list)
+    timestamp: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GetMaterialTypesRequest(BaseModel):
+    """Запрос типов материалов - точное соответствие protobuf."""
+
+    # Пустой запрос, как в protobuf
+    pass
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class MaterialTypesResponse(BaseModel):
+    """Ответ с типами материалов - точное соответствие protobuf."""
+
+    material_types: List[str] = Field(default_factory=list)
+    timestamp: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GetEquipmentTypesRequest(BaseModel):
+    """Запрос типов оборудования - точное соответствие protobuf."""
+
+    # Пустой запрос, как в protobuf
+    pass
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class EquipmentTypesResponse(BaseModel):
+    """Ответ с типами оборудования - точное соответствие protobuf."""
+
+    equipment_types: List[str] = Field(default_factory=list)
+    timestamp: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GetWorkplaceTypesRequest(BaseModel):
+    """Запрос типов рабочих мест - точное соответствие protobuf."""
+
+    # Пустой запрос, как в protobuf
+    pass
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class WorkplaceTypesResponse(BaseModel):
+    """Ответ с типами рабочих мест - точное соответствие protobuf."""
+
+    workplace_types: List[str] = Field(default_factory=list)
+    timestamp: str = ""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 # ==================== HELPER MODELS (для удобства) ====================
 
 
@@ -2052,7 +2542,7 @@ class SimulationConfig(BaseModel):
     )  # workplace_id: equipment_id
     tender_ids: List[str] = Field(default_factory=list)
     dealing_with_defects: str = "standard"
-    has_certification: bool = False
+    # has_certification удален - используйте certifications список вместо него
     production_improvements: List[str] = Field(default_factory=list)
     sales_strategy: str = "standard"
 
@@ -2114,14 +2604,10 @@ __all__ = [
     "CommercialMetrics",
     "ProcurementMetrics",
     # Production Planning Models
-    "ProductionPlanAssignment",
     "ProductionSchedule",
-    "WorkshopPlan",
+    "ProductionPlanRow",
     "UnplannedRepair",
-    "SpaghettiDiagram",
     "RequiredMaterial",
-    "QualityInspection",
-    "DeliverySchedule",
     "Certification",
     "LeanImprovement",
     "WarehouseLoadChart",
@@ -2135,7 +2621,6 @@ __all__ = [
     "GetAllConsumersResponse",
     "GetAllTendersResponse",
     "GetAllEquipmentResponse",
-    "ProductionPlanDistributionResponse",
     "FactoryMetricsResponse",
     "ProductionMetricsResponse",
     "QualityMetricsResponse",
@@ -2159,7 +2644,6 @@ __all__ = [
     "ModelMasteryChart",
     "ProjectProfitabilityChart",
     # Reference Data Models
-    "ReferenceDataResponse",
     "DefectPoliciesListResponse",
     "ImprovementsListResponse",
     "CertificationsListResponse",
@@ -2176,50 +2660,33 @@ __all__ = [
     "AddTenderRequest",
     "RemoveTenderRequest",
     "SetDealingWithDefectsRequest",
-    "SetHasCertificationRequest",
     "DeleteSupplierRequest",
     "AddProductionImprovementRequest",
     "DeleteProductionImprovementRequest",
     "SetSalesStrategyRequest",
     "RunSimulationRequest",
-    "AddProcessRouteRequest",
-    "DeleteProcessRouteRequest",
     "SetWorkerOnWorkplaceRequest",
     "UnSetWorkerOnWorkplaceRequest",
-    "SetEquipmentOnWorkplaceRequest",
-    "UnSetEquipmentOnWorkplaceRequest",
-    "CreateSimulationRequest",
     "PingRequest",
     # New Request Models (SimulationService)
-    "ConfigureWorkplaceInGraphRequest",
-    "RemoveWorkplaceFromGraphRequest",
-    "SetWorkplaceAsStartNodeRequest",
-    "SetWorkplaceAsEndNodeRequest",
     "UpdateProcessGraphRequest",
-    "DistributeProductionPlanRequest",
-    "GetProductionPlanDistributionRequest",
-    "UpdateProductionAssignmentRequest",
-    "UpdateWorkshopPlanRequest",
+    "SetProductionPlanRowRequest",
     "GetMetricsRequest",
     "GetProductionScheduleRequest",
-    "UpdateProductionScheduleRequest",
     "GetWorkshopPlanRequest",
     "GetUnplannedRepairRequest",
     "GetWarehouseLoadChartRequest",
     "SetQualityInspectionRequest",
-    "SetDeliveryScheduleRequest",
+    "SetDeliveryPeriodRequest",
     "SetEquipmentMaintenanceIntervalRequest",
     "SetCertificationStatusRequest",
     "SetLeanImprovementStatusRequest",
-    "SetSalesStrategyWithDetailsRequest",
+    "SetSalesStrategyRequest",
     "GetRequiredMaterialsRequest",
     "GetAvailableImprovementsRequest",
     "GetDefectPoliciesRequest",
-    "RunSimulationStepRequest",
-    "GetSimulationHistoryRequest",
     "GetAllMetricsRequest",
     "ValidateConfigurationRequest",
-    "GetReferenceDataRequest",
     "GetAvailableDefectPoliciesRequest",
     "GetAvailableImprovementsListRequest",
     "GetAvailableCertificationsRequest",

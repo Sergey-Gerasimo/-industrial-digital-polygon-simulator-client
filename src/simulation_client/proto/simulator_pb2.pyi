@@ -30,10 +30,11 @@ WAREHOUSE_TYPE_MATERIALS: WarehouseType
 WAREHOUSE_TYPE_PRODUCTS: WarehouseType
 
 class Supplier(_message.Message):
-    __slots__ = ("supplier_id", "name", "product_name", "delivery_period", "special_delivery_period", "reliability", "product_quality", "cost", "special_delivery_cost")
+    __slots__ = ("supplier_id", "name", "product_name", "material_type", "delivery_period", "special_delivery_period", "reliability", "product_quality", "cost", "special_delivery_cost")
     SUPPLIER_ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
     PRODUCT_NAME_FIELD_NUMBER: _ClassVar[int]
+    MATERIAL_TYPE_FIELD_NUMBER: _ClassVar[int]
     DELIVERY_PERIOD_FIELD_NUMBER: _ClassVar[int]
     SPECIAL_DELIVERY_PERIOD_FIELD_NUMBER: _ClassVar[int]
     RELIABILITY_FIELD_NUMBER: _ClassVar[int]
@@ -43,13 +44,14 @@ class Supplier(_message.Message):
     supplier_id: str
     name: str
     product_name: str
+    material_type: str
     delivery_period: int
     special_delivery_period: int
     reliability: float
     product_quality: float
     cost: int
     special_delivery_cost: int
-    def __init__(self, supplier_id: _Optional[str] = ..., name: _Optional[str] = ..., product_name: _Optional[str] = ..., delivery_period: _Optional[int] = ..., special_delivery_period: _Optional[int] = ..., reliability: _Optional[float] = ..., product_quality: _Optional[float] = ..., cost: _Optional[int] = ..., special_delivery_cost: _Optional[int] = ...) -> None: ...
+    def __init__(self, supplier_id: _Optional[str] = ..., name: _Optional[str] = ..., product_name: _Optional[str] = ..., material_type: _Optional[str] = ..., delivery_period: _Optional[int] = ..., special_delivery_period: _Optional[int] = ..., reliability: _Optional[float] = ..., product_quality: _Optional[float] = ..., cost: _Optional[int] = ..., special_delivery_cost: _Optional[int] = ...) -> None: ...
 
 class Warehouse(_message.Message):
     __slots__ = ("warehouse_id", "inventory_worker", "size", "loading", "materials")
@@ -105,9 +107,10 @@ class Logist(_message.Message):
     def __init__(self, worker_id: _Optional[str] = ..., name: _Optional[str] = ..., qualification: _Optional[int] = ..., specialty: _Optional[str] = ..., salary: _Optional[int] = ..., speed: _Optional[int] = ..., vehicle_type: _Optional[str] = ...) -> None: ...
 
 class Equipment(_message.Message):
-    __slots__ = ("equipment_id", "name", "reliability", "maintenance_period", "maintenance_cost", "cost", "repair_cost", "repair_time")
+    __slots__ = ("equipment_id", "name", "equipment_type", "reliability", "maintenance_period", "maintenance_cost", "cost", "repair_cost", "repair_time")
     EQUIPMENT_ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
+    EQUIPMENT_TYPE_FIELD_NUMBER: _ClassVar[int]
     RELIABILITY_FIELD_NUMBER: _ClassVar[int]
     MAINTENANCE_PERIOD_FIELD_NUMBER: _ClassVar[int]
     MAINTENANCE_COST_FIELD_NUMBER: _ClassVar[int]
@@ -116,20 +119,22 @@ class Equipment(_message.Message):
     REPAIR_TIME_FIELD_NUMBER: _ClassVar[int]
     equipment_id: str
     name: str
+    equipment_type: str
     reliability: float
     maintenance_period: int
     maintenance_cost: int
     cost: int
     repair_cost: int
     repair_time: int
-    def __init__(self, equipment_id: _Optional[str] = ..., name: _Optional[str] = ..., reliability: _Optional[float] = ..., maintenance_period: _Optional[int] = ..., maintenance_cost: _Optional[int] = ..., cost: _Optional[int] = ..., repair_cost: _Optional[int] = ..., repair_time: _Optional[int] = ...) -> None: ...
+    def __init__(self, equipment_id: _Optional[str] = ..., name: _Optional[str] = ..., equipment_type: _Optional[str] = ..., reliability: _Optional[float] = ..., maintenance_period: _Optional[int] = ..., maintenance_cost: _Optional[int] = ..., cost: _Optional[int] = ..., repair_cost: _Optional[int] = ..., repair_time: _Optional[int] = ...) -> None: ...
 
 class Workplace(_message.Message):
-    __slots__ = ("workplace_id", "workplace_name", "required_speciality", "required_qualification", "worker", "equipment", "required_stages", "is_start_node", "is_end_node", "next_workplace_ids")
+    __slots__ = ("workplace_id", "workplace_name", "required_speciality", "required_qualification", "required_equipment", "worker", "equipment", "required_stages", "is_start_node", "is_end_node", "next_workplace_ids")
     WORKPLACE_ID_FIELD_NUMBER: _ClassVar[int]
     WORKPLACE_NAME_FIELD_NUMBER: _ClassVar[int]
     REQUIRED_SPECIALITY_FIELD_NUMBER: _ClassVar[int]
     REQUIRED_QUALIFICATION_FIELD_NUMBER: _ClassVar[int]
+    REQUIRED_EQUIPMENT_FIELD_NUMBER: _ClassVar[int]
     WORKER_FIELD_NUMBER: _ClassVar[int]
     EQUIPMENT_FIELD_NUMBER: _ClassVar[int]
     REQUIRED_STAGES_FIELD_NUMBER: _ClassVar[int]
@@ -140,13 +145,14 @@ class Workplace(_message.Message):
     workplace_name: str
     required_speciality: str
     required_qualification: int
+    required_equipment: str
     worker: Worker
     equipment: Equipment
     required_stages: _containers.RepeatedScalarFieldContainer[str]
     is_start_node: bool
     is_end_node: bool
     next_workplace_ids: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, workplace_id: _Optional[str] = ..., workplace_name: _Optional[str] = ..., required_speciality: _Optional[str] = ..., required_qualification: _Optional[int] = ..., worker: _Optional[_Union[Worker, _Mapping]] = ..., equipment: _Optional[_Union[Equipment, _Mapping]] = ..., required_stages: _Optional[_Iterable[str]] = ..., is_start_node: bool = ..., is_end_node: bool = ..., next_workplace_ids: _Optional[_Iterable[str]] = ...) -> None: ...
+    def __init__(self, workplace_id: _Optional[str] = ..., workplace_name: _Optional[str] = ..., required_speciality: _Optional[str] = ..., required_qualification: _Optional[int] = ..., required_equipment: _Optional[str] = ..., worker: _Optional[_Union[Worker, _Mapping]] = ..., equipment: _Optional[_Union[Equipment, _Mapping]] = ..., required_stages: _Optional[_Iterable[str]] = ..., is_start_node: bool = ..., is_end_node: bool = ..., next_workplace_ids: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class Route(_message.Message):
     __slots__ = ("length", "from_workplace", "to_workplace")
@@ -196,52 +202,8 @@ class Tender(_message.Message):
     payment_form: str
     def __init__(self, tender_id: _Optional[str] = ..., consumer: _Optional[_Union[Consumer, _Mapping]] = ..., cost: _Optional[int] = ..., quantity_of_products: _Optional[int] = ..., penalty_per_day: _Optional[int] = ..., warranty_years: _Optional[int] = ..., payment_form: _Optional[str] = ...) -> None: ...
 
-class ProductionPlanAssignment(_message.Message):
-    __slots__ = ("schedule_item_id", "workplace_id", "assigned_quantity", "assigned_worker_id", "assigned_equipment_id", "completion_percentage")
-    SCHEDULE_ITEM_ID_FIELD_NUMBER: _ClassVar[int]
-    WORKPLACE_ID_FIELD_NUMBER: _ClassVar[int]
-    ASSIGNED_QUANTITY_FIELD_NUMBER: _ClassVar[int]
-    ASSIGNED_WORKER_ID_FIELD_NUMBER: _ClassVar[int]
-    ASSIGNED_EQUIPMENT_ID_FIELD_NUMBER: _ClassVar[int]
-    COMPLETION_PERCENTAGE_FIELD_NUMBER: _ClassVar[int]
-    schedule_item_id: str
-    workplace_id: str
-    assigned_quantity: int
-    assigned_worker_id: str
-    assigned_equipment_id: str
-    completion_percentage: float
-    def __init__(self, schedule_item_id: _Optional[str] = ..., workplace_id: _Optional[str] = ..., assigned_quantity: _Optional[int] = ..., assigned_worker_id: _Optional[str] = ..., assigned_equipment_id: _Optional[str] = ..., completion_percentage: _Optional[float] = ...) -> None: ...
-
 class SimulationParameters(_message.Message):
-    __slots__ = ("logist", "suppliers", "backup_suppliers", "materials_warehouse", "product_warehouse", "processes", "tenders", "dealing_with_defects", "has_certification", "production_improvements", "sales_strategy", "quality_inspections", "delivery_schedules", "equipment_maintenance_intervals", "spaghetti_diagram", "production_schedule", "sales_growth_forecast", "unit_production_cost", "certifications", "lean_improvements", "production_assignments", "distribution_strategy", "workshop_plan")
-    class QualityInspectionsEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: str
-        value: QualityInspection
-        def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[QualityInspection, _Mapping]] = ...) -> None: ...
-    class DeliverySchedulesEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: str
-        value: DeliverySchedule
-        def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[DeliverySchedule, _Mapping]] = ...) -> None: ...
-    class EquipmentMaintenanceIntervalsEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: str
-        value: int
-        def __init__(self, key: _Optional[str] = ..., value: _Optional[int] = ...) -> None: ...
-    class ProductionAssignmentsEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: str
-        value: ProductionPlanAssignment
-        def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[ProductionPlanAssignment, _Mapping]] = ...) -> None: ...
+    __slots__ = ("logist", "suppliers", "backup_suppliers", "materials_warehouse", "product_warehouse", "processes", "tenders", "dealing_with_defects", "production_improvements", "sales_strategy", "production_schedule", "certifications", "lean_improvements", "distribution_strategy", "step", "capital")
     LOGIST_FIELD_NUMBER: _ClassVar[int]
     SUPPLIERS_FIELD_NUMBER: _ClassVar[int]
     BACKUP_SUPPLIERS_FIELD_NUMBER: _ClassVar[int]
@@ -250,21 +212,14 @@ class SimulationParameters(_message.Message):
     PROCESSES_FIELD_NUMBER: _ClassVar[int]
     TENDERS_FIELD_NUMBER: _ClassVar[int]
     DEALING_WITH_DEFECTS_FIELD_NUMBER: _ClassVar[int]
-    HAS_CERTIFICATION_FIELD_NUMBER: _ClassVar[int]
     PRODUCTION_IMPROVEMENTS_FIELD_NUMBER: _ClassVar[int]
     SALES_STRATEGY_FIELD_NUMBER: _ClassVar[int]
-    QUALITY_INSPECTIONS_FIELD_NUMBER: _ClassVar[int]
-    DELIVERY_SCHEDULES_FIELD_NUMBER: _ClassVar[int]
-    EQUIPMENT_MAINTENANCE_INTERVALS_FIELD_NUMBER: _ClassVar[int]
-    SPAGHETTI_DIAGRAM_FIELD_NUMBER: _ClassVar[int]
     PRODUCTION_SCHEDULE_FIELD_NUMBER: _ClassVar[int]
-    SALES_GROWTH_FORECAST_FIELD_NUMBER: _ClassVar[int]
-    UNIT_PRODUCTION_COST_FIELD_NUMBER: _ClassVar[int]
     CERTIFICATIONS_FIELD_NUMBER: _ClassVar[int]
     LEAN_IMPROVEMENTS_FIELD_NUMBER: _ClassVar[int]
-    PRODUCTION_ASSIGNMENTS_FIELD_NUMBER: _ClassVar[int]
     DISTRIBUTION_STRATEGY_FIELD_NUMBER: _ClassVar[int]
-    WORKSHOP_PLAN_FIELD_NUMBER: _ClassVar[int]
+    STEP_FIELD_NUMBER: _ClassVar[int]
+    CAPITAL_FIELD_NUMBER: _ClassVar[int]
     logist: Logist
     suppliers: _containers.RepeatedCompositeFieldContainer[Supplier]
     backup_suppliers: _containers.RepeatedCompositeFieldContainer[Supplier]
@@ -273,25 +228,18 @@ class SimulationParameters(_message.Message):
     processes: ProcessGraph
     tenders: _containers.RepeatedCompositeFieldContainer[Tender]
     dealing_with_defects: str
-    has_certification: bool
-    production_improvements: _containers.RepeatedScalarFieldContainer[str]
+    production_improvements: _containers.RepeatedCompositeFieldContainer[LeanImprovement]
     sales_strategy: str
-    quality_inspections: _containers.MessageMap[str, QualityInspection]
-    delivery_schedules: _containers.MessageMap[str, DeliverySchedule]
-    equipment_maintenance_intervals: _containers.ScalarMap[str, int]
-    spaghetti_diagram: SpaghettiDiagram
     production_schedule: ProductionSchedule
-    sales_growth_forecast: float
-    unit_production_cost: int
     certifications: _containers.RepeatedCompositeFieldContainer[Certification]
     lean_improvements: _containers.RepeatedCompositeFieldContainer[LeanImprovement]
-    production_assignments: _containers.MessageMap[str, ProductionPlanAssignment]
     distribution_strategy: DistributionStrategy
-    workshop_plan: WorkshopPlan
-    def __init__(self, logist: _Optional[_Union[Logist, _Mapping]] = ..., suppliers: _Optional[_Iterable[_Union[Supplier, _Mapping]]] = ..., backup_suppliers: _Optional[_Iterable[_Union[Supplier, _Mapping]]] = ..., materials_warehouse: _Optional[_Union[Warehouse, _Mapping]] = ..., product_warehouse: _Optional[_Union[Warehouse, _Mapping]] = ..., processes: _Optional[_Union[ProcessGraph, _Mapping]] = ..., tenders: _Optional[_Iterable[_Union[Tender, _Mapping]]] = ..., dealing_with_defects: _Optional[str] = ..., has_certification: bool = ..., production_improvements: _Optional[_Iterable[str]] = ..., sales_strategy: _Optional[str] = ..., quality_inspections: _Optional[_Mapping[str, QualityInspection]] = ..., delivery_schedules: _Optional[_Mapping[str, DeliverySchedule]] = ..., equipment_maintenance_intervals: _Optional[_Mapping[str, int]] = ..., spaghetti_diagram: _Optional[_Union[SpaghettiDiagram, _Mapping]] = ..., production_schedule: _Optional[_Union[ProductionSchedule, _Mapping]] = ..., sales_growth_forecast: _Optional[float] = ..., unit_production_cost: _Optional[int] = ..., certifications: _Optional[_Iterable[_Union[Certification, _Mapping]]] = ..., lean_improvements: _Optional[_Iterable[_Union[LeanImprovement, _Mapping]]] = ..., production_assignments: _Optional[_Mapping[str, ProductionPlanAssignment]] = ..., distribution_strategy: _Optional[_Union[DistributionStrategy, str]] = ..., workshop_plan: _Optional[_Union[WorkshopPlan, _Mapping]] = ...) -> None: ...
+    step: int
+    capital: int
+    def __init__(self, logist: _Optional[_Union[Logist, _Mapping]] = ..., suppliers: _Optional[_Iterable[_Union[Supplier, _Mapping]]] = ..., backup_suppliers: _Optional[_Iterable[_Union[Supplier, _Mapping]]] = ..., materials_warehouse: _Optional[_Union[Warehouse, _Mapping]] = ..., product_warehouse: _Optional[_Union[Warehouse, _Mapping]] = ..., processes: _Optional[_Union[ProcessGraph, _Mapping]] = ..., tenders: _Optional[_Iterable[_Union[Tender, _Mapping]]] = ..., dealing_with_defects: _Optional[str] = ..., production_improvements: _Optional[_Iterable[_Union[LeanImprovement, _Mapping]]] = ..., sales_strategy: _Optional[str] = ..., production_schedule: _Optional[_Union[ProductionSchedule, _Mapping]] = ..., certifications: _Optional[_Iterable[_Union[Certification, _Mapping]]] = ..., lean_improvements: _Optional[_Iterable[_Union[LeanImprovement, _Mapping]]] = ..., distribution_strategy: _Optional[_Union[DistributionStrategy, str]] = ..., step: _Optional[int] = ..., capital: _Optional[int] = ...) -> None: ...
 
 class SimulationResults(_message.Message):
-    __slots__ = ("profit", "cost", "profitability", "factory_metrics", "production_metrics", "quality_metrics", "engineering_metrics", "commercial_metrics", "procurement_metrics")
+    __slots__ = ("profit", "cost", "profitability", "factory_metrics", "production_metrics", "quality_metrics", "engineering_metrics", "commercial_metrics", "procurement_metrics", "step")
     PROFIT_FIELD_NUMBER: _ClassVar[int]
     COST_FIELD_NUMBER: _ClassVar[int]
     PROFITABILITY_FIELD_NUMBER: _ClassVar[int]
@@ -301,6 +249,7 @@ class SimulationResults(_message.Message):
     ENGINEERING_METRICS_FIELD_NUMBER: _ClassVar[int]
     COMMERCIAL_METRICS_FIELD_NUMBER: _ClassVar[int]
     PROCUREMENT_METRICS_FIELD_NUMBER: _ClassVar[int]
+    STEP_FIELD_NUMBER: _ClassVar[int]
     profit: int
     cost: int
     profitability: float
@@ -310,25 +259,24 @@ class SimulationResults(_message.Message):
     engineering_metrics: EngineeringMetrics
     commercial_metrics: CommercialMetrics
     procurement_metrics: ProcurementMetrics
-    def __init__(self, profit: _Optional[int] = ..., cost: _Optional[int] = ..., profitability: _Optional[float] = ..., factory_metrics: _Optional[_Union[FactoryMetrics, _Mapping]] = ..., production_metrics: _Optional[_Union[ProductionMetrics, _Mapping]] = ..., quality_metrics: _Optional[_Union[QualityMetrics, _Mapping]] = ..., engineering_metrics: _Optional[_Union[EngineeringMetrics, _Mapping]] = ..., commercial_metrics: _Optional[_Union[CommercialMetrics, _Mapping]] = ..., procurement_metrics: _Optional[_Union[ProcurementMetrics, _Mapping]] = ...) -> None: ...
+    step: int
+    def __init__(self, profit: _Optional[int] = ..., cost: _Optional[int] = ..., profitability: _Optional[float] = ..., factory_metrics: _Optional[_Union[FactoryMetrics, _Mapping]] = ..., production_metrics: _Optional[_Union[ProductionMetrics, _Mapping]] = ..., quality_metrics: _Optional[_Union[QualityMetrics, _Mapping]] = ..., engineering_metrics: _Optional[_Union[EngineeringMetrics, _Mapping]] = ..., commercial_metrics: _Optional[_Union[CommercialMetrics, _Mapping]] = ..., procurement_metrics: _Optional[_Union[ProcurementMetrics, _Mapping]] = ..., step: _Optional[int] = ...) -> None: ...
 
 class Simulation(_message.Message):
-    __slots__ = ("capital", "step", "simulation_id", "parameters", "results", "room_id", "is_completed")
+    __slots__ = ("capital", "simulation_id", "parameters", "results", "room_id", "is_completed")
     CAPITAL_FIELD_NUMBER: _ClassVar[int]
-    STEP_FIELD_NUMBER: _ClassVar[int]
     SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
     PARAMETERS_FIELD_NUMBER: _ClassVar[int]
     RESULTS_FIELD_NUMBER: _ClassVar[int]
     ROOM_ID_FIELD_NUMBER: _ClassVar[int]
     IS_COMPLETED_FIELD_NUMBER: _ClassVar[int]
     capital: int
-    step: int
     simulation_id: str
-    parameters: SimulationParameters
-    results: SimulationResults
+    parameters: _containers.RepeatedCompositeFieldContainer[SimulationParameters]
+    results: _containers.RepeatedCompositeFieldContainer[SimulationResults]
     room_id: str
     is_completed: bool
-    def __init__(self, capital: _Optional[int] = ..., step: _Optional[int] = ..., simulation_id: _Optional[str] = ..., parameters: _Optional[_Union[SimulationParameters, _Mapping]] = ..., results: _Optional[_Union[SimulationResults, _Mapping]] = ..., room_id: _Optional[str] = ..., is_completed: bool = ...) -> None: ...
+    def __init__(self, capital: _Optional[int] = ..., simulation_id: _Optional[str] = ..., parameters: _Optional[_Iterable[_Union[SimulationParameters, _Mapping]]] = ..., results: _Optional[_Iterable[_Union[SimulationResults, _Mapping]]] = ..., room_id: _Optional[str] = ..., is_completed: bool = ...) -> None: ...
 
 class FactoryMetrics(_message.Message):
     __slots__ = ("profitability", "on_time_delivery_rate", "oee", "warehouse_metrics", "total_procurement_cost", "defect_rate")
@@ -354,7 +302,7 @@ class FactoryMetrics(_message.Message):
     def __init__(self, profitability: _Optional[float] = ..., on_time_delivery_rate: _Optional[float] = ..., oee: _Optional[float] = ..., warehouse_metrics: _Optional[_Mapping[str, WarehouseMetrics]] = ..., total_procurement_cost: _Optional[int] = ..., defect_rate: _Optional[float] = ...) -> None: ...
 
 class WarehouseMetrics(_message.Message):
-    __slots__ = ("fill_level", "current_load", "max_capacity", "material_levels")
+    __slots__ = ("fill_level", "current_load", "max_capacity", "material_levels", "load_over_time", "max_capacity_over_time")
     class MaterialLevelsEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
@@ -366,11 +314,15 @@ class WarehouseMetrics(_message.Message):
     CURRENT_LOAD_FIELD_NUMBER: _ClassVar[int]
     MAX_CAPACITY_FIELD_NUMBER: _ClassVar[int]
     MATERIAL_LEVELS_FIELD_NUMBER: _ClassVar[int]
+    LOAD_OVER_TIME_FIELD_NUMBER: _ClassVar[int]
+    MAX_CAPACITY_OVER_TIME_FIELD_NUMBER: _ClassVar[int]
     fill_level: float
     current_load: int
     max_capacity: int
     material_levels: _containers.ScalarMap[str, int]
-    def __init__(self, fill_level: _Optional[float] = ..., current_load: _Optional[int] = ..., max_capacity: _Optional[int] = ..., material_levels: _Optional[_Mapping[str, int]] = ...) -> None: ...
+    load_over_time: _containers.RepeatedScalarFieldContainer[int]
+    max_capacity_over_time: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, fill_level: _Optional[float] = ..., current_load: _Optional[int] = ..., max_capacity: _Optional[int] = ..., material_levels: _Optional[_Mapping[str, int]] = ..., load_over_time: _Optional[_Iterable[int]] = ..., max_capacity_over_time: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class ProductionMetrics(_message.Message):
     __slots__ = ("monthly_productivity", "average_equipment_utilization", "wip_count", "finished_goods_count", "material_reserves")
@@ -552,67 +504,45 @@ class ProcurementMetrics(_message.Message):
     total_procurement_value: int
     def __init__(self, supplier_performances: _Optional[_Iterable[_Union[ProcurementMetrics.SupplierPerformance, _Mapping]]] = ..., total_procurement_value: _Optional[int] = ...) -> None: ...
 
-class ProductionSchedule(_message.Message):
-    __slots__ = ("schedule_items",)
-    class ScheduleItem(_message.Message):
-        __slots__ = ("item_id", "priority", "plan_number", "plan_date", "product_name", "planned_quantity", "actual_quantity", "remaining_to_produce", "planned_completion_date", "order_number", "tender_id")
-        ITEM_ID_FIELD_NUMBER: _ClassVar[int]
-        PRIORITY_FIELD_NUMBER: _ClassVar[int]
-        PLAN_NUMBER_FIELD_NUMBER: _ClassVar[int]
-        PLAN_DATE_FIELD_NUMBER: _ClassVar[int]
-        PRODUCT_NAME_FIELD_NUMBER: _ClassVar[int]
-        PLANNED_QUANTITY_FIELD_NUMBER: _ClassVar[int]
-        ACTUAL_QUANTITY_FIELD_NUMBER: _ClassVar[int]
-        REMAINING_TO_PRODUCE_FIELD_NUMBER: _ClassVar[int]
-        PLANNED_COMPLETION_DATE_FIELD_NUMBER: _ClassVar[int]
-        ORDER_NUMBER_FIELD_NUMBER: _ClassVar[int]
-        TENDER_ID_FIELD_NUMBER: _ClassVar[int]
-        item_id: str
-        priority: int
-        plan_number: str
-        plan_date: str
-        product_name: str
-        planned_quantity: int
-        actual_quantity: int
-        remaining_to_produce: int
-        planned_completion_date: str
-        order_number: str
-        tender_id: str
-        def __init__(self, item_id: _Optional[str] = ..., priority: _Optional[int] = ..., plan_number: _Optional[str] = ..., plan_date: _Optional[str] = ..., product_name: _Optional[str] = ..., planned_quantity: _Optional[int] = ..., actual_quantity: _Optional[int] = ..., remaining_to_produce: _Optional[int] = ..., planned_completion_date: _Optional[str] = ..., order_number: _Optional[str] = ..., tender_id: _Optional[str] = ...) -> None: ...
-    SCHEDULE_ITEMS_FIELD_NUMBER: _ClassVar[int]
-    schedule_items: _containers.RepeatedCompositeFieldContainer[ProductionSchedule.ScheduleItem]
-    def __init__(self, schedule_items: _Optional[_Iterable[_Union[ProductionSchedule.ScheduleItem, _Mapping]]] = ...) -> None: ...
+class ProductionPlanRow(_message.Message):
+    __slots__ = ("tender_id", "product_name", "priority", "plan_date", "dse", "short_set", "dse_name", "planned_quantity", "actual_quantity", "remaining_to_produce", "provision_status", "note", "planned_completion_date", "cost_breakdown", "order_number")
+    TENDER_ID_FIELD_NUMBER: _ClassVar[int]
+    PRODUCT_NAME_FIELD_NUMBER: _ClassVar[int]
+    PRIORITY_FIELD_NUMBER: _ClassVar[int]
+    PLAN_DATE_FIELD_NUMBER: _ClassVar[int]
+    DSE_FIELD_NUMBER: _ClassVar[int]
+    SHORT_SET_FIELD_NUMBER: _ClassVar[int]
+    DSE_NAME_FIELD_NUMBER: _ClassVar[int]
+    PLANNED_QUANTITY_FIELD_NUMBER: _ClassVar[int]
+    ACTUAL_QUANTITY_FIELD_NUMBER: _ClassVar[int]
+    REMAINING_TO_PRODUCE_FIELD_NUMBER: _ClassVar[int]
+    PROVISION_STATUS_FIELD_NUMBER: _ClassVar[int]
+    NOTE_FIELD_NUMBER: _ClassVar[int]
+    PLANNED_COMPLETION_DATE_FIELD_NUMBER: _ClassVar[int]
+    COST_BREAKDOWN_FIELD_NUMBER: _ClassVar[int]
+    ORDER_NUMBER_FIELD_NUMBER: _ClassVar[int]
+    tender_id: str
+    product_name: str
+    priority: int
+    plan_date: str
+    dse: str
+    short_set: str
+    dse_name: str
+    planned_quantity: int
+    actual_quantity: int
+    remaining_to_produce: int
+    provision_status: str
+    note: str
+    planned_completion_date: str
+    cost_breakdown: str
+    order_number: str
+    def __init__(self, tender_id: _Optional[str] = ..., product_name: _Optional[str] = ..., priority: _Optional[int] = ..., plan_date: _Optional[str] = ..., dse: _Optional[str] = ..., short_set: _Optional[str] = ..., dse_name: _Optional[str] = ..., planned_quantity: _Optional[int] = ..., actual_quantity: _Optional[int] = ..., remaining_to_produce: _Optional[int] = ..., provision_status: _Optional[str] = ..., note: _Optional[str] = ..., planned_completion_date: _Optional[str] = ..., cost_breakdown: _Optional[str] = ..., order_number: _Optional[str] = ...) -> None: ...
 
-class WorkshopPlan(_message.Message):
-    __slots__ = ("workplace_nodes", "logistic_routes", "production_schedule_id")
-    class WorkplaceNode(_message.Message):
-        __slots__ = ("workplace_id", "assigned_worker", "assigned_equipment", "maintenance_interval", "is_start_node", "is_end_node", "assigned_schedule_items", "max_capacity_per_day", "current_utilization")
-        WORKPLACE_ID_FIELD_NUMBER: _ClassVar[int]
-        ASSIGNED_WORKER_FIELD_NUMBER: _ClassVar[int]
-        ASSIGNED_EQUIPMENT_FIELD_NUMBER: _ClassVar[int]
-        MAINTENANCE_INTERVAL_FIELD_NUMBER: _ClassVar[int]
-        IS_START_NODE_FIELD_NUMBER: _ClassVar[int]
-        IS_END_NODE_FIELD_NUMBER: _ClassVar[int]
-        ASSIGNED_SCHEDULE_ITEMS_FIELD_NUMBER: _ClassVar[int]
-        MAX_CAPACITY_PER_DAY_FIELD_NUMBER: _ClassVar[int]
-        CURRENT_UTILIZATION_FIELD_NUMBER: _ClassVar[int]
-        workplace_id: str
-        assigned_worker: Worker
-        assigned_equipment: Equipment
-        maintenance_interval: int
-        is_start_node: bool
-        is_end_node: bool
-        assigned_schedule_items: _containers.RepeatedScalarFieldContainer[str]
-        max_capacity_per_day: int
-        current_utilization: float
-        def __init__(self, workplace_id: _Optional[str] = ..., assigned_worker: _Optional[_Union[Worker, _Mapping]] = ..., assigned_equipment: _Optional[_Union[Equipment, _Mapping]] = ..., maintenance_interval: _Optional[int] = ..., is_start_node: bool = ..., is_end_node: bool = ..., assigned_schedule_items: _Optional[_Iterable[str]] = ..., max_capacity_per_day: _Optional[int] = ..., current_utilization: _Optional[float] = ...) -> None: ...
-    WORKPLACE_NODES_FIELD_NUMBER: _ClassVar[int]
-    LOGISTIC_ROUTES_FIELD_NUMBER: _ClassVar[int]
-    PRODUCTION_SCHEDULE_ID_FIELD_NUMBER: _ClassVar[int]
-    workplace_nodes: _containers.RepeatedCompositeFieldContainer[WorkshopPlan.WorkplaceNode]
-    logistic_routes: _containers.RepeatedCompositeFieldContainer[Route]
-    production_schedule_id: str
-    def __init__(self, workplace_nodes: _Optional[_Iterable[_Union[WorkshopPlan.WorkplaceNode, _Mapping]]] = ..., logistic_routes: _Optional[_Iterable[_Union[Route, _Mapping]]] = ..., production_schedule_id: _Optional[str] = ...) -> None: ...
+class ProductionSchedule(_message.Message):
+    __slots__ = ("rows",)
+    ROWS_FIELD_NUMBER: _ClassVar[int]
+    rows: _containers.RepeatedCompositeFieldContainer[ProductionPlanRow]
+    def __init__(self, rows: _Optional[_Iterable[_Union[ProductionPlanRow, _Mapping]]] = ...) -> None: ...
 
 class UnplannedRepair(_message.Message):
     __slots__ = ("repairs", "total_repair_cost")
@@ -633,25 +563,6 @@ class UnplannedRepair(_message.Message):
     total_repair_cost: int
     def __init__(self, repairs: _Optional[_Iterable[_Union[UnplannedRepair.RepairRecord, _Mapping]]] = ..., total_repair_cost: _Optional[int] = ...) -> None: ...
 
-class SpaghettiDiagram(_message.Message):
-    __slots__ = ("workplace_details", "logistic_routes")
-    class WorkplaceDetail(_message.Message):
-        __slots__ = ("workplace_id", "assigned_worker", "assigned_equipment", "maintenance_interval")
-        WORKPLACE_ID_FIELD_NUMBER: _ClassVar[int]
-        ASSIGNED_WORKER_FIELD_NUMBER: _ClassVar[int]
-        ASSIGNED_EQUIPMENT_FIELD_NUMBER: _ClassVar[int]
-        MAINTENANCE_INTERVAL_FIELD_NUMBER: _ClassVar[int]
-        workplace_id: str
-        assigned_worker: Worker
-        assigned_equipment: Equipment
-        maintenance_interval: int
-        def __init__(self, workplace_id: _Optional[str] = ..., assigned_worker: _Optional[_Union[Worker, _Mapping]] = ..., assigned_equipment: _Optional[_Union[Equipment, _Mapping]] = ..., maintenance_interval: _Optional[int] = ...) -> None: ...
-    WORKPLACE_DETAILS_FIELD_NUMBER: _ClassVar[int]
-    LOGISTIC_ROUTES_FIELD_NUMBER: _ClassVar[int]
-    workplace_details: _containers.RepeatedCompositeFieldContainer[SpaghettiDiagram.WorkplaceDetail]
-    logistic_routes: _containers.RepeatedCompositeFieldContainer[Route]
-    def __init__(self, workplace_details: _Optional[_Iterable[_Union[SpaghettiDiagram.WorkplaceDetail, _Mapping]]] = ..., logistic_routes: _Optional[_Iterable[_Union[Route, _Mapping]]] = ...) -> None: ...
-
 class RequiredMaterial(_message.Message):
     __slots__ = ("material_id", "name", "has_contracted_supplier", "required_quantity", "current_stock")
     MATERIAL_ID_FIELD_NUMBER: _ClassVar[int]
@@ -665,26 +576,6 @@ class RequiredMaterial(_message.Message):
     required_quantity: int
     current_stock: int
     def __init__(self, material_id: _Optional[str] = ..., name: _Optional[str] = ..., has_contracted_supplier: bool = ..., required_quantity: _Optional[int] = ..., current_stock: _Optional[int] = ...) -> None: ...
-
-class QualityInspection(_message.Message):
-    __slots__ = ("material_id", "inspection_enabled", "inspection_strictness")
-    MATERIAL_ID_FIELD_NUMBER: _ClassVar[int]
-    INSPECTION_ENABLED_FIELD_NUMBER: _ClassVar[int]
-    INSPECTION_STRICTNESS_FIELD_NUMBER: _ClassVar[int]
-    material_id: str
-    inspection_enabled: bool
-    inspection_strictness: float
-    def __init__(self, material_id: _Optional[str] = ..., inspection_enabled: bool = ..., inspection_strictness: _Optional[float] = ...) -> None: ...
-
-class DeliverySchedule(_message.Message):
-    __slots__ = ("supplier_id", "delivery_period_days", "is_express_delivery")
-    SUPPLIER_ID_FIELD_NUMBER: _ClassVar[int]
-    DELIVERY_PERIOD_DAYS_FIELD_NUMBER: _ClassVar[int]
-    IS_EXPRESS_DELIVERY_FIELD_NUMBER: _ClassVar[int]
-    supplier_id: str
-    delivery_period_days: int
-    is_express_delivery: bool
-    def __init__(self, supplier_id: _Optional[str] = ..., delivery_period_days: _Optional[int] = ..., is_express_delivery: bool = ...) -> None: ...
 
 class Certification(_message.Message):
     __slots__ = ("certificate_type", "is_obtained", "implementation_cost", "implementation_time_days")
@@ -797,191 +688,17 @@ class ProjectProfitabilityChart(_message.Message):
     chart_type: str
     def __init__(self, projects: _Optional[_Iterable[_Union[ProjectProfitabilityChart.ProjectData, _Mapping]]] = ..., chart_type: _Optional[str] = ...) -> None: ...
 
-class GetReferenceDataRequest(_message.Message):
-    __slots__ = ("data_type",)
-    DATA_TYPE_FIELD_NUMBER: _ClassVar[int]
-    data_type: str
-    def __init__(self, data_type: _Optional[str] = ...) -> None: ...
-
-class ReferenceDataResponse(_message.Message):
-    __slots__ = ("sales_strategies", "defect_policies", "certifications", "improvements", "company_types", "specialties", "vehicle_types", "unit_sizes", "product_models", "payment_forms", "workplace_types", "timestamp")
-    class SalesStrategyItem(_message.Message):
-        __slots__ = ("id", "name", "description", "growth_forecast", "unit_cost", "market_impact", "trend_direction")
-        ID_FIELD_NUMBER: _ClassVar[int]
-        NAME_FIELD_NUMBER: _ClassVar[int]
-        DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
-        GROWTH_FORECAST_FIELD_NUMBER: _ClassVar[int]
-        UNIT_COST_FIELD_NUMBER: _ClassVar[int]
-        MARKET_IMPACT_FIELD_NUMBER: _ClassVar[int]
-        TREND_DIRECTION_FIELD_NUMBER: _ClassVar[int]
-        id: str
-        name: str
-        description: str
-        growth_forecast: float
-        unit_cost: int
-        market_impact: str
-        trend_direction: str
-        def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ..., description: _Optional[str] = ..., growth_forecast: _Optional[float] = ..., unit_cost: _Optional[int] = ..., market_impact: _Optional[str] = ..., trend_direction: _Optional[str] = ...) -> None: ...
-    class DefectPolicyItem(_message.Message):
-        __slots__ = ("id", "name", "description")
-        ID_FIELD_NUMBER: _ClassVar[int]
-        NAME_FIELD_NUMBER: _ClassVar[int]
-        DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
-        id: str
-        name: str
-        description: str
-        def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ..., description: _Optional[str] = ...) -> None: ...
-    class CertificationItem(_message.Message):
-        __slots__ = ("id", "name", "description", "implementation_cost", "implementation_time_days")
-        ID_FIELD_NUMBER: _ClassVar[int]
-        NAME_FIELD_NUMBER: _ClassVar[int]
-        DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
-        IMPLEMENTATION_COST_FIELD_NUMBER: _ClassVar[int]
-        IMPLEMENTATION_TIME_DAYS_FIELD_NUMBER: _ClassVar[int]
-        id: str
-        name: str
-        description: str
-        implementation_cost: int
-        implementation_time_days: int
-        def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ..., description: _Optional[str] = ..., implementation_cost: _Optional[int] = ..., implementation_time_days: _Optional[int] = ...) -> None: ...
-    class ImprovementItem(_message.Message):
-        __slots__ = ("id", "name", "description", "implementation_cost", "efficiency_gain")
-        ID_FIELD_NUMBER: _ClassVar[int]
-        NAME_FIELD_NUMBER: _ClassVar[int]
-        DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
-        IMPLEMENTATION_COST_FIELD_NUMBER: _ClassVar[int]
-        EFFICIENCY_GAIN_FIELD_NUMBER: _ClassVar[int]
-        id: str
-        name: str
-        description: str
-        implementation_cost: int
-        efficiency_gain: float
-        def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ..., description: _Optional[str] = ..., implementation_cost: _Optional[int] = ..., efficiency_gain: _Optional[float] = ...) -> None: ...
-    class CompanyTypeItem(_message.Message):
-        __slots__ = ("id", "name", "description")
-        ID_FIELD_NUMBER: _ClassVar[int]
-        NAME_FIELD_NUMBER: _ClassVar[int]
-        DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
-        id: str
-        name: str
-        description: str
-        def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ..., description: _Optional[str] = ...) -> None: ...
-    class SpecialtyItem(_message.Message):
-        __slots__ = ("id", "name", "description")
-        ID_FIELD_NUMBER: _ClassVar[int]
-        NAME_FIELD_NUMBER: _ClassVar[int]
-        DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
-        id: str
-        name: str
-        description: str
-        def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ..., description: _Optional[str] = ...) -> None: ...
-    class VehicleTypeItem(_message.Message):
-        __slots__ = ("id", "name", "description", "speed_modifier")
-        ID_FIELD_NUMBER: _ClassVar[int]
-        NAME_FIELD_NUMBER: _ClassVar[int]
-        DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
-        SPEED_MODIFIER_FIELD_NUMBER: _ClassVar[int]
-        id: str
-        name: str
-        description: str
-        speed_modifier: int
-        def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ..., description: _Optional[str] = ..., speed_modifier: _Optional[int] = ...) -> None: ...
-    class UnitSizeItem(_message.Message):
-        __slots__ = ("id", "name", "description")
-        ID_FIELD_NUMBER: _ClassVar[int]
-        NAME_FIELD_NUMBER: _ClassVar[int]
-        DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
-        id: str
-        name: str
-        description: str
-        def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ..., description: _Optional[str] = ...) -> None: ...
-    class ProductModelItem(_message.Message):
-        __slots__ = ("id", "name", "description", "unit_size")
-        ID_FIELD_NUMBER: _ClassVar[int]
-        NAME_FIELD_NUMBER: _ClassVar[int]
-        DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
-        UNIT_SIZE_FIELD_NUMBER: _ClassVar[int]
-        id: str
-        name: str
-        description: str
-        unit_size: str
-        def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ..., description: _Optional[str] = ..., unit_size: _Optional[str] = ...) -> None: ...
-    class PaymentFormItem(_message.Message):
-        __slots__ = ("id", "name", "description")
-        ID_FIELD_NUMBER: _ClassVar[int]
-        NAME_FIELD_NUMBER: _ClassVar[int]
-        DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
-        id: str
-        name: str
-        description: str
-        def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ..., description: _Optional[str] = ...) -> None: ...
-    class WorkplaceTypeItem(_message.Message):
-        __slots__ = ("id", "name", "description", "required_specialty", "required_qualification", "compatible_equipment")
-        ID_FIELD_NUMBER: _ClassVar[int]
-        NAME_FIELD_NUMBER: _ClassVar[int]
-        DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
-        REQUIRED_SPECIALTY_FIELD_NUMBER: _ClassVar[int]
-        REQUIRED_QUALIFICATION_FIELD_NUMBER: _ClassVar[int]
-        COMPATIBLE_EQUIPMENT_FIELD_NUMBER: _ClassVar[int]
-        id: str
-        name: str
-        description: str
-        required_specialty: str
-        required_qualification: int
-        compatible_equipment: _containers.RepeatedScalarFieldContainer[str]
-        def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ..., description: _Optional[str] = ..., required_specialty: _Optional[str] = ..., required_qualification: _Optional[int] = ..., compatible_equipment: _Optional[_Iterable[str]] = ...) -> None: ...
-    SALES_STRATEGIES_FIELD_NUMBER: _ClassVar[int]
-    DEFECT_POLICIES_FIELD_NUMBER: _ClassVar[int]
-    CERTIFICATIONS_FIELD_NUMBER: _ClassVar[int]
-    IMPROVEMENTS_FIELD_NUMBER: _ClassVar[int]
-    COMPANY_TYPES_FIELD_NUMBER: _ClassVar[int]
-    SPECIALTIES_FIELD_NUMBER: _ClassVar[int]
-    VEHICLE_TYPES_FIELD_NUMBER: _ClassVar[int]
-    UNIT_SIZES_FIELD_NUMBER: _ClassVar[int]
-    PRODUCT_MODELS_FIELD_NUMBER: _ClassVar[int]
-    PAYMENT_FORMS_FIELD_NUMBER: _ClassVar[int]
-    WORKPLACE_TYPES_FIELD_NUMBER: _ClassVar[int]
-    TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
-    sales_strategies: _containers.RepeatedCompositeFieldContainer[ReferenceDataResponse.SalesStrategyItem]
-    defect_policies: _containers.RepeatedCompositeFieldContainer[ReferenceDataResponse.DefectPolicyItem]
-    certifications: _containers.RepeatedCompositeFieldContainer[ReferenceDataResponse.CertificationItem]
-    improvements: _containers.RepeatedCompositeFieldContainer[ReferenceDataResponse.ImprovementItem]
-    company_types: _containers.RepeatedCompositeFieldContainer[ReferenceDataResponse.CompanyTypeItem]
-    specialties: _containers.RepeatedCompositeFieldContainer[ReferenceDataResponse.SpecialtyItem]
-    vehicle_types: _containers.RepeatedCompositeFieldContainer[ReferenceDataResponse.VehicleTypeItem]
-    unit_sizes: _containers.RepeatedCompositeFieldContainer[ReferenceDataResponse.UnitSizeItem]
-    product_models: _containers.RepeatedCompositeFieldContainer[ReferenceDataResponse.ProductModelItem]
-    payment_forms: _containers.RepeatedCompositeFieldContainer[ReferenceDataResponse.PaymentFormItem]
-    workplace_types: _containers.RepeatedCompositeFieldContainer[ReferenceDataResponse.WorkplaceTypeItem]
-    timestamp: str
-    def __init__(self, sales_strategies: _Optional[_Iterable[_Union[ReferenceDataResponse.SalesStrategyItem, _Mapping]]] = ..., defect_policies: _Optional[_Iterable[_Union[ReferenceDataResponse.DefectPolicyItem, _Mapping]]] = ..., certifications: _Optional[_Iterable[_Union[ReferenceDataResponse.CertificationItem, _Mapping]]] = ..., improvements: _Optional[_Iterable[_Union[ReferenceDataResponse.ImprovementItem, _Mapping]]] = ..., company_types: _Optional[_Iterable[_Union[ReferenceDataResponse.CompanyTypeItem, _Mapping]]] = ..., specialties: _Optional[_Iterable[_Union[ReferenceDataResponse.SpecialtyItem, _Mapping]]] = ..., vehicle_types: _Optional[_Iterable[_Union[ReferenceDataResponse.VehicleTypeItem, _Mapping]]] = ..., unit_sizes: _Optional[_Iterable[_Union[ReferenceDataResponse.UnitSizeItem, _Mapping]]] = ..., product_models: _Optional[_Iterable[_Union[ReferenceDataResponse.ProductModelItem, _Mapping]]] = ..., payment_forms: _Optional[_Iterable[_Union[ReferenceDataResponse.PaymentFormItem, _Mapping]]] = ..., workplace_types: _Optional[_Iterable[_Union[ReferenceDataResponse.WorkplaceTypeItem, _Mapping]]] = ..., timestamp: _Optional[str] = ...) -> None: ...
-
 class GetAvailableDefectPoliciesRequest(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
 
 class DefectPoliciesListResponse(_message.Message):
     __slots__ = ("policies", "timestamp")
-    class DefectPolicyOption(_message.Message):
-        __slots__ = ("id", "name", "description", "cost_multiplier", "quality_impact", "time_impact")
-        ID_FIELD_NUMBER: _ClassVar[int]
-        NAME_FIELD_NUMBER: _ClassVar[int]
-        DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
-        COST_MULTIPLIER_FIELD_NUMBER: _ClassVar[int]
-        QUALITY_IMPACT_FIELD_NUMBER: _ClassVar[int]
-        TIME_IMPACT_FIELD_NUMBER: _ClassVar[int]
-        id: str
-        name: str
-        description: str
-        cost_multiplier: float
-        quality_impact: float
-        time_impact: float
-        def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ..., description: _Optional[str] = ..., cost_multiplier: _Optional[float] = ..., quality_impact: _Optional[float] = ..., time_impact: _Optional[float] = ...) -> None: ...
     POLICIES_FIELD_NUMBER: _ClassVar[int]
     TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
-    policies: _containers.RepeatedCompositeFieldContainer[DefectPoliciesListResponse.DefectPolicyOption]
+    policies: _containers.RepeatedScalarFieldContainer[str]
     timestamp: str
-    def __init__(self, policies: _Optional[_Iterable[_Union[DefectPoliciesListResponse.DefectPolicyOption, _Mapping]]] = ..., timestamp: _Optional[str] = ...) -> None: ...
+    def __init__(self, policies: _Optional[_Iterable[str]] = ..., timestamp: _Optional[str] = ...) -> None: ...
 
 class GetAvailableImprovementsListRequest(_message.Message):
     __slots__ = ()
@@ -989,30 +706,11 @@ class GetAvailableImprovementsListRequest(_message.Message):
 
 class ImprovementsListResponse(_message.Message):
     __slots__ = ("improvements", "timestamp")
-    class ImprovementOption(_message.Message):
-        __slots__ = ("id", "name", "description", "implementation_cost", "implementation_time_days", "efficiency_gain", "quality_improvement", "cost_reduction")
-        ID_FIELD_NUMBER: _ClassVar[int]
-        NAME_FIELD_NUMBER: _ClassVar[int]
-        DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
-        IMPLEMENTATION_COST_FIELD_NUMBER: _ClassVar[int]
-        IMPLEMENTATION_TIME_DAYS_FIELD_NUMBER: _ClassVar[int]
-        EFFICIENCY_GAIN_FIELD_NUMBER: _ClassVar[int]
-        QUALITY_IMPROVEMENT_FIELD_NUMBER: _ClassVar[int]
-        COST_REDUCTION_FIELD_NUMBER: _ClassVar[int]
-        id: str
-        name: str
-        description: str
-        implementation_cost: int
-        implementation_time_days: int
-        efficiency_gain: float
-        quality_improvement: float
-        cost_reduction: float
-        def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ..., description: _Optional[str] = ..., implementation_cost: _Optional[int] = ..., implementation_time_days: _Optional[int] = ..., efficiency_gain: _Optional[float] = ..., quality_improvement: _Optional[float] = ..., cost_reduction: _Optional[float] = ...) -> None: ...
     IMPROVEMENTS_FIELD_NUMBER: _ClassVar[int]
     TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
-    improvements: _containers.RepeatedCompositeFieldContainer[ImprovementsListResponse.ImprovementOption]
+    improvements: _containers.RepeatedScalarFieldContainer[str]
     timestamp: str
-    def __init__(self, improvements: _Optional[_Iterable[_Union[ImprovementsListResponse.ImprovementOption, _Mapping]]] = ..., timestamp: _Optional[str] = ...) -> None: ...
+    def __init__(self, improvements: _Optional[_Iterable[str]] = ..., timestamp: _Optional[str] = ...) -> None: ...
 
 class GetAvailableCertificationsRequest(_message.Message):
     __slots__ = ()
@@ -1020,30 +718,11 @@ class GetAvailableCertificationsRequest(_message.Message):
 
 class CertificationsListResponse(_message.Message):
     __slots__ = ("certifications", "timestamp")
-    class CertificationOption(_message.Message):
-        __slots__ = ("id", "name", "description", "implementation_cost", "implementation_time_days", "market_access_improvement", "quality_recognition", "government_access")
-        ID_FIELD_NUMBER: _ClassVar[int]
-        NAME_FIELD_NUMBER: _ClassVar[int]
-        DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
-        IMPLEMENTATION_COST_FIELD_NUMBER: _ClassVar[int]
-        IMPLEMENTATION_TIME_DAYS_FIELD_NUMBER: _ClassVar[int]
-        MARKET_ACCESS_IMPROVEMENT_FIELD_NUMBER: _ClassVar[int]
-        QUALITY_RECOGNITION_FIELD_NUMBER: _ClassVar[int]
-        GOVERNMENT_ACCESS_FIELD_NUMBER: _ClassVar[int]
-        id: str
-        name: str
-        description: str
-        implementation_cost: int
-        implementation_time_days: int
-        market_access_improvement: float
-        quality_recognition: float
-        government_access: float
-        def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ..., description: _Optional[str] = ..., implementation_cost: _Optional[int] = ..., implementation_time_days: _Optional[int] = ..., market_access_improvement: _Optional[float] = ..., quality_recognition: _Optional[float] = ..., government_access: _Optional[float] = ...) -> None: ...
     CERTIFICATIONS_FIELD_NUMBER: _ClassVar[int]
     TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
-    certifications: _containers.RepeatedCompositeFieldContainer[CertificationsListResponse.CertificationOption]
+    certifications: _containers.RepeatedScalarFieldContainer[str]
     timestamp: str
-    def __init__(self, certifications: _Optional[_Iterable[_Union[CertificationsListResponse.CertificationOption, _Mapping]]] = ..., timestamp: _Optional[str] = ...) -> None: ...
+    def __init__(self, certifications: _Optional[_Iterable[str]] = ..., timestamp: _Optional[str] = ...) -> None: ...
 
 class GetAvailableSalesStrategiesRequest(_message.Message):
     __slots__ = ()
@@ -1051,30 +730,11 @@ class GetAvailableSalesStrategiesRequest(_message.Message):
 
 class SalesStrategiesListResponse(_message.Message):
     __slots__ = ("strategies", "timestamp")
-    class SalesStrategyOption(_message.Message):
-        __slots__ = ("id", "name", "description", "growth_forecast", "unit_cost", "market_impact", "trend_direction", "compatible_product_models")
-        ID_FIELD_NUMBER: _ClassVar[int]
-        NAME_FIELD_NUMBER: _ClassVar[int]
-        DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
-        GROWTH_FORECAST_FIELD_NUMBER: _ClassVar[int]
-        UNIT_COST_FIELD_NUMBER: _ClassVar[int]
-        MARKET_IMPACT_FIELD_NUMBER: _ClassVar[int]
-        TREND_DIRECTION_FIELD_NUMBER: _ClassVar[int]
-        COMPATIBLE_PRODUCT_MODELS_FIELD_NUMBER: _ClassVar[int]
-        id: str
-        name: str
-        description: str
-        growth_forecast: float
-        unit_cost: int
-        market_impact: str
-        trend_direction: str
-        compatible_product_models: _containers.RepeatedScalarFieldContainer[str]
-        def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ..., description: _Optional[str] = ..., growth_forecast: _Optional[float] = ..., unit_cost: _Optional[int] = ..., market_impact: _Optional[str] = ..., trend_direction: _Optional[str] = ..., compatible_product_models: _Optional[_Iterable[str]] = ...) -> None: ...
     STRATEGIES_FIELD_NUMBER: _ClassVar[int]
     TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
-    strategies: _containers.RepeatedCompositeFieldContainer[SalesStrategiesListResponse.SalesStrategyOption]
+    strategies: _containers.RepeatedScalarFieldContainer[str]
     timestamp: str
-    def __init__(self, strategies: _Optional[_Iterable[_Union[SalesStrategiesListResponse.SalesStrategyOption, _Mapping]]] = ..., timestamp: _Optional[str] = ...) -> None: ...
+    def __init__(self, strategies: _Optional[_Iterable[str]] = ..., timestamp: _Optional[str] = ...) -> None: ...
 
 class GetMaterialTypesRequest(_message.Message):
     __slots__ = ()
@@ -1082,24 +742,11 @@ class GetMaterialTypesRequest(_message.Message):
 
 class MaterialTypesResponse(_message.Message):
     __slots__ = ("material_types", "timestamp")
-    class MaterialType(_message.Message):
-        __slots__ = ("material_id", "name", "description", "unit", "average_price")
-        MATERIAL_ID_FIELD_NUMBER: _ClassVar[int]
-        NAME_FIELD_NUMBER: _ClassVar[int]
-        DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
-        UNIT_FIELD_NUMBER: _ClassVar[int]
-        AVERAGE_PRICE_FIELD_NUMBER: _ClassVar[int]
-        material_id: str
-        name: str
-        description: str
-        unit: str
-        average_price: int
-        def __init__(self, material_id: _Optional[str] = ..., name: _Optional[str] = ..., description: _Optional[str] = ..., unit: _Optional[str] = ..., average_price: _Optional[int] = ...) -> None: ...
     MATERIAL_TYPES_FIELD_NUMBER: _ClassVar[int]
     TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
-    material_types: _containers.RepeatedCompositeFieldContainer[MaterialTypesResponse.MaterialType]
+    material_types: _containers.RepeatedScalarFieldContainer[str]
     timestamp: str
-    def __init__(self, material_types: _Optional[_Iterable[_Union[MaterialTypesResponse.MaterialType, _Mapping]]] = ..., timestamp: _Optional[str] = ...) -> None: ...
+    def __init__(self, material_types: _Optional[_Iterable[str]] = ..., timestamp: _Optional[str] = ...) -> None: ...
 
 class GetEquipmentTypesRequest(_message.Message):
     __slots__ = ()
@@ -1107,28 +754,11 @@ class GetEquipmentTypesRequest(_message.Message):
 
 class EquipmentTypesResponse(_message.Message):
     __slots__ = ("equipment_types", "timestamp")
-    class EquipmentType(_message.Message):
-        __slots__ = ("equipment_type_id", "name", "description", "base_reliability", "base_maintenance_cost", "base_cost", "compatible_workplaces")
-        EQUIPMENT_TYPE_ID_FIELD_NUMBER: _ClassVar[int]
-        NAME_FIELD_NUMBER: _ClassVar[int]
-        DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
-        BASE_RELIABILITY_FIELD_NUMBER: _ClassVar[int]
-        BASE_MAINTENANCE_COST_FIELD_NUMBER: _ClassVar[int]
-        BASE_COST_FIELD_NUMBER: _ClassVar[int]
-        COMPATIBLE_WORKPLACES_FIELD_NUMBER: _ClassVar[int]
-        equipment_type_id: str
-        name: str
-        description: str
-        base_reliability: float
-        base_maintenance_cost: int
-        base_cost: int
-        compatible_workplaces: _containers.RepeatedScalarFieldContainer[str]
-        def __init__(self, equipment_type_id: _Optional[str] = ..., name: _Optional[str] = ..., description: _Optional[str] = ..., base_reliability: _Optional[float] = ..., base_maintenance_cost: _Optional[int] = ..., base_cost: _Optional[int] = ..., compatible_workplaces: _Optional[_Iterable[str]] = ...) -> None: ...
     EQUIPMENT_TYPES_FIELD_NUMBER: _ClassVar[int]
     TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
-    equipment_types: _containers.RepeatedCompositeFieldContainer[EquipmentTypesResponse.EquipmentType]
+    equipment_types: _containers.RepeatedScalarFieldContainer[str]
     timestamp: str
-    def __init__(self, equipment_types: _Optional[_Iterable[_Union[EquipmentTypesResponse.EquipmentType, _Mapping]]] = ..., timestamp: _Optional[str] = ...) -> None: ...
+    def __init__(self, equipment_types: _Optional[_Iterable[str]] = ..., timestamp: _Optional[str] = ...) -> None: ...
 
 class GetWorkplaceTypesRequest(_message.Message):
     __slots__ = ()
@@ -1136,70 +766,71 @@ class GetWorkplaceTypesRequest(_message.Message):
 
 class WorkplaceTypesResponse(_message.Message):
     __slots__ = ("workplace_types", "timestamp")
-    class WorkplaceType(_message.Message):
-        __slots__ = ("workplace_type_id", "name", "description", "required_specialty", "required_qualification", "compatible_equipment_types")
-        WORKPLACE_TYPE_ID_FIELD_NUMBER: _ClassVar[int]
-        NAME_FIELD_NUMBER: _ClassVar[int]
-        DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
-        REQUIRED_SPECIALTY_FIELD_NUMBER: _ClassVar[int]
-        REQUIRED_QUALIFICATION_FIELD_NUMBER: _ClassVar[int]
-        COMPATIBLE_EQUIPMENT_TYPES_FIELD_NUMBER: _ClassVar[int]
-        workplace_type_id: str
-        name: str
-        description: str
-        required_specialty: str
-        required_qualification: int
-        compatible_equipment_types: _containers.RepeatedScalarFieldContainer[str]
-        def __init__(self, workplace_type_id: _Optional[str] = ..., name: _Optional[str] = ..., description: _Optional[str] = ..., required_specialty: _Optional[str] = ..., required_qualification: _Optional[int] = ..., compatible_equipment_types: _Optional[_Iterable[str]] = ...) -> None: ...
     WORKPLACE_TYPES_FIELD_NUMBER: _ClassVar[int]
     TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
-    workplace_types: _containers.RepeatedCompositeFieldContainer[WorkplaceTypesResponse.WorkplaceType]
+    workplace_types: _containers.RepeatedScalarFieldContainer[str]
     timestamp: str
-    def __init__(self, workplace_types: _Optional[_Iterable[_Union[WorkplaceTypesResponse.WorkplaceType, _Mapping]]] = ..., timestamp: _Optional[str] = ...) -> None: ...
+    def __init__(self, workplace_types: _Optional[_Iterable[str]] = ..., timestamp: _Optional[str] = ...) -> None: ...
 
-class ConfigureWorkplaceInGraphRequest(_message.Message):
-    __slots__ = ("simulation_id", "workplace_id", "workplace_type", "worker_id", "equipment_id", "is_start_node", "is_end_node", "next_workplace_ids")
-    SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
-    WORKPLACE_ID_FIELD_NUMBER: _ClassVar[int]
-    WORKPLACE_TYPE_FIELD_NUMBER: _ClassVar[int]
-    WORKER_ID_FIELD_NUMBER: _ClassVar[int]
-    EQUIPMENT_ID_FIELD_NUMBER: _ClassVar[int]
-    IS_START_NODE_FIELD_NUMBER: _ClassVar[int]
-    IS_END_NODE_FIELD_NUMBER: _ClassVar[int]
-    NEXT_WORKPLACE_IDS_FIELD_NUMBER: _ClassVar[int]
-    simulation_id: str
-    workplace_id: str
-    workplace_type: str
-    worker_id: str
-    equipment_id: str
-    is_start_node: bool
-    is_end_node: bool
-    next_workplace_ids: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, simulation_id: _Optional[str] = ..., workplace_id: _Optional[str] = ..., workplace_type: _Optional[str] = ..., worker_id: _Optional[str] = ..., equipment_id: _Optional[str] = ..., is_start_node: bool = ..., is_end_node: bool = ..., next_workplace_ids: _Optional[_Iterable[str]] = ...) -> None: ...
+class GetAvailableDealingWithDefectsRequest(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
 
-class RemoveWorkplaceFromGraphRequest(_message.Message):
-    __slots__ = ("simulation_id", "workplace_id")
-    SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
-    WORKPLACE_ID_FIELD_NUMBER: _ClassVar[int]
-    simulation_id: str
-    workplace_id: str
-    def __init__(self, simulation_id: _Optional[str] = ..., workplace_id: _Optional[str] = ...) -> None: ...
+class GetAvailableLeanImprovementsRequest(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
 
-class SetWorkplaceAsStartNodeRequest(_message.Message):
-    __slots__ = ("simulation_id", "workplace_id")
-    SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
-    WORKPLACE_ID_FIELD_NUMBER: _ClassVar[int]
-    simulation_id: str
-    workplace_id: str
-    def __init__(self, simulation_id: _Optional[str] = ..., workplace_id: _Optional[str] = ...) -> None: ...
+class CreateLeanImprovementRequest(_message.Message):
+    __slots__ = ("name", "is_implemented", "implementation_cost", "efficiency_gain")
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    IS_IMPLEMENTED_FIELD_NUMBER: _ClassVar[int]
+    IMPLEMENTATION_COST_FIELD_NUMBER: _ClassVar[int]
+    EFFICIENCY_GAIN_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    is_implemented: bool
+    implementation_cost: int
+    efficiency_gain: float
+    def __init__(self, name: _Optional[str] = ..., is_implemented: bool = ..., implementation_cost: _Optional[int] = ..., efficiency_gain: _Optional[float] = ...) -> None: ...
 
-class SetWorkplaceAsEndNodeRequest(_message.Message):
-    __slots__ = ("simulation_id", "workplace_id")
-    SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
-    WORKPLACE_ID_FIELD_NUMBER: _ClassVar[int]
-    simulation_id: str
-    workplace_id: str
-    def __init__(self, simulation_id: _Optional[str] = ..., workplace_id: _Optional[str] = ...) -> None: ...
+class UpdateLeanImprovementRequest(_message.Message):
+    __slots__ = ("improvement_id", "name", "is_implemented", "implementation_cost", "efficiency_gain")
+    IMPROVEMENT_ID_FIELD_NUMBER: _ClassVar[int]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    IS_IMPLEMENTED_FIELD_NUMBER: _ClassVar[int]
+    IMPLEMENTATION_COST_FIELD_NUMBER: _ClassVar[int]
+    EFFICIENCY_GAIN_FIELD_NUMBER: _ClassVar[int]
+    improvement_id: str
+    name: str
+    is_implemented: bool
+    implementation_cost: int
+    efficiency_gain: float
+    def __init__(self, improvement_id: _Optional[str] = ..., name: _Optional[str] = ..., is_implemented: bool = ..., implementation_cost: _Optional[int] = ..., efficiency_gain: _Optional[float] = ...) -> None: ...
+
+class DeleteLeanImprovementRequest(_message.Message):
+    __slots__ = ("improvement_id",)
+    IMPROVEMENT_ID_FIELD_NUMBER: _ClassVar[int]
+    improvement_id: str
+    def __init__(self, improvement_id: _Optional[str] = ...) -> None: ...
+
+class GetAllLeanImprovementsRequest(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class GetAllLeanImprovementsResponse(_message.Message):
+    __slots__ = ("improvements", "total_count")
+    IMPROVEMENTS_FIELD_NUMBER: _ClassVar[int]
+    TOTAL_COUNT_FIELD_NUMBER: _ClassVar[int]
+    improvements: _containers.RepeatedCompositeFieldContainer[LeanImprovement]
+    total_count: int
+    def __init__(self, improvements: _Optional[_Iterable[_Union[LeanImprovement, _Mapping]]] = ..., total_count: _Optional[int] = ...) -> None: ...
+
+class GetAvailableLeanImprovementsResponse(_message.Message):
+    __slots__ = ("improvements", "timestamp")
+    IMPROVEMENTS_FIELD_NUMBER: _ClassVar[int]
+    TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
+    improvements: _containers.RepeatedCompositeFieldContainer[LeanImprovement]
+    timestamp: str
+    def __init__(self, improvements: _Optional[_Iterable[_Union[LeanImprovement, _Mapping]]] = ..., timestamp: _Optional[str] = ...) -> None: ...
 
 class UpdateProcessGraphRequest(_message.Message):
     __slots__ = ("simulation_id", "process_graph")
@@ -1209,61 +840,21 @@ class UpdateProcessGraphRequest(_message.Message):
     process_graph: ProcessGraph
     def __init__(self, simulation_id: _Optional[str] = ..., process_graph: _Optional[_Union[ProcessGraph, _Mapping]] = ...) -> None: ...
 
-class DistributeProductionPlanRequest(_message.Message):
-    __slots__ = ("simulation_id", "strategy", "auto_assign_workers", "auto_assign_equipment")
+class SetProductionPlanRowRequest(_message.Message):
+    __slots__ = ("simulation_id", "row")
     SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
-    STRATEGY_FIELD_NUMBER: _ClassVar[int]
-    AUTO_ASSIGN_WORKERS_FIELD_NUMBER: _ClassVar[int]
-    AUTO_ASSIGN_EQUIPMENT_FIELD_NUMBER: _ClassVar[int]
+    ROW_FIELD_NUMBER: _ClassVar[int]
     simulation_id: str
-    strategy: DistributionStrategy
-    auto_assign_workers: bool
-    auto_assign_equipment: bool
-    def __init__(self, simulation_id: _Optional[str] = ..., strategy: _Optional[_Union[DistributionStrategy, str]] = ..., auto_assign_workers: bool = ..., auto_assign_equipment: bool = ...) -> None: ...
-
-class ProductionPlanDistributionResponse(_message.Message):
-    __slots__ = ("assignments", "efficiency_score", "total_assigned_quantity", "warnings", "timestamp")
-    ASSIGNMENTS_FIELD_NUMBER: _ClassVar[int]
-    EFFICIENCY_SCORE_FIELD_NUMBER: _ClassVar[int]
-    TOTAL_ASSIGNED_QUANTITY_FIELD_NUMBER: _ClassVar[int]
-    WARNINGS_FIELD_NUMBER: _ClassVar[int]
-    TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
-    assignments: _containers.RepeatedCompositeFieldContainer[ProductionPlanAssignment]
-    efficiency_score: float
-    total_assigned_quantity: int
-    warnings: _containers.RepeatedScalarFieldContainer[str]
-    timestamp: str
-    def __init__(self, assignments: _Optional[_Iterable[_Union[ProductionPlanAssignment, _Mapping]]] = ..., efficiency_score: _Optional[float] = ..., total_assigned_quantity: _Optional[int] = ..., warnings: _Optional[_Iterable[str]] = ..., timestamp: _Optional[str] = ...) -> None: ...
-
-class GetProductionPlanDistributionRequest(_message.Message):
-    __slots__ = ("simulation_id",)
-    SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
-    simulation_id: str
-    def __init__(self, simulation_id: _Optional[str] = ...) -> None: ...
-
-class UpdateProductionAssignmentRequest(_message.Message):
-    __slots__ = ("simulation_id", "assignment")
-    SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
-    ASSIGNMENT_FIELD_NUMBER: _ClassVar[int]
-    simulation_id: str
-    assignment: ProductionPlanAssignment
-    def __init__(self, simulation_id: _Optional[str] = ..., assignment: _Optional[_Union[ProductionPlanAssignment, _Mapping]] = ...) -> None: ...
-
-class UpdateWorkshopPlanRequest(_message.Message):
-    __slots__ = ("simulation_id", "workshop_plan")
-    SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
-    WORKSHOP_PLAN_FIELD_NUMBER: _ClassVar[int]
-    simulation_id: str
-    workshop_plan: WorkshopPlan
-    def __init__(self, simulation_id: _Optional[str] = ..., workshop_plan: _Optional[_Union[WorkshopPlan, _Mapping]] = ...) -> None: ...
+    row: ProductionPlanRow
+    def __init__(self, simulation_id: _Optional[str] = ..., row: _Optional[_Union[ProductionPlanRow, _Mapping]] = ...) -> None: ...
 
 class SimulationResponse(_message.Message):
-    __slots__ = ("simulation", "timestamp")
-    SIMULATION_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("simulations", "timestamp")
+    SIMULATIONS_FIELD_NUMBER: _ClassVar[int]
     TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
-    simulation: Simulation
+    simulations: Simulation
     timestamp: str
-    def __init__(self, simulation: _Optional[_Union[Simulation, _Mapping]] = ..., timestamp: _Optional[str] = ...) -> None: ...
+    def __init__(self, simulations: _Optional[_Union[Simulation, _Mapping]] = ..., timestamp: _Optional[str] = ...) -> None: ...
 
 class GetSimulationRequest(_message.Message):
     __slots__ = ("simulation_id",)
@@ -1333,14 +924,6 @@ class SetDealingWithDefectsRequest(_message.Message):
     dealing_with_defects: str
     def __init__(self, simulation_id: _Optional[str] = ..., dealing_with_defects: _Optional[str] = ...) -> None: ...
 
-class SetHasCertificationRequest(_message.Message):
-    __slots__ = ("simulation_id", "has_certification")
-    SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
-    HAS_CERTIFICATION_FIELD_NUMBER: _ClassVar[int]
-    simulation_id: str
-    has_certification: bool
-    def __init__(self, simulation_id: _Optional[str] = ..., has_certification: bool = ...) -> None: ...
-
 class DeleteSupplierRequest(_message.Message):
     __slots__ = ("simulation_id", "supplier_id")
     SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
@@ -1349,57 +932,11 @@ class DeleteSupplierRequest(_message.Message):
     supplier_id: str
     def __init__(self, simulation_id: _Optional[str] = ..., supplier_id: _Optional[str] = ...) -> None: ...
 
-class AddProductionImprovementRequest(_message.Message):
-    __slots__ = ("simulation_id", "production_improvement")
-    SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
-    PRODUCTION_IMPROVEMENT_FIELD_NUMBER: _ClassVar[int]
-    simulation_id: str
-    production_improvement: str
-    def __init__(self, simulation_id: _Optional[str] = ..., production_improvement: _Optional[str] = ...) -> None: ...
-
-class DeleteProductionImprovementRequest(_message.Message):
-    __slots__ = ("simulation_id", "production_improvement")
-    SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
-    PRODUCTION_IMPROVEMENT_FIELD_NUMBER: _ClassVar[int]
-    simulation_id: str
-    production_improvement: str
-    def __init__(self, simulation_id: _Optional[str] = ..., production_improvement: _Optional[str] = ...) -> None: ...
-
-class SetSalesStrategyRequest(_message.Message):
-    __slots__ = ("simulation_id", "sales_strategy")
-    SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
-    SALES_STRATEGY_FIELD_NUMBER: _ClassVar[int]
-    simulation_id: str
-    sales_strategy: str
-    def __init__(self, simulation_id: _Optional[str] = ..., sales_strategy: _Optional[str] = ...) -> None: ...
-
 class RunSimulationRequest(_message.Message):
     __slots__ = ("simulation_id",)
     SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
     simulation_id: str
     def __init__(self, simulation_id: _Optional[str] = ...) -> None: ...
-
-class AddProcessRouteRequest(_message.Message):
-    __slots__ = ("simulation_id", "length", "from_workplace", "to_workplace")
-    SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
-    LENGTH_FIELD_NUMBER: _ClassVar[int]
-    FROM_WORKPLACE_FIELD_NUMBER: _ClassVar[int]
-    TO_WORKPLACE_FIELD_NUMBER: _ClassVar[int]
-    simulation_id: str
-    length: int
-    from_workplace: str
-    to_workplace: str
-    def __init__(self, simulation_id: _Optional[str] = ..., length: _Optional[int] = ..., from_workplace: _Optional[str] = ..., to_workplace: _Optional[str] = ...) -> None: ...
-
-class DeleteProcesRouteRequest(_message.Message):
-    __slots__ = ("simulation_id", "from_workplace", "to_workplace")
-    SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
-    FROM_WORKPLACE_FIELD_NUMBER: _ClassVar[int]
-    TO_WORKPLACE_FIELD_NUMBER: _ClassVar[int]
-    simulation_id: str
-    from_workplace: str
-    to_workplace: str
-    def __init__(self, simulation_id: _Optional[str] = ..., from_workplace: _Optional[str] = ..., to_workplace: _Optional[str] = ...) -> None: ...
 
 class SetWorkerOnWorkerplaceRequest(_message.Message):
     __slots__ = ("simulation_id", "worker_id", "workplace_id")
@@ -1423,24 +960,6 @@ class CreateSimulationRquest(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
 
-class SetEquipmentOnWorkplaceRequst(_message.Message):
-    __slots__ = ("simulation_id", "workplace_id", "equipment_id")
-    SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
-    WORKPLACE_ID_FIELD_NUMBER: _ClassVar[int]
-    EQUIPMENT_ID_FIELD_NUMBER: _ClassVar[int]
-    simulation_id: str
-    workplace_id: str
-    equipment_id: str
-    def __init__(self, simulation_id: _Optional[str] = ..., workplace_id: _Optional[str] = ..., equipment_id: _Optional[str] = ...) -> None: ...
-
-class UnSetEquipmentOnWorkplaceRequst(_message.Message):
-    __slots__ = ("simulation_id", "workplace_id")
-    SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
-    WORKPLACE_ID_FIELD_NUMBER: _ClassVar[int]
-    simulation_id: str
-    workplace_id: str
-    def __init__(self, simulation_id: _Optional[str] = ..., workplace_id: _Optional[str] = ...) -> None: ...
-
 class SuccessResponse(_message.Message):
     __slots__ = ("success", "message", "timestamp")
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
@@ -1452,9 +971,10 @@ class SuccessResponse(_message.Message):
     def __init__(self, success: bool = ..., message: _Optional[str] = ..., timestamp: _Optional[str] = ...) -> None: ...
 
 class CreateSupplierRequest(_message.Message):
-    __slots__ = ("name", "product_name", "delivery_period", "special_delivery_period", "reliability", "product_quality", "cost", "special_delivery_cost")
+    __slots__ = ("name", "product_name", "material_type", "delivery_period", "special_delivery_period", "reliability", "product_quality", "cost", "special_delivery_cost")
     NAME_FIELD_NUMBER: _ClassVar[int]
     PRODUCT_NAME_FIELD_NUMBER: _ClassVar[int]
+    MATERIAL_TYPE_FIELD_NUMBER: _ClassVar[int]
     DELIVERY_PERIOD_FIELD_NUMBER: _ClassVar[int]
     SPECIAL_DELIVERY_PERIOD_FIELD_NUMBER: _ClassVar[int]
     RELIABILITY_FIELD_NUMBER: _ClassVar[int]
@@ -1463,19 +983,21 @@ class CreateSupplierRequest(_message.Message):
     SPECIAL_DELIVERY_COST_FIELD_NUMBER: _ClassVar[int]
     name: str
     product_name: str
+    material_type: str
     delivery_period: int
     special_delivery_period: int
     reliability: float
     product_quality: float
     cost: int
     special_delivery_cost: int
-    def __init__(self, name: _Optional[str] = ..., product_name: _Optional[str] = ..., delivery_period: _Optional[int] = ..., special_delivery_period: _Optional[int] = ..., reliability: _Optional[float] = ..., product_quality: _Optional[float] = ..., cost: _Optional[int] = ..., special_delivery_cost: _Optional[int] = ...) -> None: ...
+    def __init__(self, name: _Optional[str] = ..., product_name: _Optional[str] = ..., material_type: _Optional[str] = ..., delivery_period: _Optional[int] = ..., special_delivery_period: _Optional[int] = ..., reliability: _Optional[float] = ..., product_quality: _Optional[float] = ..., cost: _Optional[int] = ..., special_delivery_cost: _Optional[int] = ...) -> None: ...
 
 class UpdateSupplierRequest(_message.Message):
-    __slots__ = ("supplier_id", "name", "product_name", "delivery_period", "special_delivery_period", "reliability", "product_quality", "cost", "special_delivery_cost")
+    __slots__ = ("supplier_id", "name", "product_name", "material_type", "delivery_period", "special_delivery_period", "reliability", "product_quality", "cost", "special_delivery_cost")
     SUPPLIER_ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
     PRODUCT_NAME_FIELD_NUMBER: _ClassVar[int]
+    MATERIAL_TYPE_FIELD_NUMBER: _ClassVar[int]
     DELIVERY_PERIOD_FIELD_NUMBER: _ClassVar[int]
     SPECIAL_DELIVERY_PERIOD_FIELD_NUMBER: _ClassVar[int]
     RELIABILITY_FIELD_NUMBER: _ClassVar[int]
@@ -1485,13 +1007,14 @@ class UpdateSupplierRequest(_message.Message):
     supplier_id: str
     name: str
     product_name: str
+    material_type: str
     delivery_period: int
     special_delivery_period: int
     reliability: float
     product_quality: float
     cost: int
     special_delivery_cost: int
-    def __init__(self, supplier_id: _Optional[str] = ..., name: _Optional[str] = ..., product_name: _Optional[str] = ..., delivery_period: _Optional[int] = ..., special_delivery_period: _Optional[int] = ..., reliability: _Optional[float] = ..., product_quality: _Optional[float] = ..., cost: _Optional[int] = ..., special_delivery_cost: _Optional[int] = ...) -> None: ...
+    def __init__(self, supplier_id: _Optional[str] = ..., name: _Optional[str] = ..., product_name: _Optional[str] = ..., material_type: _Optional[str] = ..., delivery_period: _Optional[int] = ..., special_delivery_period: _Optional[int] = ..., reliability: _Optional[float] = ..., product_quality: _Optional[float] = ..., cost: _Optional[int] = ..., special_delivery_cost: _Optional[int] = ...) -> None: ...
 
 class GetAllSuppliersResponse(_message.Message):
     __slots__ = ("suppliers", "total_count")
@@ -1596,34 +1119,34 @@ class GetAllLogistsResponse(_message.Message):
     def __init__(self, logists: _Optional[_Iterable[_Union[Logist, _Mapping]]] = ..., total_count: _Optional[int] = ...) -> None: ...
 
 class CreateWorkplaceRequest(_message.Message):
-    __slots__ = ("workplace_name", "required_speciality", "required_qualification", "worker_id", "required_stages")
+    __slots__ = ("workplace_name", "required_speciality", "required_qualification", "required_equipment", "required_stages")
     WORKPLACE_NAME_FIELD_NUMBER: _ClassVar[int]
     REQUIRED_SPECIALITY_FIELD_NUMBER: _ClassVar[int]
     REQUIRED_QUALIFICATION_FIELD_NUMBER: _ClassVar[int]
-    WORKER_ID_FIELD_NUMBER: _ClassVar[int]
+    REQUIRED_EQUIPMENT_FIELD_NUMBER: _ClassVar[int]
     REQUIRED_STAGES_FIELD_NUMBER: _ClassVar[int]
     workplace_name: str
     required_speciality: str
     required_qualification: int
-    worker_id: str
+    required_equipment: str
     required_stages: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, workplace_name: _Optional[str] = ..., required_speciality: _Optional[str] = ..., required_qualification: _Optional[int] = ..., worker_id: _Optional[str] = ..., required_stages: _Optional[_Iterable[str]] = ...) -> None: ...
+    def __init__(self, workplace_name: _Optional[str] = ..., required_speciality: _Optional[str] = ..., required_qualification: _Optional[int] = ..., required_equipment: _Optional[str] = ..., required_stages: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class UpdateWorkplaceRequest(_message.Message):
-    __slots__ = ("workplace_id", "workplace_name", "required_speciality", "required_qualification", "worker_id", "required_stages")
+    __slots__ = ("workplace_id", "workplace_name", "required_speciality", "required_qualification", "required_equipment", "required_stages")
     WORKPLACE_ID_FIELD_NUMBER: _ClassVar[int]
     WORKPLACE_NAME_FIELD_NUMBER: _ClassVar[int]
     REQUIRED_SPECIALITY_FIELD_NUMBER: _ClassVar[int]
     REQUIRED_QUALIFICATION_FIELD_NUMBER: _ClassVar[int]
-    WORKER_ID_FIELD_NUMBER: _ClassVar[int]
+    REQUIRED_EQUIPMENT_FIELD_NUMBER: _ClassVar[int]
     REQUIRED_STAGES_FIELD_NUMBER: _ClassVar[int]
     workplace_id: str
     workplace_name: str
     required_speciality: str
     required_qualification: int
-    worker_id: str
+    required_equipment: str
     required_stages: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, workplace_id: _Optional[str] = ..., workplace_name: _Optional[str] = ..., required_speciality: _Optional[str] = ..., required_qualification: _Optional[int] = ..., worker_id: _Optional[str] = ..., required_stages: _Optional[_Iterable[str]] = ...) -> None: ...
+    def __init__(self, workplace_id: _Optional[str] = ..., workplace_name: _Optional[str] = ..., required_speciality: _Optional[str] = ..., required_qualification: _Optional[int] = ..., required_equipment: _Optional[str] = ..., required_stages: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class DeleteWorkplaceRequest(_message.Message):
     __slots__ = ("workplace_id",)
@@ -1754,8 +1277,9 @@ class PingRequest(_message.Message):
     def __init__(self) -> None: ...
 
 class CreateEquipmentRequest(_message.Message):
-    __slots__ = ("name", "reliability", "maintenance_period", "maintenance_cost", "cost", "repair_cost", "repair_time")
+    __slots__ = ("name", "equipment_type", "reliability", "maintenance_period", "maintenance_cost", "cost", "repair_cost", "repair_time")
     NAME_FIELD_NUMBER: _ClassVar[int]
+    EQUIPMENT_TYPE_FIELD_NUMBER: _ClassVar[int]
     RELIABILITY_FIELD_NUMBER: _ClassVar[int]
     MAINTENANCE_PERIOD_FIELD_NUMBER: _ClassVar[int]
     MAINTENANCE_COST_FIELD_NUMBER: _ClassVar[int]
@@ -1763,18 +1287,20 @@ class CreateEquipmentRequest(_message.Message):
     REPAIR_COST_FIELD_NUMBER: _ClassVar[int]
     REPAIR_TIME_FIELD_NUMBER: _ClassVar[int]
     name: str
+    equipment_type: str
     reliability: float
     maintenance_period: int
     maintenance_cost: int
     cost: int
     repair_cost: int
     repair_time: int
-    def __init__(self, name: _Optional[str] = ..., reliability: _Optional[float] = ..., maintenance_period: _Optional[int] = ..., maintenance_cost: _Optional[int] = ..., cost: _Optional[int] = ..., repair_cost: _Optional[int] = ..., repair_time: _Optional[int] = ...) -> None: ...
+    def __init__(self, name: _Optional[str] = ..., equipment_type: _Optional[str] = ..., reliability: _Optional[float] = ..., maintenance_period: _Optional[int] = ..., maintenance_cost: _Optional[int] = ..., cost: _Optional[int] = ..., repair_cost: _Optional[int] = ..., repair_time: _Optional[int] = ...) -> None: ...
 
 class UpdateEquipmentRequest(_message.Message):
-    __slots__ = ("equipment_id", "name", "reliability", "maintenance_period", "maintenance_cost", "cost", "repair_cost", "repair_time")
+    __slots__ = ("equipment_id", "name", "equipment_type", "reliability", "maintenance_period", "maintenance_cost", "cost", "repair_cost", "repair_time")
     EQUIPMENT_ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
+    EQUIPMENT_TYPE_FIELD_NUMBER: _ClassVar[int]
     RELIABILITY_FIELD_NUMBER: _ClassVar[int]
     MAINTENANCE_PERIOD_FIELD_NUMBER: _ClassVar[int]
     MAINTENANCE_COST_FIELD_NUMBER: _ClassVar[int]
@@ -1783,13 +1309,14 @@ class UpdateEquipmentRequest(_message.Message):
     REPAIR_TIME_FIELD_NUMBER: _ClassVar[int]
     equipment_id: str
     name: str
+    equipment_type: str
     reliability: float
     maintenance_period: int
     maintenance_cost: int
     cost: int
     repair_cost: int
     repair_time: int
-    def __init__(self, equipment_id: _Optional[str] = ..., name: _Optional[str] = ..., reliability: _Optional[float] = ..., maintenance_period: _Optional[int] = ..., maintenance_cost: _Optional[int] = ..., cost: _Optional[int] = ..., repair_cost: _Optional[int] = ..., repair_time: _Optional[int] = ...) -> None: ...
+    def __init__(self, equipment_id: _Optional[str] = ..., name: _Optional[str] = ..., equipment_type: _Optional[str] = ..., reliability: _Optional[float] = ..., maintenance_period: _Optional[int] = ..., maintenance_cost: _Optional[int] = ..., cost: _Optional[int] = ..., repair_cost: _Optional[int] = ..., repair_time: _Optional[int] = ...) -> None: ...
 
 class DeleteEquipmentRequest(_message.Message):
     __slots__ = ("equipment_id",)
@@ -1889,14 +1416,6 @@ class ProductionScheduleResponse(_message.Message):
     timestamp: str
     def __init__(self, schedule: _Optional[_Union[ProductionSchedule, _Mapping]] = ..., timestamp: _Optional[str] = ...) -> None: ...
 
-class UpdateProductionScheduleRequest(_message.Message):
-    __slots__ = ("simulation_id", "schedule")
-    SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
-    SCHEDULE_FIELD_NUMBER: _ClassVar[int]
-    simulation_id: str
-    schedule: ProductionSchedule
-    def __init__(self, simulation_id: _Optional[str] = ..., schedule: _Optional[_Union[ProductionSchedule, _Mapping]] = ...) -> None: ...
-
 class GetWorkshopPlanRequest(_message.Message):
     __slots__ = ("simulation_id",)
     SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
@@ -1907,9 +1426,9 @@ class WorkshopPlanResponse(_message.Message):
     __slots__ = ("workshop_plan", "timestamp")
     WORKSHOP_PLAN_FIELD_NUMBER: _ClassVar[int]
     TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
-    workshop_plan: WorkshopPlan
+    workshop_plan: ProcessGraph
     timestamp: str
-    def __init__(self, workshop_plan: _Optional[_Union[WorkshopPlan, _Mapping]] = ..., timestamp: _Optional[str] = ...) -> None: ...
+    def __init__(self, workshop_plan: _Optional[_Union[ProcessGraph, _Mapping]] = ..., timestamp: _Optional[str] = ...) -> None: ...
 
 class GetUnplannedRepairRequest(_message.Message):
     __slots__ = ("simulation_id",)
@@ -1942,24 +1461,24 @@ class WarehouseLoadChartResponse(_message.Message):
     def __init__(self, chart: _Optional[_Union[WarehouseLoadChart, _Mapping]] = ..., timestamp: _Optional[str] = ...) -> None: ...
 
 class SetQualityInspectionRequest(_message.Message):
-    __slots__ = ("simulation_id", "material_id", "inspection")
-    SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
-    MATERIAL_ID_FIELD_NUMBER: _ClassVar[int]
-    INSPECTION_FIELD_NUMBER: _ClassVar[int]
-    simulation_id: str
-    material_id: str
-    inspection: QualityInspection
-    def __init__(self, simulation_id: _Optional[str] = ..., material_id: _Optional[str] = ..., inspection: _Optional[_Union[QualityInspection, _Mapping]] = ...) -> None: ...
-
-class SetDeliveryScheduleRequest(_message.Message):
-    __slots__ = ("simulation_id", "supplier_id", "schedule")
+    __slots__ = ("simulation_id", "supplier_id", "inspection_enabled")
     SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
     SUPPLIER_ID_FIELD_NUMBER: _ClassVar[int]
-    SCHEDULE_FIELD_NUMBER: _ClassVar[int]
+    INSPECTION_ENABLED_FIELD_NUMBER: _ClassVar[int]
     simulation_id: str
     supplier_id: str
-    schedule: DeliverySchedule
-    def __init__(self, simulation_id: _Optional[str] = ..., supplier_id: _Optional[str] = ..., schedule: _Optional[_Union[DeliverySchedule, _Mapping]] = ...) -> None: ...
+    inspection_enabled: bool
+    def __init__(self, simulation_id: _Optional[str] = ..., supplier_id: _Optional[str] = ..., inspection_enabled: bool = ...) -> None: ...
+
+class SetDeliveryPeriodRequest(_message.Message):
+    __slots__ = ("simulation_id", "supplier_id", "delivery_period_days")
+    SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
+    SUPPLIER_ID_FIELD_NUMBER: _ClassVar[int]
+    DELIVERY_PERIOD_DAYS_FIELD_NUMBER: _ClassVar[int]
+    simulation_id: str
+    supplier_id: str
+    delivery_period_days: int
+    def __init__(self, simulation_id: _Optional[str] = ..., supplier_id: _Optional[str] = ..., delivery_period_days: _Optional[int] = ...) -> None: ...
 
 class SetEquipmentMaintenanceIntervalRequest(_message.Message):
     __slots__ = ("simulation_id", "equipment_id", "interval_days")
@@ -1982,30 +1501,22 @@ class SetCertificationStatusRequest(_message.Message):
     def __init__(self, simulation_id: _Optional[str] = ..., certificate_type: _Optional[str] = ..., is_obtained: bool = ...) -> None: ...
 
 class SetLeanImprovementStatusRequest(_message.Message):
-    __slots__ = ("simulation_id", "improvement_id", "is_implemented")
+    __slots__ = ("simulation_id", "name", "is_implemented")
     SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
-    IMPROVEMENT_ID_FIELD_NUMBER: _ClassVar[int]
+    NAME_FIELD_NUMBER: _ClassVar[int]
     IS_IMPLEMENTED_FIELD_NUMBER: _ClassVar[int]
     simulation_id: str
-    improvement_id: str
+    name: str
     is_implemented: bool
-    def __init__(self, simulation_id: _Optional[str] = ..., improvement_id: _Optional[str] = ..., is_implemented: bool = ...) -> None: ...
+    def __init__(self, simulation_id: _Optional[str] = ..., name: _Optional[str] = ..., is_implemented: bool = ...) -> None: ...
 
-class SetSalesStrategyWithDetailsRequest(_message.Message):
-    __slots__ = ("simulation_id", "strategy", "growth_forecast", "unit_cost", "market_impact", "trend_direction")
+class SetSalesStrategyRequest(_message.Message):
+    __slots__ = ("simulation_id", "strategy")
     SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
     STRATEGY_FIELD_NUMBER: _ClassVar[int]
-    GROWTH_FORECAST_FIELD_NUMBER: _ClassVar[int]
-    UNIT_COST_FIELD_NUMBER: _ClassVar[int]
-    MARKET_IMPACT_FIELD_NUMBER: _ClassVar[int]
-    TREND_DIRECTION_FIELD_NUMBER: _ClassVar[int]
     simulation_id: str
     strategy: str
-    growth_forecast: float
-    unit_cost: int
-    market_impact: str
-    trend_direction: str
-    def __init__(self, simulation_id: _Optional[str] = ..., strategy: _Optional[str] = ..., growth_forecast: _Optional[float] = ..., unit_cost: _Optional[int] = ..., market_impact: _Optional[str] = ..., trend_direction: _Optional[str] = ...) -> None: ...
+    def __init__(self, simulation_id: _Optional[str] = ..., strategy: _Optional[str] = ...) -> None: ...
 
 class GetRequiredMaterialsRequest(_message.Message):
     __slots__ = ("simulation_id",)
@@ -2051,53 +1562,13 @@ class DefectPoliciesResponse(_message.Message):
     timestamp: str
     def __init__(self, available_policies: _Optional[_Iterable[str]] = ..., current_policy: _Optional[str] = ..., timestamp: _Optional[str] = ...) -> None: ...
 
-class RunSimulationStepRequest(_message.Message):
-    __slots__ = ("simulation_id", "step_count")
-    SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
-    STEP_COUNT_FIELD_NUMBER: _ClassVar[int]
-    simulation_id: str
-    step_count: int
-    def __init__(self, simulation_id: _Optional[str] = ..., step_count: _Optional[int] = ...) -> None: ...
-
-class SimulationStepResponse(_message.Message):
-    __slots__ = ("simulation", "factory_metrics", "production_metrics", "quality_metrics", "engineering_metrics", "commercial_metrics", "procurement_metrics", "timestamp")
-    SIMULATION_FIELD_NUMBER: _ClassVar[int]
-    FACTORY_METRICS_FIELD_NUMBER: _ClassVar[int]
-    PRODUCTION_METRICS_FIELD_NUMBER: _ClassVar[int]
-    QUALITY_METRICS_FIELD_NUMBER: _ClassVar[int]
-    ENGINEERING_METRICS_FIELD_NUMBER: _ClassVar[int]
-    COMMERCIAL_METRICS_FIELD_NUMBER: _ClassVar[int]
-    PROCUREMENT_METRICS_FIELD_NUMBER: _ClassVar[int]
-    TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
-    simulation: Simulation
-    factory_metrics: FactoryMetrics
-    production_metrics: ProductionMetrics
-    quality_metrics: QualityMetrics
-    engineering_metrics: EngineeringMetrics
-    commercial_metrics: CommercialMetrics
-    procurement_metrics: ProcurementMetrics
-    timestamp: str
-    def __init__(self, simulation: _Optional[_Union[Simulation, _Mapping]] = ..., factory_metrics: _Optional[_Union[FactoryMetrics, _Mapping]] = ..., production_metrics: _Optional[_Union[ProductionMetrics, _Mapping]] = ..., quality_metrics: _Optional[_Union[QualityMetrics, _Mapping]] = ..., engineering_metrics: _Optional[_Union[EngineeringMetrics, _Mapping]] = ..., commercial_metrics: _Optional[_Union[CommercialMetrics, _Mapping]] = ..., procurement_metrics: _Optional[_Union[ProcurementMetrics, _Mapping]] = ..., timestamp: _Optional[str] = ...) -> None: ...
-
-class GetSimulationHistoryRequest(_message.Message):
-    __slots__ = ("simulation_id",)
-    SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
-    simulation_id: str
-    def __init__(self, simulation_id: _Optional[str] = ...) -> None: ...
-
-class SimulationHistoryResponse(_message.Message):
-    __slots__ = ("steps", "timestamp")
-    STEPS_FIELD_NUMBER: _ClassVar[int]
-    TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
-    steps: _containers.RepeatedCompositeFieldContainer[SimulationStepResponse]
-    timestamp: str
-    def __init__(self, steps: _Optional[_Iterable[_Union[SimulationStepResponse, _Mapping]]] = ..., timestamp: _Optional[str] = ...) -> None: ...
-
 class GetAllMetricsRequest(_message.Message):
-    __slots__ = ("simulation_id",)
+    __slots__ = ("simulation_id", "step")
     SIMULATION_ID_FIELD_NUMBER: _ClassVar[int]
+    STEP_FIELD_NUMBER: _ClassVar[int]
     simulation_id: str
-    def __init__(self, simulation_id: _Optional[str] = ...) -> None: ...
+    step: int
+    def __init__(self, simulation_id: _Optional[str] = ..., step: _Optional[int] = ...) -> None: ...
 
 class AllMetricsResponse(_message.Message):
     __slots__ = ("factory", "production", "quality", "engineering", "commercial", "procurement", "timestamp")

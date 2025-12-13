@@ -385,20 +385,7 @@ class AsyncUnifiedClient:
         """
         return await self.sim_client.set_dealing_with_defects(simulation_id, policy)
 
-    async def set_certification(
-        self, simulation_id: str, has_certification: bool
-    ) -> SimulationResponse:
-        """
-        Установить наличие сертификации.
-
-        Args:
-            simulation_id: ID симуляции
-            has_certification: Есть ли сертификация
-
-        Returns:
-            SimulationResponse: Обновленная симуляция
-        """
-        return await self.sim_client.set_certification(simulation_id, has_certification)
+    # set_certification удален - используйте set_certification_status вместо него
 
     async def add_production_improvement(
         self, simulation_id: str, improvement: str
@@ -539,83 +526,59 @@ class AsyncUnifiedClient:
         """Обновить граф процесса."""
         return await self.sim_client.update_process_graph(simulation_id, process_graph)
 
-    async def distribute_production_plan(
-        self,
-        simulation_id: str,
-        strategy: "DistributionStrategy",
-        auto_assign_workers: bool = False,
-        auto_assign_equipment: bool = False,
-    ) -> "ProductionPlanDistributionResponse":
-        """Распределить производственный план."""
-        return await self.sim_client.distribute_production_plan(
-            simulation_id, strategy, auto_assign_workers, auto_assign_equipment
-        )
-
-    async def get_production_plan_distribution(
-        self, simulation_id: str
-    ) -> "ProductionPlanDistributionResponse":
-        """Получить распределение производственного плана."""
-        return await self.sim_client.get_production_plan_distribution(simulation_id)
-
-    async def update_production_assignment(
-        self, simulation_id: str, assignment: "ProductionPlanAssignment"
-    ) -> SimulationResponse:
-        """Обновить назначение производства."""
-        return await self.sim_client.update_production_assignment(
-            simulation_id, assignment
-        )
-
-    async def update_workshop_plan(
-        self, simulation_id: str, workshop_plan: "WorkshopPlan"
-    ) -> SimulationResponse:
-        """Обновить план цеха."""
-        return await self.sim_client.update_workshop_plan(simulation_id, workshop_plan)
-
-    async def run_simulation_step(
-        self, simulation_id: str, step_count: int = 1
-    ) -> "SimulationStepResponse":
-        """Запустить шаг симуляции."""
-        return await self.sim_client.run_simulation_step(simulation_id, step_count)
+    # Методы distribute_production_plan, get_production_plan_distribution,
+    # update_production_assignment, update_workshop_plan, run_simulation_step
+    # удалены - их нет в proto файле
 
     async def get_factory_metrics(
-        self, simulation_id: str, step: Optional[int] = None
+        self,
+        simulation_id: str,
+        step: int = 1,
     ) -> "FactoryMetricsResponse":
         """Получить метрики завода."""
         return await self.sim_client.get_factory_metrics(simulation_id, step)
 
     async def get_production_metrics(
-        self, simulation_id: str, step: Optional[int] = None
+        self,
+        simulation_id: str,
+        step: int = 1,
     ) -> "ProductionMetricsResponse":
         """Получить метрики производства."""
         return await self.sim_client.get_production_metrics(simulation_id, step)
 
     async def get_quality_metrics(
-        self, simulation_id: str, step: Optional[int] = None
+        self,
+        simulation_id: str,
+        step: int = 1,
     ) -> "QualityMetricsResponse":
         """Получить метрики качества."""
         return await self.sim_client.get_quality_metrics(simulation_id, step)
 
     async def get_engineering_metrics(
-        self, simulation_id: str, step: Optional[int] = None
+        self,
+        simulation_id: str,
+        step: int = 1,
     ) -> "EngineeringMetricsResponse":
         """Получить метрики инженерии."""
         return await self.sim_client.get_engineering_metrics(simulation_id, step)
 
     async def get_commercial_metrics(
-        self, simulation_id: str, step: Optional[int] = None
+        self, simulation_id: str, step: int = 1
     ) -> "CommercialMetricsResponse":
         """Получить метрики коммерции."""
         return await self.sim_client.get_commercial_metrics(simulation_id, step)
 
     async def get_procurement_metrics(
-        self, simulation_id: str, step: Optional[int] = None
+        self, simulation_id: str, step: int = 1
     ) -> "ProcurementMetricsResponse":
         """Получить метрики закупок."""
         return await self.sim_client.get_procurement_metrics(simulation_id, step)
 
-    async def get_all_metrics(self, simulation_id: str) -> "AllMetricsResponse":
+    async def get_all_metrics(
+        self, simulation_id: str, step: int = 1
+    ) -> "AllMetricsResponse":
         """Получить все метрики."""
-        return await self.sim_client.get_all_metrics(simulation_id)
+        return await self.sim_client.get_all_metrics(simulation_id, step)
 
     async def get_production_schedule(
         self, simulation_id: str
@@ -627,13 +590,9 @@ class AsyncUnifiedClient:
         self, simulation_id: str, schedule: "ProductionSchedule"
     ) -> SimulationResponse:
         """Обновить производственный план."""
-        return await self.sim_client.update_production_schedule(
-            simulation_id, schedule
-        )
+        return await self.sim_client.update_production_schedule(simulation_id, schedule)
 
-    async def get_workshop_plan(
-        self, simulation_id: str
-    ) -> "WorkshopPlanResponse":
+    async def get_workshop_plan(self, simulation_id: str) -> "WorkshopPlanResponse":
         """Получить план цеха."""
         return await self.sim_client.get_workshop_plan(simulation_id)
 
@@ -663,45 +622,18 @@ class AsyncUnifiedClient:
         """Получить доступные улучшения."""
         return await self.sim_client.get_available_improvements(simulation_id)
 
-    async def get_defect_policies(
-        self, simulation_id: str
-    ) -> "DefectPoliciesResponse":
+    async def get_defect_policies(self, simulation_id: str) -> "DefectPoliciesResponse":
         """Получить политики работы с браком."""
         return await self.sim_client.get_defect_policies(simulation_id)
 
-    async def get_simulation_history(
-        self, simulation_id: str
-    ) -> "SimulationHistoryResponse":
-        """Получить историю симуляции."""
-        return await self.sim_client.get_simulation_history(simulation_id)
+    # get_simulation_history удален - его нет в proto файле
 
-    async def validate_configuration(
-        self, simulation_id: str
-    ) -> "ValidationResponse":
+    async def validate_configuration(self, simulation_id: str) -> "ValidationResponse":
         """Валидировать конфигурацию симуляции."""
         return await self.sim_client.validate_configuration(simulation_id)
 
-    async def set_quality_inspection(
-        self,
-        simulation_id: str,
-        material_id: str,
-        inspection: "QualityInspection",
-    ) -> SimulationResponse:
-        """Установить контроль качества."""
-        return await self.sim_client.set_quality_inspection(
-            simulation_id, material_id, inspection
-        )
-
-    async def set_delivery_schedule(
-        self,
-        simulation_id: str,
-        supplier_id: str,
-        schedule: "DeliverySchedule",
-    ) -> SimulationResponse:
-        """Установить график поставок."""
-        return await self.sim_client.set_delivery_schedule(
-            simulation_id, supplier_id, schedule
-        )
+    # Старые версии set_quality_inspection и set_delivery_schedule удалены
+    # Используйте правильные версии ниже (строки 1565-1579)
 
     async def set_equipment_maintenance_interval(
         self, simulation_id: str, equipment_id: str, interval_days: int
@@ -727,25 +659,8 @@ class AsyncUnifiedClient:
             simulation_id, improvement_id, is_implemented
         )
 
-    async def set_sales_strategy_with_details(
-        self,
-        simulation_id: str,
-        strategy: str,
-        growth_forecast: float = 0.0,
-        unit_cost: int = 0,
-        market_impact: str = "",
-        trend_direction: str = "",
-    ) -> SimulationResponse:
-        """Установить стратегию продаж с деталями."""
-        return await self.sim_client.set_sales_strategy_with_details(
-            simulation_id, strategy, growth_forecast, unit_cost, market_impact, trend_direction
-        )
-
-    async def get_reference_data(
-        self, data_type: str = ""
-    ) -> "ReferenceDataResponse":
-        """Получить справочные данные."""
-        return await self.sim_client.get_reference_data(data_type)
+    # set_sales_strategy_with_details удален - его нет в proto файле
+    # get_reference_data удален - его нет в proto файле
 
     async def get_material_types(self) -> "MaterialTypesResponse":
         """Получить типы материалов."""
@@ -1128,11 +1043,7 @@ class AsyncUnifiedClient:
         """
         return await self.db_client.get_process_graph(request)
 
-    async def get_reference_data_db(
-        self, data_type: str = ""
-    ) -> "ReferenceDataResponse":
-        """Получить справочные данные из DatabaseManager."""
-        return await self.db_client.get_reference_data(data_type)
+    # get_reference_data_db удален - его нет в proto файле
 
     async def get_material_types_db(self) -> "MaterialTypesResponse":
         """Получить типы материалов из DatabaseManager."""
@@ -1218,7 +1129,6 @@ class AsyncUnifiedClient:
         equipment_assignments: Optional[Dict[str, str]] = None,
         tender_ids: Optional[List[str]] = None,
         dealing_with_defects: Optional[str] = None,
-        has_certification: Optional[bool] = None,
         production_improvements: Optional[List[str]] = None,
         sales_strategy: Optional[str] = None,
     ) -> List[Union[SimulationResponse, Exception]]:
@@ -1233,7 +1143,6 @@ class AsyncUnifiedClient:
             equipment_assignments: {workplace_id: equipment_id}
             tender_ids: Список ID тендеров
             dealing_with_defects: Политика работы с браком
-            has_certification: Есть ли сертификация
             production_improvements: Список улучшений производства
             sales_strategy: Стратегия продаж
 
@@ -1275,8 +1184,7 @@ class AsyncUnifiedClient:
                 self.set_dealing_with_defects(simulation_id, dealing_with_defects)
             )
 
-        if has_certification is not None:
-            tasks.append(self.set_certification(simulation_id, has_certification))
+        # has_certification удален - используйте set_certification_status для конкретных типов сертификаций
 
         if production_improvements:
             for improvement in production_improvements:
@@ -1302,7 +1210,6 @@ class AsyncUnifiedClient:
         equipment_assignments: Optional[Dict[str, str]] = None,
         tender_ids: Optional[List[str]] = None,
         dealing_with_defects: Optional[str] = None,
-        has_certification: Optional[bool] = None,
         production_improvements: Optional[List[str]] = None,
         sales_strategy: Optional[str] = None,
     ) -> bool:
@@ -1317,7 +1224,6 @@ class AsyncUnifiedClient:
             equipment_assignments: {workplace_id: equipment_id}
             tender_ids: Список ID тендеров
             dealing_with_defects: Политика работы с браком
-            has_certification: Есть ли сертификация
             production_improvements: Список улучшений производства
             sales_strategy: Стратегия продаж
 
@@ -1332,7 +1238,6 @@ class AsyncUnifiedClient:
             equipment_assignments=equipment_assignments,
             tender_ids=tender_ids,
             dealing_with_defects=dealing_with_defects,
-            has_certification=has_certification,
             production_improvements=production_improvements,
             sales_strategy=sales_strategy,
         )
@@ -1373,7 +1278,6 @@ class AsyncUnifiedClient:
             equipment_assignments=config.get("equipment_assignments"),
             tender_ids=config.get("tender_ids"),
             dealing_with_defects=config.get("dealing_with_defects"),
-            has_certification=config.get("has_certification"),
             production_improvements=config.get("production_improvements"),
             sales_strategy=config.get("sales_strategy"),
         )
@@ -1443,7 +1347,6 @@ class AsyncUnifiedClient:
         equipment_assignments: Optional[Dict[str, str]] = None,
         tender_ids: Optional[List[str]] = None,
         dealing_with_defects: Optional[str] = None,
-        has_certification: Optional[bool] = None,
         production_improvements: Optional[List[str]] = None,
         sales_strategy: Optional[str] = None,
     ) -> SimulationConfig:
@@ -1465,12 +1368,229 @@ class AsyncUnifiedClient:
             equipment_assignments=equipment_assignments,
             tender_ids=tender_ids,
             dealing_with_defects=dealing_with_defects,
-            has_certification=has_certification,
             production_improvements=production_improvements,
             sales_strategy=sales_strategy,
         )
 
         return simulation_config
+
+    # ==================== NEW METHODS FOR UPDATED PROTO ====================
+
+    async def update_process_graph(
+        self, simulation_id: str, process_graph: "ProcessGraph"
+    ) -> SimulationResponse:
+        """Обновить граф процесса."""
+        return await self.sim_client.update_process_graph(simulation_id, process_graph)
+
+    async def set_production_plan_row(
+        self, simulation_id: str, row: "ProductionPlanRow"
+    ) -> SimulationResponse:
+        """Установить строку производственного плана."""
+        return await self.sim_client.set_production_plan_row(simulation_id, row)
+
+    async def get_factory_metrics(
+        self,
+        simulation_id: str,
+        step: int = 1,
+    ) -> "FactoryMetricsResponse":
+        """Получить метрики завода."""
+        return await self.sim_client.get_factory_metrics(simulation_id, step)
+
+    async def get_production_metrics(
+        self,
+        simulation_id: str,
+        step: int = 1,
+    ) -> "ProductionMetricsResponse":
+        """Получить метрики производства."""
+        return await self.sim_client.get_production_metrics(simulation_id, step)
+
+    async def get_quality_metrics(
+        self,
+        simulation_id: str,
+        step: int = 1,
+    ) -> "QualityMetricsResponse":
+        """Получить метрики качества."""
+        return await self.sim_client.get_quality_metrics(simulation_id, step)
+
+    async def get_engineering_metrics(
+        self,
+        simulation_id: str,
+        step: int = 1,
+    ) -> "EngineeringMetricsResponse":
+        """Получить метрики инженерии."""
+        return await self.sim_client.get_engineering_metrics(simulation_id, step)
+
+    async def get_commercial_metrics(
+        self,
+        simulation_id: str,
+        step: int = 1,
+    ) -> "CommercialMetricsResponse":
+        """Получить коммерческие метрики."""
+        return await self.sim_client.get_commercial_metrics(simulation_id, step)
+
+    async def get_procurement_metrics(
+        self,
+        simulation_id: str,
+        step: int = 1,
+    ) -> "ProcurementMetricsResponse":
+        """Получить метрики закупок."""
+        return await self.sim_client.get_procurement_metrics(simulation_id, step)
+
+    async def get_all_metrics(
+        self,
+        simulation_id: str,
+        step: int = 1,
+    ) -> "AllMetricsResponse":
+        """Получить все метрики."""
+        return await self.sim_client.get_all_metrics(simulation_id, step)
+
+    async def get_production_schedule(
+        self, simulation_id: str
+    ) -> "ProductionScheduleResponse":
+        """Получить производственный план."""
+        return await self.sim_client.get_production_schedule(simulation_id)
+
+    async def get_workshop_plan(self, simulation_id: str) -> "WorkshopPlanResponse":
+        """Получить план цеха."""
+        return await self.sim_client.get_workshop_plan(simulation_id)
+
+    async def get_unplanned_repair(
+        self, simulation_id: str
+    ) -> "UnplannedRepairResponse":
+        """Получить внеплановые ремонты."""
+        return await self.sim_client.get_unplanned_repair(simulation_id)
+
+    async def get_warehouse_load_chart(
+        self, simulation_id: str, warehouse_id: str
+    ) -> "WarehouseLoadChartResponse":
+        """Получить график загрузки склада."""
+        return await self.sim_client.get_warehouse_load_chart(
+            simulation_id, warehouse_id
+        )
+
+    async def get_required_materials(
+        self, simulation_id: str
+    ) -> "RequiredMaterialsResponse":
+        """Получить требуемые материалы."""
+        return await self.sim_client.get_required_materials(simulation_id)
+
+    async def get_available_improvements(
+        self, simulation_id: str
+    ) -> "AvailableImprovementsResponse":
+        """Получить доступные улучшения."""
+        return await self.sim_client.get_available_improvements(simulation_id)
+
+    async def get_defect_policies(self, simulation_id: str) -> "DefectPoliciesResponse":
+        """Получить политики работы с браком."""
+        return await self.sim_client.get_defect_policies(simulation_id)
+
+    async def validate_configuration(self, simulation_id: str) -> "ValidationResponse":
+        """Валидировать конфигурацию симуляции."""
+        return await self.sim_client.validate_configuration(simulation_id)
+
+    async def set_quality_inspection(
+        self, simulation_id: str, supplier_id: str, inspection_enabled: bool = True
+    ) -> SimulationResponse:
+        """Установить контроль качества."""
+        return await self.sim_client.set_quality_inspection(
+            simulation_id, supplier_id, inspection_enabled
+        )
+
+    async def set_delivery_period(
+        self, simulation_id: str, supplier_id: str, delivery_period_days: int
+    ) -> SimulationResponse:
+        """Установить период поставок."""
+        return await self.sim_client.set_delivery_period(
+            simulation_id, supplier_id, delivery_period_days
+        )
+
+    async def set_equipment_maintenance_interval(
+        self, simulation_id: str, equipment_id: str, interval_days: int
+    ) -> SimulationResponse:
+        """Установить интервал обслуживания оборудования."""
+        return await self.sim_client.set_equipment_maintenance_interval(
+            simulation_id, equipment_id, interval_days
+        )
+
+    async def set_certification_status(
+        self, simulation_id: str, certificate_type: str, is_obtained: bool = False
+    ) -> SimulationResponse:
+        """Установить статус сертификации."""
+        return await self.sim_client.set_certification_status(
+            simulation_id, certificate_type, is_obtained
+        )
+
+    async def set_lean_improvement_status(
+        self, simulation_id: str, improvement_id: str, is_implemented: bool = False
+    ) -> SimulationResponse:
+        """Установить статус Lean улучшения."""
+        return await self.sim_client.set_lean_improvement_status(
+            simulation_id, improvement_id, is_implemented
+        )
+
+    # ==================== NEW DATABASE METHODS ====================
+
+    async def create_lean_improvement(
+        self, request: "CreateLeanImprovementRequest"
+    ) -> "LeanImprovement":
+        """Создать новое Lean улучшение."""
+        return await self.db_client.create_lean_improvement(request)
+
+    async def update_lean_improvement(
+        self, request: "UpdateLeanImprovementRequest"
+    ) -> "LeanImprovement":
+        """Обновить Lean улучшение."""
+        return await self.db_client.update_lean_improvement(request)
+
+    async def delete_lean_improvement(
+        self, request: "DeleteLeanImprovementRequest"
+    ) -> SuccessResponse:
+        """Удалить Lean улучшение."""
+        return await self.db_client.delete_lean_improvement(request)
+
+    async def get_all_lean_improvements(
+        self, request: Optional["GetAllLeanImprovementsRequest"] = None
+    ) -> "GetAllLeanImprovementsResponse":
+        """Получить все Lean улучшения."""
+        from .models import GetAllLeanImprovementsRequest
+
+        if request is None:
+            request = GetAllLeanImprovementsRequest()
+        return await self.db_client.get_all_lean_improvements(request)
+
+    async def get_available_lean_improvements(
+        self, request: Optional["GetAvailableLeanImprovementsRequest"] = None
+    ) -> "GetAvailableLeanImprovementsResponse":
+        """Получить доступные Lean улучшения."""
+        return await self.db_client.get_available_lean_improvements(request)
+
+    async def get_available_material_types_db(self) -> "MaterialTypesResponse":
+        """Получить доступные типы материалов."""
+        return await self.db_client.get_available_material_types()
+
+    async def get_available_equipment_types_db(self) -> "EquipmentTypesResponse":
+        """Получить доступные типы оборудования."""
+        return await self.db_client.get_available_equipment_types()
+
+    async def get_available_workplace_types_db(self) -> "WorkplaceTypesResponse":
+        """Получить доступные типы рабочих мест."""
+        return await self.db_client.get_available_workplace_types()
+
+    async def get_available_defect_policies_db(self) -> "DefectPoliciesListResponse":
+        """Получить доступные политики работы с браком."""
+        return await self.db_client.get_available_defect_policies()
+
+    async def get_available_improvements_list_db(self) -> "ImprovementsListResponse":
+        """Получить список доступных улучшений."""
+        return await self.db_client.get_available_improvements_list()
+
+    async def get_available_certifications_db(self) -> "CertificationsListResponse":
+        """Получить доступные сертификации."""
+        return await self.db_client.get_available_certifications()
+
+    async def get_available_sales_strategies_db(self) -> "SalesStrategiesListResponse":
+        """Получить доступные стратегии продаж."""
+        return await self.db_client.get_available_sales_strategies()
 
     async def create_complete_scenario(
         self, config: Optional[Dict[str, Any]] = None
@@ -1494,7 +1614,6 @@ class AsyncUnifiedClient:
             equipment_assignments=config.get("equipment_assignments"),
             tender_ids=config.get("tender_ids"),
             dealing_with_defects=config.get("dealing_with_defects"),
-            has_certification=config.get("has_certification"),
             production_improvements=config.get("production_improvements"),
             sales_strategy=config.get("sales_strategy"),
         )

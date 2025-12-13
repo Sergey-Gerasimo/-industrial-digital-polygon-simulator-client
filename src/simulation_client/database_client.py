@@ -37,47 +37,18 @@ class AsyncDatabaseClient(AsyncBaseClient):
         enable_logging: bool = True,
     ):
         super().__init__(host, port, max_retries, timeout, rate_limit, enable_logging)
-        self.stub = None
 
-    async def connect(self):
-        """Подключиться к серверу SimulationDatabaseManager."""
-        try:
-            self.channel = await self._create_channel()
-            self.stub = simulator_pb2_grpc.SimulationDatabaseManagerStub(self.channel)
+    def _create_stub(self, channel: grpc.aio.Channel):
+        """Создать stub для SimulationDatabaseManager."""
+        return simulator_pb2_grpc.SimulationDatabaseManagerStub(channel)
 
-            # Проверяем соединение
-            if await self.ping():
-                logger.info(f"Connected to DatabaseManager at {self.host}:{self.port}")
-            else:
-                raise ConnectionError(
-                    f"Cannot connect to DatabaseManager at {self.host}:{self.port}"
-                )
+    def _get_service_name(self) -> str:
+        """Получить имя сервиса для логирования."""
+        return "DatabaseManager"
 
-        except Exception as e:
-            logger.error(f"Failed to connect to DatabaseManager: {e}")
-            raise ConnectionError(f"Connection to DatabaseManager failed: {e}")
-
-    async def close(self):
-        """Закрыть соединение."""
-        if self.channel:
-            await self.channel.close()
-            logger.info("Disconnected from DatabaseManager")
-
-    async def ping(self) -> bool:
-        """
-        Проверить доступность DatabaseManager.
-
-        Returns:
-            bool: True если сервер доступен
-        """
-        try:
-            async with self._timeout_context(5.0):
-                await self._rate_limit()
-                response = await self.stub.ping(simulator_pb2.PingRequest())
-                return response.success
-        except Exception as e:
-            logger.warning(f"Ping to DatabaseManager failed: {e}")
-            return False
+    def _parse_ping_response(self, response) -> bool:
+        """Парсить ответ ping для DatabaseManager."""
+        return response.success
 
     # ==================== Управление поставщиками ====================
 
@@ -88,13 +59,13 @@ class AsyncDatabaseClient(AsyncBaseClient):
         Returns:
             GetAllSuppliersResponse: Ответ со всеми поставщиками
         """
+        self._ensure_connected()
         try:
             async with self._timeout_context():
                 await self._rate_limit()
                 response = await self._with_retry(
                     self.stub.get_all_suppliers, simulator_pb2.GetAllSuppliersRequest()
                 )
-
                 return GetAllSuppliersResponse(
                     suppliers=[self._proto_to_supplier(s) for s in response.suppliers],
                     total_count=response.total_count,
@@ -119,6 +90,7 @@ class AsyncDatabaseClient(AsyncBaseClient):
                 proto_request = simulator_pb2.CreateSupplierRequest(
                     name=request.name,
                     product_name=request.product_name,
+                    material_type=request.material_type,
                     delivery_period=request.delivery_period,
                     special_delivery_period=request.special_delivery_period,
                     reliability=request.reliability,
@@ -153,6 +125,7 @@ class AsyncDatabaseClient(AsyncBaseClient):
                     supplier_id=request.supplier_id,
                     name=request.name,
                     product_name=request.product_name,
+                    material_type=request.material_type,
                     delivery_period=request.delivery_period,
                     special_delivery_period=request.special_delivery_period,
                     reliability=request.reliability,
@@ -183,8 +156,12 @@ class AsyncDatabaseClient(AsyncBaseClient):
         try:
             async with self._timeout_context():
                 await self._rate_limit()
+                # Для DatabaseManager simulation_id может быть опциональным
                 proto_request = simulator_pb2.DeleteSupplierRequest(
-                    supplier_id=request.supplier_id
+                    supplier_id=request.supplier_id,
+                    simulation_id=getattr(
+                        request, "simulation_id", ""
+                    ),  # Опционально для DatabaseManager
                 )
 
                 response = await self._with_retry(
@@ -209,6 +186,7 @@ class AsyncDatabaseClient(AsyncBaseClient):
         Returns:
             GetAllWorkersResponse: Ответ со всеми работниками
         """
+        self._ensure_connected()
         try:
             async with self._timeout_context():
                 await self._rate_limit()
@@ -471,6 +449,7 @@ class AsyncDatabaseClient(AsyncBaseClient):
                 await self._rate_limit()
                 proto_request = simulator_pb2.CreateEquipmentRequest(
                     name=request.name,
+                    equipment_type=request.equipment_type,
                     reliability=request.reliability,
                     maintenance_period=request.maintenance_period,
                     maintenance_cost=request.maintenance_cost,
@@ -504,6 +483,7 @@ class AsyncDatabaseClient(AsyncBaseClient):
                 proto_request = simulator_pb2.UpdateEquipmentRequest(
                     equipment_id=request.equipment_id,
                     name=request.name,
+                    equipment_type=request.equipment_type,
                     reliability=request.reliability,
                     maintenance_period=request.maintenance_period,
                     maintenance_cost=request.maintenance_cost,
@@ -523,7 +503,7 @@ class AsyncDatabaseClient(AsyncBaseClient):
 
     async def delete_equipment(
         self, request: DeleteEquipmentRequest
-    ) -> SuccessResponse:
+    ) -> simulator_pb2.SuccessResponse:
         """
         Удалить оборудование.
 
@@ -850,7 +830,7 @@ class AsyncDatabaseClient(AsyncBaseClient):
                     workplace_name=request.workplace_name,
                     required_speciality=request.required_speciality,
                     required_qualification=request.required_qualification,
-                    worker_id=request.worker_id,
+                    required_equipment=request.required_equipment,
                     required_stages=request.required_stages,
                 )
 
@@ -881,7 +861,7 @@ class AsyncDatabaseClient(AsyncBaseClient):
                     workplace_name=request.workplace_name,
                     required_speciality=request.required_speciality,
                     required_qualification=request.required_qualification,
-                    worker_id=request.worker_id,
+                    required_equipment=request.required_equipment,
                     required_stages=request.required_stages,
                 )
 
@@ -896,7 +876,7 @@ class AsyncDatabaseClient(AsyncBaseClient):
 
     async def delete_workplace(
         self, request: DeleteWorkplaceRequest
-    ) -> SuccessResponse:
+    ) -> simulator_pb2.SuccessResponse:
         """
         Удалить рабочее место.
 
@@ -962,6 +942,7 @@ class AsyncDatabaseClient(AsyncBaseClient):
             supplier_id=proto_supplier.supplier_id,
             name=proto_supplier.name,
             product_name=proto_supplier.product_name,
+            material_type=proto_supplier.material_type,
             delivery_period=proto_supplier.delivery_period,
             special_delivery_period=proto_supplier.special_delivery_period,
             reliability=proto_supplier.reliability,
@@ -997,6 +978,7 @@ class AsyncDatabaseClient(AsyncBaseClient):
         return Equipment(
             equipment_id=proto_equipment.equipment_id,
             name=proto_equipment.name,
+            equipment_type=proto_equipment.equipment_type,  # Добавлено поле equipment_type
             reliability=proto_equipment.reliability,
             maintenance_period=proto_equipment.maintenance_period,
             maintenance_cost=proto_equipment.maintenance_cost,
@@ -1046,6 +1028,7 @@ class AsyncDatabaseClient(AsyncBaseClient):
             workplace_name=proto_workplace.workplace_name,
             required_speciality=proto_workplace.required_speciality,
             required_qualification=proto_workplace.required_qualification,
+            required_equipment=proto_workplace.required_equipment,
             worker=(
                 self._proto_to_worker(proto_workplace.worker)
                 if proto_workplace.worker
@@ -1119,124 +1102,10 @@ class AsyncDatabaseClient(AsyncBaseClient):
 
     # ==================== Справочные данные ====================
 
-    async def get_reference_data(
-        self, data_type: str = ""
-    ) -> "ReferenceDataResponse":
-        """
-        Получить справочные данные.
-
-        Args:
-            data_type: Тип данных (опционально)
-
-        Returns:
-            ReferenceDataResponse: Справочные данные
-        """
-        try:
-            async with self._timeout_context():
-                await self._rate_limit()
-                request = simulator_pb2.GetReferenceDataRequest(data_type=data_type)
-                response = await self._with_retry(
-                    self.stub.get_reference_data, request
-                )
-                from .models import ReferenceDataResponse
-
-                return ReferenceDataResponse(
-                    sales_strategies=[
-                        ReferenceDataResponse.SalesStrategyItem(
-                            id=item.id,
-                            name=item.name,
-                            description=item.description,
-                            growth_forecast=item.growth_forecast,
-                            unit_cost=item.unit_cost,
-                            market_impact=item.market_impact,
-                            trend_direction=item.trend_direction,
-                        )
-                        for item in response.sales_strategies
-                    ],
-                    defect_policies=[
-                        ReferenceDataResponse.DefectPolicyItem(
-                            id=item.id, name=item.name, description=item.description
-                        )
-                        for item in response.defect_policies
-                    ],
-                    certifications=[
-                        ReferenceDataResponse.CertificationItem(
-                            id=item.id,
-                            name=item.name,
-                            description=item.description,
-                            implementation_cost=item.implementation_cost,
-                            implementation_time_days=item.implementation_time_days,
-                        )
-                        for item in response.certifications
-                    ],
-                    improvements=[
-                        ReferenceDataResponse.ImprovementItem(
-                            id=item.id,
-                            name=item.name,
-                            description=item.description,
-                            implementation_cost=item.implementation_cost,
-                            efficiency_gain=item.efficiency_gain,
-                        )
-                        for item in response.improvements
-                    ],
-                    company_types=[
-                        ReferenceDataResponse.CompanyTypeItem(
-                            id=item.id, name=item.name, description=item.description
-                        )
-                        for item in response.company_types
-                    ],
-                    specialties=[
-                        ReferenceDataResponse.SpecialtyItem(
-                            id=item.id, name=item.name, description=item.description
-                        )
-                        for item in response.specialties
-                    ],
-                    vehicle_types=[
-                        ReferenceDataResponse.VehicleTypeItem(
-                            id=item.id,
-                            name=item.name,
-                            description=item.description,
-                            speed_modifier=item.speed_modifier,
-                        )
-                        for item in response.vehicle_types
-                    ],
-                    unit_sizes=[
-                        ReferenceDataResponse.UnitSizeItem(
-                            id=item.id, name=item.name, description=item.description
-                        )
-                        for item in response.unit_sizes
-                    ],
-                    product_models=[
-                        ReferenceDataResponse.ProductModelItem(
-                            id=item.id,
-                            name=item.name,
-                            description=item.description,
-                            unit_size=item.unit_size,
-                        )
-                        for item in response.product_models
-                    ],
-                    payment_forms=[
-                        ReferenceDataResponse.PaymentFormItem(
-                            id=item.id, name=item.name, description=item.description
-                        )
-                        for item in response.payment_forms
-                    ],
-                    workplace_types=[
-                        ReferenceDataResponse.WorkplaceTypeItem(
-                            id=item.id,
-                            name=item.name,
-                            description=item.description,
-                            required_specialty=item.required_specialty,
-                            required_qualification=item.required_qualification,
-                            compatible_equipment=list(item.compatible_equipment),
-                        )
-                        for item in response.workplace_types
-                    ],
-                    timestamp=response.timestamp,
-                )
-
-        except grpc.RpcError as e:
-            self._handle_grpc_error(e, "Get reference data")
+    # get_reference_data удален - его нет в proto
+    # Используйте отдельные методы: get_available_defect_policies, get_available_improvements_list,
+    # get_available_certifications, get_available_sales_strategies, get_available_material_types,
+    # get_available_equipment_types, get_available_workplace_types
 
     async def get_material_types(self) -> "MaterialTypesResponse":
         """
@@ -1249,7 +1118,8 @@ class AsyncDatabaseClient(AsyncBaseClient):
             async with self._timeout_context():
                 await self._rate_limit()
                 response = await self._with_retry(
-                    self.stub.get_material_types, simulator_pb2.GetMaterialTypesRequest()
+                    self.stub.get_material_types,
+                    simulator_pb2.GetMaterialTypesRequest(),
                 )
                 from .models import MaterialTypesResponse
 
@@ -1481,9 +1351,7 @@ class AsyncDatabaseClient(AsyncBaseClient):
                             unit_cost=s.unit_cost,
                             market_impact=s.market_impact,
                             trend_direction=s.trend_direction,
-                            compatible_product_models=list(
-                                s.compatible_product_models
-                            ),
+                            compatible_product_models=list(s.compatible_product_models),
                         )
                         for s in response.strategies
                     ],
@@ -1492,3 +1360,350 @@ class AsyncDatabaseClient(AsyncBaseClient):
 
         except grpc.RpcError as e:
             self._handle_grpc_error(e, "Get available sales strategies")
+
+    # ==================== LEAN IMPROVEMENT METHODS ====================
+
+    async def create_lean_improvement(
+        self, request: "CreateLeanImprovementRequest"
+    ) -> "LeanImprovement":
+        """
+        Создать новое Lean улучшение.
+
+        Args:
+            request: Запрос создания улучшения
+
+        Returns:
+            LeanImprovement: Созданное улучшение
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                proto_request = simulator_pb2.CreateLeanImprovementRequest(
+                    name=request.name,
+                    is_implemented=request.is_implemented,
+                    implementation_cost=request.implementation_cost,
+                    efficiency_gain=request.efficiency_gain,
+                )
+                response = await self._with_retry(
+                    self.stub.create_lean_improvement, proto_request
+                )
+
+                return self._proto_to_lean_improvement(response)
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Create lean improvement")
+
+    async def update_lean_improvement(
+        self, request: "UpdateLeanImprovementRequest"
+    ) -> "LeanImprovement":
+        """
+        Обновить Lean улучшение.
+
+        Args:
+            request: Запрос обновления улучшения
+
+        Returns:
+            LeanImprovement: Обновленное улучшение
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                proto_request = simulator_pb2.UpdateLeanImprovementRequest(
+                    improvement_id=request.improvement_id,
+                    name=request.name,
+                    is_implemented=request.is_implemented,
+                    implementation_cost=request.implementation_cost,
+                    efficiency_gain=request.efficiency_gain,
+                )
+                response = await self._with_retry(
+                    self.stub.update_lean_improvement, proto_request
+                )
+
+                return self._proto_to_lean_improvement(response)
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Update lean improvement")
+
+    async def delete_lean_improvement(
+        self, request: "DeleteLeanImprovementRequest"
+    ) -> simulator_pb2.SuccessResponse:
+        """
+        Удалить Lean улучшение.
+
+        Args:
+            request: Запрос удаления улучшения
+
+        Returns:
+            SuccessResponse: Результат удаления
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                proto_request = simulator_pb2.DeleteLeanImprovementRequest(
+                    improvement_id=request.improvement_id,
+                )
+                response = await self._with_retry(
+                    self.stub.delete_lean_improvement, proto_request
+                )
+
+                return SuccessResponse(
+                    success=response.success,
+                    message=response.message,
+                    timestamp=response.timestamp,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Delete lean improvement")
+
+    async def get_all_lean_improvements(
+        self, request: Optional["GetAllLeanImprovementsRequest"] = None
+    ) -> "GetAllLeanImprovementsResponse":
+        """
+        Получить все Lean улучшения.
+
+        Args:
+            request: Запрос получения улучшений
+
+        Returns:
+            GetAllLeanImprovementsResponse: Ответ со всеми улучшениями
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                # Если request не передан, создаем пустой запрос
+                if request is None:
+                    from .models import GetAllLeanImprovementsRequest
+
+                    request = GetAllLeanImprovementsRequest()
+                proto_request = simulator_pb2.GetAllLeanImprovementsRequest()
+                response = await self._with_retry(
+                    self.stub.get_all_lean_improvements, proto_request
+                )
+                from .models import GetAllLeanImprovementsResponse
+
+                return GetAllLeanImprovementsResponse(
+                    improvements=[
+                        self._proto_to_lean_improvement(i)
+                        for i in response.improvements
+                    ],
+                    total_count=response.total_count,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Get all lean improvements")
+
+    async def get_available_lean_improvements(
+        self, request: Optional["GetAvailableLeanImprovementsRequest"] = None
+    ) -> "GetAvailableLeanImprovementsResponse":
+        """
+        Получить доступные Lean улучшения.
+
+        Args:
+            request: Запрос получения доступных улучшений (опционально, можно передать None)
+
+        Returns:
+            GetAvailableLeanImprovementsResponse: Ответ с доступными улучшениями
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                proto_request = simulator_pb2.GetAvailableLeanImprovementsRequest()
+                response = await self._with_retry(
+                    self.stub.get_available_lean_improvements, proto_request
+                )
+                from .models import GetAvailableLeanImprovementsResponse
+
+                return GetAvailableLeanImprovementsResponse(
+                    improvements=[
+                        self._proto_to_lean_improvement(i)
+                        for i in response.improvements
+                    ],
+                    timestamp=response.timestamp,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Get available lean improvements")
+
+    # ==================== REFERENCE DATA METHODS ====================
+
+    async def get_available_material_types(self) -> "MaterialTypesResponse":
+        """
+        Получить доступные типы материалов.
+
+        Returns:
+            MaterialTypesResponse: Типы материалов
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                response = await self._with_retry(
+                    self.stub.get_available_material_types,
+                    simulator_pb2.GetMaterialTypesRequest(),
+                )
+                from .models import MaterialTypesResponse
+
+                return MaterialTypesResponse(
+                    material_types=list(response.material_types),
+                    timestamp=response.timestamp,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Get available material types")
+
+    async def get_available_equipment_types(self) -> "EquipmentTypesResponse":
+        """
+        Получить доступные типы оборудования.
+
+        Returns:
+            EquipmentTypesResponse: Типы оборудования
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                response = await self._with_retry(
+                    self.stub.get_available_equipment_types,
+                    simulator_pb2.GetEquipmentTypesRequest(),
+                )
+                from .models import EquipmentTypesResponse
+
+                return EquipmentTypesResponse(
+                    equipment_types=list(response.equipment_types),
+                    timestamp=response.timestamp,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Get available equipment types")
+
+    async def get_available_workplace_types(self) -> "WorkplaceTypesResponse":
+        """
+        Получить доступные типы рабочих мест.
+
+        Returns:
+            WorkplaceTypesResponse: Типы рабочих мест
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                response = await self._with_retry(
+                    self.stub.get_available_workplace_types,
+                    simulator_pb2.GetWorkplaceTypesRequest(),
+                )
+                from .models import WorkplaceTypesResponse
+
+                return WorkplaceTypesResponse(
+                    workplace_types=list(response.workplace_types),
+                    timestamp=response.timestamp,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Get available workplace types")
+
+    async def get_available_defect_policies(self) -> "DefectPoliciesListResponse":
+        """
+        Получить доступные политики работы с браком.
+
+        Returns:
+            DefectPoliciesListResponse: Политики работы с браком
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                response = await self._with_retry(
+                    self.stub.get_available_defect_policies,
+                    simulator_pb2.GetAvailableDefectPoliciesRequest(),
+                )
+                from .models import DefectPoliciesListResponse
+
+                return DefectPoliciesListResponse(
+                    policies=list(response.policies),
+                    timestamp=response.timestamp,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Get available defect policies")
+
+    async def get_available_improvements_list(self) -> "ImprovementsListResponse":
+        """
+        Получить список доступных улучшений.
+
+        Returns:
+            ImprovementsListResponse: Список улучшений
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                response = await self._with_retry(
+                    self.stub.get_available_improvements_list,
+                    simulator_pb2.GetAvailableImprovementsListRequest(),
+                )
+                from .models import ImprovementsListResponse
+
+                return ImprovementsListResponse(
+                    improvements=list(response.improvements),
+                    timestamp=response.timestamp,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Get available improvements list")
+
+    async def get_available_certifications(self) -> "CertificationsListResponse":
+        """
+        Получить доступные сертификации.
+
+        Returns:
+            CertificationsListResponse: Список сертификаций
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                response = await self._with_retry(
+                    self.stub.get_available_certifications,
+                    simulator_pb2.GetAvailableCertificationsRequest(),
+                )
+                from .models import CertificationsListResponse
+
+                return CertificationsListResponse(
+                    certifications=list(response.certifications),
+                    timestamp=response.timestamp,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Get available certifications")
+
+    async def get_available_sales_strategies(self) -> "SalesStrategiesListResponse":
+        """
+        Получить доступные стратегии продаж.
+
+        Returns:
+            SalesStrategiesListResponse: Список стратегий
+        """
+        try:
+            async with self._timeout_context():
+                await self._rate_limit()
+                response = await self._with_retry(
+                    self.stub.get_available_sales_strategies,
+                    simulator_pb2.GetAvailableSalesStrategiesRequest(),
+                )
+                from .models import SalesStrategiesListResponse
+
+                return SalesStrategiesListResponse(
+                    strategies=list(response.strategies),
+                    timestamp=response.timestamp,
+                )
+
+        except grpc.RpcError as e:
+            self._handle_grpc_error(e, "Get available sales strategies")
+
+    # ==================== PROTO CONVERSION METHODS ====================
+
+    def _proto_to_lean_improvement(self, proto_improvement):
+        """Конвертировать protobuf LeanImprovement в Pydantic модель."""
+        from .models import LeanImprovement
+
+        return LeanImprovement(
+            improvement_id=proto_improvement.improvement_id,
+            name=proto_improvement.name,
+            is_implemented=proto_improvement.is_implemented,
+            implementation_cost=proto_improvement.implementation_cost,
+            efficiency_gain=proto_improvement.efficiency_gain,
+        )
