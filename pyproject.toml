@@ -13,7 +13,35 @@ grpcio-tools = ">=1.76.0"
 pydantic = ">=2.12.5"
 
 [tool.poetry.group.dev.dependencies]
+pytest = ">=7.0.0"
+pytest-asyncio = ">=0.21.0"
+pytest-docker-tools = ">=0.0.0"
+docker = ">=6.0.0"
+testcontainers = ">=4.0.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-p", "pytest_asyncio",
+    "--verbose",
+    "--tb=short",
+    "--strict-markers",
+]
+asyncio_mode = "auto"
+filterwarnings = [
+    "ignore::pytest.PytestRemovedIn9Warning",
+    "ignore::DeprecationWarning:testcontainers",
+    "ignore::DeprecationWarning:google.protobuf.descriptor",
+    "ignore::DeprecationWarning:google.protobuf.message",
+]
+markers = [
+    "integration: marks tests as integration tests (deselect with '-m \"not integration\"')",
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
