@@ -5,6 +5,7 @@ description = "Client for Industrial Digital Polygon Simulator"
 authors = ["Sergey <gerasimovsergey2004@gmail.com>"]
 license = "MIT"
 readme = "README.md"
+packages = [{include = "simulation_client", from = "src"}]
 
 [tool.poetry.dependencies]
 python = ">=3.12"
